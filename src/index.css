@@ -19,6 +19,8 @@ a.active hr {
 }
 a.active{
    color: goldenrod;
+
+   
 }
 
 ::-webkit-scrollbar {
