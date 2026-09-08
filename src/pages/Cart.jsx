@@ -9,7 +9,7 @@ import CartTotal from "../component/CartTotal";
 
 function Cart() {
    
-    const {products,cartItems,currency,updateQuantity,navigate} = useContext (ShopContext);
+    const {products,cartItems,currency,updateQuantity,removeFromCart,navigate} = useContext (ShopContext);
 
     const cartData = useMemo (() => {
       const tempData = [];
@@ -18,7 +18,7 @@ function Cart() {
          for(const size in cartItems[productId]) {
           if(cartItems[productId][size] > 0 ) {
             tempData.push({
-              id:productId,
+              _id:productId,
               size,
               quantity: cartItems[productId][size],
 
@@ -40,28 +40,34 @@ function Cart() {
       </div>
        <div>
            {
-           cartData.map((item,index) => {
+           cartData.map((item) => {
             const productData = products.find((product) => 
-            product.id === Number(item.id));
+            product._id === item._id);
 
             if(!productData) 
               return null;
 
             return (
-              <div key={index} className="py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4"> 
+                // -------------- Key ,, Beacuse React keys should be stable and unique
+              <div key={`${item._id}-${item.size}`} className="py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4"> 
                 <div className="flex items-start gap-6">
-                  <img src= {productData.image[0]} alt = {productData.name} className = 'w-16 sm:w-20 rounded-sm' />
+                  <img src= {productData.productImg?.[0]?.url} alt = {productData.name} className = 'w-16 sm:w-20 rounded-sm' />
                   <div>
                        <p className="text-sm sm:tex-lg font-medium">{productData.name}</p>
                        <div className="flex items-center gap-5 mt-2">
-                        <p>{currency} {productData.new_price}</p>
+                        <p> {productData.price} {currency}</p>
                         <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">{item.size}</p>
 
                        </div>
                   </div>
                 </div>
-                <input onChange = {(e) => e.target.value === '' || e.target.value === '0' ? null : updateQuantity(item.id, item.size,Number(e.target.value))} className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 outline-none rounded focus:border-sky-500" type="number" min = {1} defaultValue={item.quantity} />
-                  <img onClick = {() => updateQuantity(item.id,item.size,0)} className="w-4 sm:w-5 cursor-pointer " src= {assets.binIcon} alt="" />
+                   <input onChange={(e) => {const quantity = Number(e.target.value); 
+                    if (quantity >= 1) {updateQuantity(item._id, item.size, quantity);
+
+                    }
+                  }}
+                      className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 outline-none rounded focus:border-sky-500" type="number" min = {1} defaultValue={item.quantity} />
+                  <img onClick = {() => removeFromCart(item._id,item.size)} className="w-4 sm:w-5 cursor-pointer " src= {assets.binIcon} alt="Delete" />
                 </div>
             )
            })
@@ -95,4 +101,4 @@ function Cart() {
   )
 }
 
-export default Cart;35
+export default Cart;

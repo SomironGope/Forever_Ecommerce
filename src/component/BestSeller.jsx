@@ -5,9 +5,9 @@ import Title from './Title';
 import ProductItem from './ProductItem';
 
 function BestSeller() {
-  const {products} = useContext (ShopContext);
+  const {bestSellers} = useContext (ShopContext);
   
-  const bestSeller = products.filter((item) => item.category === 'kid').slice(0,5)
+  // const bestSeller = products.filter((item) => item?.category === 'kid').slice(0,5)
  
  
   return (
@@ -17,8 +17,8 @@ function BestSeller() {
             <p className='w-3/4 m-auto text-sm sm:text-sm md:text-base text-gray-600'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi reprehenderit aspernatur harum distinctio quisquam itaque a laboriosam. Ad cumque, dolores unde nihil quidem dolorum autem esse sed porro eligendi rerum!</p>
        </div>
        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
-         {bestSeller.map((item) => (
-          <ProductItem key={item.id} id= {item.id} image = {item.image[0]} name = {item.name} price = {item.new_price} />
+         {bestSellers.map((item) => (
+          <ProductItem key={item._id} _id= {item._id} image = {item.productImg?.[0]?.url} name = {item.name} price = {item.price} />
          ))}
        </div>
     </div> 

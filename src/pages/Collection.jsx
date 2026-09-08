@@ -49,11 +49,11 @@ if(search && showSearch) {
 
 productCopy.sort((a,b) => {
   if(sortType === "low-high"){
-    return a.new_price - b.new_price
+    return a.price - b.price
   }
 
   if(sortType === "high-low") {
-    return b.new_price - a.new_price;
+    return b.price - a.price;
   }
   return 0;
 })
@@ -80,14 +80,14 @@ return productCopy;
                <p className="mb-3 text-sm font-medium px-2">CATEGORIES</p>
                <div className="px-2">
                   <p className="flex gap-2">
-                    <input className="w-3 " type="checkbox" value={'men'}   onChange={toggleCategory}/> Men
+                    <input className="w-3 " type="checkbox" value={'Men'}   onChange={toggleCategory}/> Men
                   </p>
                   <p className="flex gap-2">
-                    <input className="w-3 " type="checkbox" value={'women'}  onChange={toggleCategory} />
+                    <input className="w-3 " type="checkbox" value={'Women'}  onChange={toggleCategory} />
                     Women
                   </p>
                   <p className="flex gap-2">
-                    <input className="w-3 " type="checkbox" value={'kid'}  onChange={toggleCategory} /> Kids
+                    <input className="w-3 " type="checkbox" value={'Kids'}  onChange={toggleCategory} /> Kids
                   </p>
                </div>
             </div>
@@ -126,7 +126,7 @@ return productCopy;
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 gap-y-6">
             {
               filterProduct.map((item) => (
-                <ProductItem key={item.id} id = {item.id} image = {item.image[0]} name = {item.name} price={item.new_price} />
+                <ProductItem key={item._id} _id = {item._id} image = {item.productImg?.[0]?.url} name = {item.name} price={item.price} />
               ))
             }
 

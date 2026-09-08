@@ -12,7 +12,7 @@ import support from "./Icons/24-7.png";
 import secure from "./Icons/lock.png";
 import stripe from './Icons/stripe.png';
 import razorpay from './Icons/razorpay-icon.png';
-
+import sslcommerz from './Icons/sslcommerz.png';
 // Reviews Icons //
 
 import start from "../assets/Icons/star.png";
@@ -31,7 +31,9 @@ export const assets = {
   support,
   secure,
   stripe,
-  razorpay
+  razorpay,
+  sslcommerz
+
 };
 
 // This file is used to import all the products img and export them as an array of objects to be used in the product page
@@ -1504,93 +1506,93 @@ import kidDress_14 from "./Kids Cloths/Kids Dress/kid pic-14.jpg";
 export const products = [
   // Watches Products //
   {
-    id: 1,
+    _id: 1,
     name: "Modern Watch ",
-    image: [watch_1, watch_2, watch_3, watch_4],
-    category: "watch",
+    productImg: [watch_1, watch_2, watch_3, watch_4],
+    category: "Watch",
     brand: "puma",
-    new_price: "50",
+    price: "50",
     old_price: "60",
   },
   {
-    id: 2,
+    _id: 2,
     name: "Iconic Watch",
-    image: [watch_2,watch_1,watch_4,watch_5 ],
-    category: "watch",
+    productImg: [watch_2,watch_1,watch_4,watch_5 ],
+    category: "Watch",
     brand: "reebok",
     new_price: "60",
     old_price: "80",
   },
 
   {
-    id: 3,
-    image: [watch_3, watch_5.watch_6, watch_7],
+    _id: 3,
+    productImg: [watch_3, watch_5.watch_6, watch_7],
     name: "Stylish Watch",
-    category: "watch",
+    category: "Watch",
     brand: "addidas",
     new_price: 90,
     old_price: 120,
   },
   {
-    id: 4,
-    image: [watch_4, watch_4, watch_4, watch_4],
-    category: "watch",
+    _id: 4,
+    productImg: [watch_4, watch_4, watch_4, watch_4],
+    category: "Watch",
     brand: "puma",
     name: "Comfortable Watch",
     new_price: 120,
     old_price: 130,
   },
   {
-    id: 5,
-    image: [watch_5, watch_5, watch_5, watch_5],
-    category: "watch",
+    _id: 5,
+    productImg: [watch_5, watch_5, watch_5, watch_5],
+    category: "Watch",
     brand: "addidas",
     name: "Touch Watch",
     new_price: 80,
     old_price: 90,
   },
   {
-    id: 6,
-    image: [watch_6, watch_6, watch_6, watch_6],
-    category: "watch",
+    _id: 6,
+    productImg: [watch_6, watch_6, watch_6, watch_6],
+    category: "Watch",
     brand: "puma",
     name: "Touch Watch",
     new_price: 80,
     old_price: 90,
   },
   {
-    id: 7,
-    image: [watch_7, watch_7, watch_7, watch_7],
-    category: "watch",
+    _id: 7,
+    productImg: [watch_7, watch_7, watch_7, watch_7],
+    category: "Watch",
     brand: "reebok",
     name: "Touch Watch",
     new_price: 50,
     old_price: 80,
   },
   {
-    id: 8,
-    image: [watch_8, watch_8, watch_8, watch_8],
-    category: "watch",
+    _id: 8,
+    productImg: [watch_8, watch_8, watch_8, watch_8],
+    category: "Watch",
     brand: "puma",
     name: "Weather Watch",
     new_price: 200,
     old_price: 220,
   },
   {
-    id: 9,
-    image: [watch_9, watch_9, watch_9, watch_9],
+    _id: 9,
+    productImg: [watch_9, watch_9, watch_9, watch_9],
 
-    category: "watch",
+    category: "Watch",
     brand: "addidas",
     name: "Weather Watch",
     new_price: 80,
     old_price: 90,
   },
   {
-    id: 10,
-    image: [watch_10, watch_10, watch_10, watch_10],
+    _id: 10,
+    productImg: [watch_10, watch_10, watch_10, watch_10],
 
-    category: "watch",
+    category: "Watch",
     brand: "reebok",
     name: "Iconic Old Moden Watch",
     new_price: 70,
@@ -1598,9 +1600,9 @@ export const products = [
   },
   {
     id: 11,
-    image: [watch_11, watch_11, watch_11, watch_11],
+    productImg: [watch_11, watch_11, watch_11, watch_11],
 
-    category: "watch",
+    category: "Watch",
     brand: "puma",
     name: "Touch Watch",
     new_price: 50,
@@ -1608,19 +1610,19 @@ export const products = [
   },
   {
     id: 12,
-    image: [watch_12, watch_12, watch_12, watch_12],
+    productImg: [watch_12, watch_12, watch_12, watch_12],
 
-    category: "watch",
+    category: "Watch",
     brand: "reebok",
     name: "Special Watch",
     new_price: 120,
     old_price: 140,
   },
   {
-    id: 13,
-    image: [watch_13, watch_13, watch_13, watch_13],
+    _id: 13,
+    productImg: [watch_13, watch_13, watch_13, watch_13],
 
-    category: "watch",
+    category: "Watch",
     brand: "addidas",
     name: "New Style Watch",
     new_price: 80,
@@ -1628,9 +1630,9 @@ export const products = [
   },
   {
     id: 14,
-    image: [watch_14, watch_14, watch_14, watch_14],
+    productImg: [watch_14, watch_14, watch_14, watch_14],
 
-    category: "watch",
+    category: "Watch",
     brand: "puma",
     name: "New Style  Watch",
     new_price: 50,
@@ -1640,10 +1642,10 @@ export const products = [
   // Shirts Products //
 
   {
-    id: 15,
-    image: [shirt_1, shirt_2, shirt_3, shirt_4],
+    _id: 15,
+    productImg: [shirt_1, shirt_2, shirt_3, shirt_4],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1659,9 +1661,9 @@ export const products = [
     rating: 3.5,
   },
   {
-    id: 16,
-    image: [shirt_2, shirt_1, shirt_3, shirt_4],
-    category: "men",
+    _id: 16,
+    productImg: [shirt_2, shirt_1, shirt_3, shirt_4],
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1676,10 +1678,10 @@ export const products = [
     rating: 3.9,
   },
   {
-    id: 17,
-    image: [shirt_3, shirt_4, shirt_5, shirt_6],
+   _id: 17,
+    productImg: [shirt_3, shirt_4, shirt_5, shirt_6],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1694,10 +1696,10 @@ export const products = [
     rating: 4.3,
   },
   {
-    id: 18,
-    image: [shirt_4, shirt_5, shirt_6, shirt_7, shirt_4],
+   _id: 18,
+    productImg: [shirt_4, shirt_5, shirt_6, shirt_7, shirt_4],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1712,10 +1714,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 19,
+    _id: 19,
     image: [shirt_5, shirt_5, shirt_5, shirt_5],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1730,10 +1732,10 @@ export const products = [
     rating: 2.2,
   },
   {
-    id: 20,
-    image: [shirt_6, shirt_6, shirt_6, shirt_6],
+    _id: 20,
+    productImg: [shirt_6, shirt_6, shirt_6, shirt_6],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1748,9 +1750,9 @@ export const products = [
     rating: 2.0,
   },
   {
-    id: 21,
-    image: [shirt_7, shirt_7, shirt_7, shirt_7],
-    category: "men",
+    _id: 21,
+    productImg: [shirt_7, shirt_7, shirt_7, shirt_7],
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1765,9 +1767,9 @@ export const products = [
     rating: 3.0,
   },
   {
-    id: 22,
-    image: [shirt_8, shirt_8, shirt_8, shirt_8],
-    category: "men",
+   _id: 22,
+    productImg: [shirt_8, shirt_8, shirt_8, shirt_8],
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1782,10 +1784,10 @@ export const products = [
     rating: 2.5,
   },
   {
-    id: 23,
-    image: [shirt_10, shirt_10, shirt_10, shirt_10],
+    _id: 23,
+    productImg: [shirt_10, shirt_10, shirt_10, shirt_10],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1800,10 +1802,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 24,
-    image: [shirt_11, shirt_11, shirt_11, shirt_11],
+  _id: 24,
+    productImg: [shirt_11, shirt_11, shirt_11, shirt_11],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1818,10 +1820,10 @@ export const products = [
     rating: 3.9,
   },
   {
-    id: 25,
-    image: [shirt_12, shirt_12, shirt_12, shirt_12, shirt_12],
+   _id: 25,
+    productImg: [shirt_12, shirt_12, shirt_12, shirt_12, shirt_12],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1836,10 +1838,10 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 26,
-    image: [shirt_13, shirt_13, shirt_13, shirt_13],
+    _id: 26,
+    productImg: [shirt_13, shirt_13, shirt_13, shirt_13],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1854,10 +1856,10 @@ export const products = [
     rating: 3.7,
   },
   {
-    id: 27,
-    image: [shirt_14, shirt_14, shirt_14, shirt_14],
+    _id: 27,
+    productImg: [shirt_14, shirt_14, shirt_14, shirt_14],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1872,10 +1874,10 @@ export const products = [
     rating: 3.5,
   },
   {
-    id: 28,
-    image: [shirt_15, shirt_15, shirt_15, shirt_15],
+    _id: 28,
+    productImg: [shirt_15, shirt_15, shirt_15, shirt_15],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1890,10 +1892,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 29,
+    _id: 29,
     image: [shirt_16, shirt_16, shirt_16, shirt_16],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1908,10 +1910,10 @@ export const products = [
     rating: 1.9,
   },
   {
-    id: 30,
-    image: [shirt_17, shirt_17, shirt_17, shirt_17],
+   _id: 30,
+    productImg: [shirt_17, shirt_17, shirt_17, shirt_17],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1926,10 +1928,10 @@ export const products = [
     rating: 1.5,
   },
   {
-    id: 31,
-    image: [shirt_18, shirt_18, shirt_18, shirt_18],
+    _id: 31,
+    productImg: [shirt_18, shirt_18, shirt_18, shirt_18],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1944,10 +1946,10 @@ export const products = [
     rating: 3.5,
   },
   {
-    id: 32,
+   _id: 32,
     image: [shirt_19, shirt_19, shirt_19, shirt_19],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Bottompwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1961,10 +1963,10 @@ export const products = [
     rating: 4.2,
   },
   {
-    id: 33,
-    image: [shirt_20, shirt_20, shirt_20, shirt_20],
+    _id: 33,
+    productImg: [shirt_20, shirt_20, shirt_20, shirt_20],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Bottompwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1978,10 +1980,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 34,
-    image: [shirt_21, shirt_21, shirt_21, shirt_21, shirt_21],
+    _id: 34,
+    productImg: [shirt_21, shirt_21, shirt_21, shirt_21, shirt_21],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -1995,10 +1997,10 @@ export const products = [
     rating: 3.9,
   },
   {
-    id: 35,
-    image: [shirt_22, shirt_22, shirt_22, shirt_22, shirt_22],
+   _id: 35,
+    productImg: [shirt_22, shirt_22, shirt_22, shirt_22, shirt_22],
 
-    category: "men",
+    category: "Men",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2012,10 +2014,10 @@ export const products = [
     rating: 3.4,
   },
   {
-    id: 36,
-    image: [shirt_23, shirt_23, shirt_23, shirt_23],
+   _id: 36,
+    productImg: [shirt_23, shirt_23, shirt_23, shirt_23],
 
-    category: "men",
+    category: "Men",
     brand: "puma",
     name: "Fashion Shirt",
     new_price: 40,
@@ -2025,10 +2027,10 @@ export const products = [
     rating: 3.9,
   },
   {
-    id: 37,
-    image: [shirt_24, shirt_24, shirt_24, shirt_24],
+    _id: 37,
+    productImg: [shirt_24, shirt_24, shirt_24, shirt_24],
 
-    category: "men",
+    category: "Men",
     subCategory: "Topwear",
     brand: "puma",
     name: "Fashion Shirt",
@@ -2039,10 +2041,10 @@ export const products = [
     rating: 4.3,
   },
   {
-    id: 38,
-    image: [shirt_25, shirt_25, shirt_25, shirt_25],
+    _id: 38,
+    productImg: [shirt_25, shirt_25, shirt_25, shirt_25],
 
-    category: "men",
+    category: "Men",
     subCategory: "Topwear",
     brand: "puma",
     name: "Fashion Shirt",
@@ -2055,10 +2057,10 @@ export const products = [
 
   // Women Products
   {
-    id: 39,
-    image: [womenDress_1, womenDress_1, womenDress_1, womenDress_1],
+    _id: 39,
+    productImg: [womenDress_1, womenDress_1, womenDress_1, womenDress_1],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2073,10 +2075,10 @@ export const products = [
     rating: 2.7,
   },
   {
-    id: 40,
-    image: [womenDress_2, womenDress_2, womenDress_2, womenDress_2],
+    _id: 40,
+    productImg: [womenDress_2, womenDress_2, womenDress_2, womenDress_2],
 
-    category: "women",
+    category: "Women",
     subCategory: "Bottomwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2091,10 +2093,10 @@ export const products = [
     rating: 2.8,
   },
   {
-    id: 41,
-    image: [womenDress_3, womenDress_3, womenDress_3, womenDress_3],
+    _id: 41,
+    productImg: [womenDress_3, womenDress_3, womenDress_3, womenDress_3],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2109,10 +2111,10 @@ export const products = [
     rating: 3.1,
   },
   {
-    id: 42,
-    image: [womenDress_4, womenDress_4, womenDress_4, womenDress_4],
+   _id: 42,
+    productImg: [womenDress_4, womenDress_4, womenDress_4, womenDress_4],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2127,10 +2129,10 @@ export const products = [
     rating: 2.7,
   },
   {
-    id: 43,
-    image: [womenDress_5, womenDress_5, womenDress_5, womenDress_5],
+    _id: 43,
+    productImg: [womenDress_5, womenDress_5, womenDress_5, womenDress_5],
 
-    category: "women",
+    category: "Women",
     subCategory: "Bottomwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2145,10 +2147,10 @@ export const products = [
     rating: 3.1,
   },
   {
-    id: 44,
-    image: [womenDress_6, womenDress_6, womenDress_6, womenDress_6],
+    _id: 44,
+    productImg: [womenDress_6, womenDress_6, womenDress_6, womenDress_6],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2163,10 +2165,10 @@ export const products = [
     rating: 4.9,
   },
   {
-    id: 45,
-    image: [womenDress_7, womenDress_7, womenDress_7, womenDress_7],
+    _id: 45,
+    productImg: [womenDress_7, womenDress_7, womenDress_7, womenDress_7],
 
-    category: "women",
+    category: "Women",
     ubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2181,10 +2183,10 @@ export const products = [
     rating: 3.9,
   },
   {
-    id: 46,
-    image: [womenDress_8, womenDress_8, womenDress_8, womenDress_8],
+    _id: 46,
+    productImg: [womenDress_8, womenDress_8, womenDress_8, womenDress_8],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2199,10 +2201,10 @@ export const products = [
     rating: 2.5,
   },
   {
-    id: 47,
+   _id: 47,
     image: [womenDress_9, womenDress_9, womenDress_9, womenDress_9],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2217,10 +2219,10 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 48,
-    image: [womenDress_10, womenDress_10, womenDress_10, womenDress_10],
+   _id: 48,
+    productImg: [womenDress_10, womenDress_10, womenDress_10, womenDress_10],
 
-    category: "women",
+    category: "Women",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2235,10 +2237,10 @@ export const products = [
     rating: 2.4,
   },
   {
-    id: 49,
-    image: [womenDress_11, womenDress_11, womenDress_11, womenDress_11],
+    _id: 49,
+    productImg: [womenDress_11, womenDress_11, womenDress_11, womenDress_11],
 
-    category: "women",
+    category: "Women",
     subCategory: "Winterwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2253,10 +2255,10 @@ export const products = [
     rating: 2.8,
   },
   {
-    id: 50,
-    image: [womenDress_12, womenDress_12, womenDress_12, womenDress_12],
+   _id: 50,
+    productImg: [womenDress_12, womenDress_12, womenDress_12, womenDress_12],
 
-    category: "women",
+    category: "Women",
     SubCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2271,10 +2273,10 @@ export const products = [
     rating: 3.2,
   },
   {
-    id: 51,
-    image: [womenDress_13, womenDress_13, womenDress_13, womenDress_13],
+    _id: 51,
+    productImg: [womenDress_13, womenDress_13, womenDress_13, womenDress_13],
 
-    category: "women",
+    category: "Women",
     subCategory: "Winterwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2289,10 +2291,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 52,
-    image: [womenDress_14, womenDress_14, womenDress_14, womenDress_14],
+    _id: 52,
+    productImg: [womenDress_14, womenDress_14, womenDress_14, womenDress_14],
 
-    category: "women",
+    category: "Women",
     subCategory: "Winterwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2309,10 +2311,10 @@ export const products = [
 
   // Kids Products
   {
-    id: 53,
-    image: [kidDress_1, kidDress_1, kidDress_1, kidDress_1],
+  _id: 53,
+    productImg: [kidDress_1, kidDress_1, kidDress_1, kidDress_1],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2327,10 +2329,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 54,
-    image: [kidDress_2, kidDress_2, kidDress_2, kidDress_2, kidDress_2],
+    _id: 54,
+    productImg: [kidDress_2, kidDress_2, kidDress_2, kidDress_2, kidDress_2],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2345,10 +2347,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 55,
-    image: [kidDress_3, kidDress_3, kidDress_3, kidDress_3],
+    _id: 55,
+    productImg: [kidDress_3, kidDress_3, kidDress_3, kidDress_3],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2363,10 +2365,10 @@ export const products = [
     rating: 3.2,
   },
   {
-    id: 56,
-    image: [kidDress_4, kidDress_4, kidDress_4, kidDress_4],
+    _id: 56,
+    productImg: [kidDress_4, kidDress_4, kidDress_4, kidDress_4],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2382,10 +2384,10 @@ export const products = [
   },
 
   {
-    id: 57,
-    image: [kidDress_6, kidDress_6, kidDress_6, kidDress_6],
+   _id: 57,
+    productImg: [kidDress_6, kidDress_6, kidDress_6, kidDress_6],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Winterwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2400,10 +2402,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 58,
-    image: [kidDress_7, kidDress_7, kidDress_7, kidDress_7],
+    _id: 58,
+    productImg: [kidDress_7, kidDress_7, kidDress_7, kidDress_7],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2418,10 +2420,10 @@ export const products = [
     rating: 3.6,
   },
   {
-    id: 59,
-    image: [kidDress_8, kidDress_8, kidDress_8, kidDress_8],
+    _id: 59,
+    productImg: [kidDress_8, kidDress_8, kidDress_8, kidDress_8],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2436,10 +2438,10 @@ export const products = [
     rating: 4.1,
   },
   {
-    id: 60,
-    image: [kidDress_9, kidDress_9, kidDress_9, kidDress_9],
+    _id: 60,
+    productImg: [kidDress_9, kidDress_9, kidDress_9, kidDress_9],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2454,10 +2456,10 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 61,
-    image: [kidDress_10, kidDress_10, kidDress_10, kidDress_10],
+    _id: 61,
+    productImg: [kidDress_10, kidDress_10, kidDress_10, kidDress_10],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2472,10 +2474,10 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 62,
-    image: [kidDress_11, kidDress_11, kidDress_11, kidDress_11],
+    _id: 62,
+    productImg: [kidDress_11, kidDress_11, kidDress_11, kidDress_11],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2489,10 +2491,10 @@ export const products = [
     rating: 2.3,
   },
   {
-    id: 63,
-    image: [kidDress_12, kidDress_12, kidDress_12, kidDress_12],
+   _id: 63,
+    productImg: [kidDress_12, kidDress_12, kidDress_12, kidDress_12],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2506,10 +2508,10 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 64,
-    image: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
+   _id: 64,
+    productImg: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2523,10 +2525,10 @@ export const products = [
     rating: 4.3,
   },
   {
-    id: 65,
-    image: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
+    _id: 65,
+    productImg: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2540,10 +2542,10 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 66,
-    image: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
+    _id: 66,
+    productImg: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2557,10 +2559,10 @@ export const products = [
     rating: 2.8,
   },
   {
-    id: 67,
-    image: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
+    _id: 67,
+    productImg: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2573,10 +2575,10 @@ export const products = [
     rating: 3.8,
   },
   {
-    id: 68,
-    image: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
+    _id: 68,
+    productImg: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2590,10 +2592,10 @@ export const products = [
     rating: 2.8,
   },
   {
-    id: 69,
+   _id: 69,
     image: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2607,10 +2609,10 @@ export const products = [
     rating: 3.2,
   },
   {
-    id: 70,
-    image: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
+    _id: 70,
+    productImg: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Bottomwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2625,10 +2627,10 @@ export const products = [
     rating: 4.3,
   },
   {
-    id: 71,
-    image: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
+    _id: 71,
+    productImg: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2642,10 +2644,10 @@ export const products = [
     rating: 2.2,
   },
   {
-    id: 72,
-    image: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
+    _id: 72,
+    productImg: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2659,10 +2661,10 @@ export const products = [
     rating: 2.9,
   },
   {
-    id: 73,
-    image: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
+    _id: 73,
+    productImg: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2676,27 +2678,27 @@ export const products = [
     rating: 3.2,
   },
   {
-    id: 74,
-    image: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
+    _id: 74,
+    productImg: [kidDress_13, kidDress_13, kidDress_13, kidDress_13],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
     bestseller: true,
     brand: "nike",
     name: "Cotton Kids Dress",
-    new_price: 20,
+    price: 20,
     old_price: 40,
     starIcon: start,
     haflStar: haflStar,
     rating: 2.2,
   },
   {
-    id: 75,
-    image: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
+    _id: 75,
+    productImg: [kidDress_14, kidDress_14, kidDress_14, kidDress_14],
 
-    category: "kid",
+    category: "Kid",
     subCategory: "Topwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2710,10 +2712,9 @@ export const products = [
     rating: 3.3,
   },
   {
-    id: 76,
-    image: [kidDress_5, kidDress_5, kidDress_5, kidDress_5],
-
-    category: "kid",
+    _id: 76,
+    productImg: [kidDress_5, kidDress_5, kidDress_5, kidDress_5],
+    category: "Kid",
     subCategory: "Winterwear",
     sizes: ["S", "M", "L", "XL"],
     date: 1716634345448,
@@ -2721,7 +2722,7 @@ export const products = [
     brand: "puma",
     name: "Stylish Kids Dress",
     description: "This is New Kids Dress 5",
-    new_price: 30,
+    price: 30,
     old_price: 50,
     starIcon: start,
     haflStar: haflStar,

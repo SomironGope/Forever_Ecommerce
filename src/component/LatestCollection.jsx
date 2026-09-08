@@ -8,8 +8,8 @@ import ProductItem from '../component/ProductItem';
 
  function LatestCollection() {
 
-const {products} = useContext(ShopContext);
-const latestProduct = products.slice(15,25);
+const {latestProduct} = useContext(ShopContext);
+
 
 
 
@@ -24,7 +24,7 @@ const latestProduct = products.slice(15,25);
        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
          {
          latestProduct.map((item) =>(
-          <ProductItem key = {item.id} id = {item.id} image = {item.image[0]} name = {item.name} price = {item.new_price} />
+          <ProductItem key = {item._id} _id = {item._id} image = {item.productImg?.[0]?.url} name = {item.name} price = {item.price} />
          ))
           
          }
