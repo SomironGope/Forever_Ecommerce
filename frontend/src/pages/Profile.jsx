@@ -73,7 +73,7 @@ function Profile() {
       }
 
       fetchProfile ()
-   },[token,backendUrl]);
+   },[token,backendUrl,setUser]);
 
 
    //----------------------------------Handle Input------------------------------------

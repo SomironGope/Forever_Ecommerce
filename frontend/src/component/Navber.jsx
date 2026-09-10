@@ -20,6 +20,7 @@ function Navber() {
     const {setShowSearch,getCartCount, token, setToken,user,setCartItems } = useContext(ShopContext);
 
 
+console.log(user);
 
    const logoutHandler = () => {
      navigate('/login');
@@ -36,7 +37,7 @@ function Navber() {
     <nav className="bg-[#b5e48c] rounded-sm flex items-center justify-between  px-2 py-5 font-medium border-b-2 border-gray-500">
       <Link to="/">
 
-        <h2 className="text-2xl font-bold text-gray-700 hover:text-[#ba181b]">Forever</h2>
+        <h2 className="text-2xl font-bold text-gray-700 hover:text-[#ba181b]">SG Somiron</h2>
       </Link>
 
      

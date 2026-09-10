@@ -3,8 +3,15 @@ import {toast} from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
-function Login ({setToken}) {
+// -------------Icons---------------
+import { FaEyeSlash } from "react-icons/fa";
+import { IoEyeSharp } from "react-icons/io5";
 
+
+
+function Login ({setToken}) {
+  
+  const [showPassword, setShowPassword] = useState (false);
    const navigate = useNavigate()
    
   const [formData, setFormData] = useState({
@@ -41,12 +48,15 @@ function Login ({setToken}) {
           setToken(response.data.accessToken);
 
           toast.success(response.data.message);
-          navigate('/add')
+
+          setTimeout (() => {
+            navigate('/add')
+          },1000)
+          
         }
     } catch (error) {
       console.log("LOGIN ERROR:", error);
-      console.log("SERVER ERROR:", error.response?.data);
-
+      
       toast.error(error.response?.data?.message || "Admin login failed")
     }
   }
@@ -75,9 +85,12 @@ function Login ({setToken}) {
           <p className="py-2 text-sm sm:text-base font-semibold">
             Password
           </p>
-          <input
-            className=" border border-slate-800 px-3 py-2 rounded-md text-blue-950 text-sm sm:text-base outline-none focus:border-sky-500"
-            type="password"
+
+          <div className="relative">
+
+            <input
+            className="w-full border border-slate-800 px-3 py-2 rounded-md text-blue-950 text-sm sm:text-base outline-none focus:border-sky-500"
+            type= {showPassword ? "text" :"password" }
             placeholder="Enter your password"
             name="password"
             id="password"
@@ -85,6 +98,17 @@ function Login ({setToken}) {
             onChange={handleChang}
             required
           />
+             <div className="absolute top-2.5 right-2 cursor-pointer">
+               
+               {
+                showPassword ?  <FaEyeSlash onClick={() => setShowPassword (false)}/>  :  <IoEyeSharp onClick={() => setShowPassword(true)}/>
+               }
+        
+
+             </div>
+          </div>
+         
+
 
           <button
             className="self-center bg-pink-500 text-white text-sm sm:text-base font-semibold tracking-wider mt-8  px-6 py-2 md:px-10  rounded-md cursor-pointer border hover:bg-sky-500 transition"

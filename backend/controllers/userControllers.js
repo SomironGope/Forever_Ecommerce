@@ -586,6 +586,20 @@ export const changePassword = async (req, res) => {
         message: "Please verify OTP first"
       });
     }
+    
+    if (!validator.isStrongPassword (newPassword, {
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1,
+    })) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be contain uppercase, lowercase, number and special character!"
+      })
+    }
+
 
     // ---------------Hash Password------------------------
     const hashPassword = await bcrypt.hash(newPassword, 10);
@@ -679,13 +693,6 @@ export const updateProfile = async (req, res) => {
 
     if(req.file) {
 
-      // -------------------------DELETE OLD IMAGE FROM CLOUDINARY-----------------------------
-
-      if(profilePicPublicId) {
-        await cloudinary.uploader.destroy(profilePicPublicId);
-      }
-
-
       // ---------------------------UPLOAD NEW IMAGE------------------------------------------
       const uploadResult = await new Promise((resolve, reject) =>{
 
@@ -703,7 +710,15 @@ export const updateProfile = async (req, res) => {
         stream.end(req.file.buffer);
       });
 
-     
+      // -------------------------DELETE OLD IMAGE FROM only after new upload succeeds CLOUDINARY-----------------------------
+
+      if(user.profilePicPublic) {
+        await cloudinary.uploader.destroy(user.profilePicPublic);
+      }
+
+
+      // Set New Image information
+
       profilePicUrl = uploadResult.secure_url;
       profilePicPublicId = uploadResult.public_id;
     }

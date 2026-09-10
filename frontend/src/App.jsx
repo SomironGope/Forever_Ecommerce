@@ -18,9 +18,13 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Orders from './pages/Orders';
 import Signup from './pages/Signup';
-import ForgotPassword from './pages/forgotPassword';
+
 import Verify from './component/verify';
 import OrderTracking from './pages/OrderTracking';
+import OTPVerify from './pages/OTPVerify';
+import Change_Password from './pages/Change_Password';
+import Forgot_Password from './pages/Forgot_Password';
+
 
 
 
@@ -34,20 +38,39 @@ function App() {
         <SearchBar />
         <Routes >
            <Route path = '/' element = {<Home />} />
+
            <Route path = '/collection' element = {<Collection />} />
+
            <Route path = '/about' element = {<About />} />
+
            <Route path = '/contact' element = {<Contact />} />
+
            <Route path = '/product/:productId' element = {<Product/>} />
+
            <Route path = '/cart' element = {<Cart/>} />
+           
            <Route path = '/place-order' element = {<PlaceOrder />} />
+
            <Route path='/order/:orderId' element = {<OrderTracking />} />
+
            <Route path = '/profile' element = {<Profile />} />
+
            <Route path='/signup' element = {<Signup />} />
+
            <Route path='/verify' element = {<Verify />} />
-           <Route path='forgot-password' element = { <ForgotPassword />} />
+
+           <Route path='/forgot-password' element = {<Forgot_Password />} />
+           
+           <Route path= '/forgot-password/verify-otp/:email'  element = { <OTPVerify />} />
+
+           <Route path='/forgot-password/change-password/:email' element = {<Change_Password/>}  />
+
            <Route path = '/orders' element = {<Orders />} />
+
            <Route path='/login' element = {<Login />} />
+
            <Route path = '*' element = {<NotFound/>} />
+    
         </Routes>
         <Footer />
      

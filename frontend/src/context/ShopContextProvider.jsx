@@ -40,9 +40,11 @@ import axios from 'axios';
         return;
       }
       
-
+       
       try {
          const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+             console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
 
          const response = await axios.post (`${backendUrl}/api/v1/cart/add`, {
           productId: itemId,
@@ -187,9 +189,6 @@ import axios from 'axios';
    }
 
       //   --------------Updates Quantity and Modify  ---------------------//
-
-
-      
          
         const updateQuantity = async (itemId, size, quantity) => {
           try {
@@ -297,11 +296,7 @@ import axios from 'axios';
       }
      }
         
-    
 
-
-
-       
       // --------------------Get Product Data from Backend ---------------------//
     useEffect (() => {
 
@@ -352,9 +347,40 @@ import axios from 'axios';
       getProductData()
     },[])
 
+// ----------------------------------Get User Profile------------------------------
 
+   useEffect (() => {
    
+       const getUserProfile = async () => {
+     try {
+      if(!token) {
+        setUser (null);
+        return;
+      }
 
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("Profile Response:", response.data);
+
+    if(response.data.success) {
+      setUser (response.data.user);
+
+    }
+     } catch (error) {
+      
+      console.log("Profile Error:", error);
+     }
+     }
+
+     getUserProfile();
+     
+   },[token])
+   
 
     const value = {
       token,

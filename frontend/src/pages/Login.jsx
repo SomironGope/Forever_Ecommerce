@@ -80,13 +80,13 @@ function Login() {
 
           </div>
 
-           <input className="w-full px-3 py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none"
+           <input className="w-full px-3 py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none  focus:border-sky-500"
             type="email" id= 'email' name = 'email' value={formData.email} 
             onChange={handlChange} placeholder="Enter your email" />
 
            <div className="w-full sm:w-100 relative">
 
-             <input className="w-full px-3  py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none" 
+             <input className="w-full px-3  py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none focus:border-sky-500" 
             type= {showPassword ?  "text" : "password" } id= 'password' name="password" value={formData.password} 
             onChange = {handlChange} placeholder="Enter your password" />
 
