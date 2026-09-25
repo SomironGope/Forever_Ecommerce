@@ -53,7 +53,7 @@ function Forgot_Password() {
                 <label className="block text-sm font-medium mb-2">Email</label>
 
                 <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail (e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 mb-4 outline-none focus:border-black" />
+                className="w-full border-2 border-gray-300 rounded-md px-3 py-2 mb-4 outline-none focus:border-black" />
             
             
             <button type="sumbit" className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer" >

@@ -1,7 +1,9 @@
+import { Link } from "react-router-dom";
 
 
 
 function Navbar({logout}) {
+
    
  
   return (
@@ -10,10 +12,16 @@ function Navbar({logout}) {
                   
                   
                    <div className="flex flex-col h-auto">
+                     <Link to = '/add' >
                       <h1 className="text-md sm:text-base md:text-lg lg:text-2xl text-white font-semibold tracking-widest">Forever Ecommerce</h1>
                       <p className="inline-block text-white text-md font-bold ">SG</p>
+                      </Link>
                   </div> 
                   <h1 className="text-md sm:text-base md:text-lg lg:text-2xl font-semibold text-white mb-3 tracking-wider">ADMIN PANEL</h1>
+                  <Link to = '/dashboard'> <h1 className="text-md sm:text-base md:text-lg lg:text-2xl font-semibold text-white mb-3 tracking-wider">
+                    Dashboard</h1>
+                    </Link>
+                 
 
                   <button onClick={logout} className="border text-sm sm:text-base font-semibold cursor-pointer px-2 py-1 sm:px-4 sm:py-1.5 lg:px-5 lg:py-2 mb-3 rounded-3xl bg-linear-to-r from-orange-500 to-violet-500 hover:bg-linear-to-r hover:from-pink-500 hover:to-sky-500">LOGOUT</button>
                </div>

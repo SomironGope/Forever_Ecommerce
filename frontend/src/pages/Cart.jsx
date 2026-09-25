@@ -32,7 +32,7 @@ function Cart() {
    
 
   return (
-    <> {cartData.length > 0 ?  <div className="border-t pt-14">
+    <> {cartData.length > 0 ?  <div className="pt-14">
       {/*  */}
       <div className="text-2xl mb-3">
         <Title text1 = {'YOUR'} text2 = {'CART'} />

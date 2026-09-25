@@ -1,5 +1,6 @@
 import {Product} from '../models/productModels.js'
 import {Order} from '../models/orderModels.js';
+import {Cart} from '../models/cartModels.js';
 import mongoose from 'mongoose';
 
 
@@ -7,6 +8,8 @@ import mongoose from 'mongoose';
 export const createOrder = async (req, res) => {
 
   const session = await mongoose.startSession();
+
+
   try {
     session.startTransaction();
 
@@ -14,34 +17,61 @@ export const createOrder = async (req, res) => {
 
     const userId = req.user._id;
 
-    // Check items
+    // ---------------------Check items-------------------------------
 
     if(!items || items.length === 0) {
       throw new Error ("Order items are required");
      
     }
 
-    // Check payment method
+    //---------------------Check payment method-----------------------------
 
     if(!["COD","ONLINE"].includes(paymentMethod)) {
       
        throw new Error ("Invalid payment method")
     }
   
+
+
+    // ---------------------Check Address---------------------------
+
+    if (
+      !address || 
+      !address.firstName ||
+      !address.lastName || 
+      !address.phone || 
+      !address.street || 
+      !address.city ||
+      !address.postalCode ||
+      !address.country
+    ) {
+      throw new Error ("Complete shipping address is required");
+    }
+  
+
+
      let amount = 0;
      const orderItems = [];
+
        //-------------------Calculate product total-------------------
-     for (const item of items) {
+     
+      for (const item of items) {
       const {productId, quantity, size} = item;
 
-      // Check quantity
+      //------------ Check quantity----------------------
 
       if(!Number.isInteger(quantity) || quantity < 1) {
        throw new Error ("Quantity must be at least 1");
       }
 
-      // Find product inside transction
+      // -------------------------Check Size----------------------
 
+      if (!size) {
+        throw new Error (`Size is required for product ${productId}`);
+      }
+
+
+      //------------------------Find Product----------------------
 
       const product = await Product.findById(productId).session(session);
 
@@ -49,28 +79,32 @@ export const createOrder = async (req, res) => {
         throw new Error (`Product not found: ${productId}`);
       };
 
-      // Check stock
-      if(product.stock === 0) {
-        throw new Error (`${product.name} is out of stock`);
+      // ------------------------Find Selected Size------------------
+
+      const selectedSize = product.sizes.find(
+        (sizeItem) => sizeItem.size === size
+      );
+
+      if (!selectedSize ) {
+        throw new Error (`Invalid size ${size} for ${product.name}`);
       }
 
-      if(product.stock < quantity) {
-        throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
-      };
 
-      // Check size
-      if(!size) {
-        throw new Error(`Size is required for ${product.name}`);
-      }
-     
-      if(!product.sizes.includes(size)) {
-       throw new Error(`Invalid size for  ${product.name}`);
+      // -------------------------Check Size Stock----------------------
+
+      if (selectedSize.stock < 1) {
+        throw new Error (`${size} size of ${product.name} is out of stock`);
       }
 
-      // Calculate item total
+      if (selectedSize.stock < quantity) {
+        throw new Error (`Only ${selectedSize.stock} ${size} items are available for ${product.name}`);
+      }
+
+
+
+      //---------------- Calculate item total---------------------------------
+
       const itemTotal = product.price * quantity;
-
-       
 
       amount += itemTotal;
      
@@ -81,7 +115,8 @@ export const createOrder = async (req, res) => {
 
       // Add order item
 
-       orderItems.push ({
+      orderItems.push ({
+
       productId: product._id,
       name: product.name,
       image: product.productImg[0]?.url || "",
@@ -91,39 +126,73 @@ export const createOrder = async (req, res) => {
 
      });
 
-     // Reduce stock 
-     product.stock -= quantity;
+     // ----------------Reduce Stock Immediately---------------------
 
-     await product.save({session});
+     if (paymentMethod === "COD") {
+
+       selectedSize.stock -= quantity;
+
+       await product.save({session});
      }
 
-     // Create order inside transction
-     const deliverifyFee = 10;
-     const order = await Order.create([
+     }
+
+     // ------------------Delivery Fee-----------------------
+    
+     const deliveryFee = 15;
+
+     //---------------------------Payment Information-----------------
+
+     const paymentData =
+      paymentMethod === "ONLINE" ? {paymentProvider: "MOYASAR", paymentStatus: "Pending"} 
+                                 : {paymentStatus: "Pending"}
+
+     //------------------------Create Order--------------------------
+     const order = await Order.create(
+      [
       {
         userId,
         items: orderItems,
-        amount: amount + deliverifyFee,
+        amount: amount + deliveryFee,
+
         address,
         paymentMethod,
+
+        ...paymentData,
       },
      ],
      {session}
     );
     
-    // Everything successful
+
+    // ------------------------Clear Cart-------------------------
+
+
+    if (paymentMethod === "COD") {
+       await Cart.findOneAndUpdate( 
+      { userId},
+      {$set: {items: []}},
+      {session}
+      )
+    }
+   
+    // -------------Commit Transaction--------------------------
+
     await session.commitTransaction();
+
+    // ------------------------Response-------------------------------
 
     return res.status(201).json({
       success: true,
-      message: "Order created successfully",
+      message: paymentMethod === "COD" ? "Order created successfully" : "Order created. Procced to payment",
       order: order[0]
     });
     
 
   } catch (error) {
 
-    // Something failed - undo everthing
+    // ------------------Rollback Transaction------------------------
+
 
     await session.abortTransaction();
 

@@ -80,7 +80,7 @@ const orderSchema = new mongoose.Schema({
  
    paymentProvider: {
     type: String,
-    enum: ["STRIPE", "SSLCOMMERZ","BKASH", "RAZORPAY"],
+    enum: ["STRIPE", "SSLCOMMERZ","MOYASAR", "BKASH", "RAZORPAY"],
     default: undefined
    },
 
@@ -98,6 +98,15 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: null
    },
+   moyasarPaymentId: {
+    type: String,
+    default: null
+   },
+
+   moyasarStatus: {
+    type: String,
+    default: null
+   },
   
   orderStatus: {
     type: String,
@@ -109,12 +118,26 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  
+   refundAmount : {
+    type: Number,
+    default: 0,
+  },
 
+  refundReason: {
+    type: String,
+    default: null,
+  },
+  refundedAt: {
+    type: Date,
+    default: null,
+  },
   cancelledAt: {
     type: Date,
   },
-
+ 
 },
+
 {timestamps: true}
 );
 

@@ -5,18 +5,55 @@ import {Order} from '../models/orderModels.js';
 
 export const addProduct = async (req, res) => {
   try {
-   const {name,description,category,subCategory,price,stock,sizes} = req.body;
+   const {name,description,category,subCategory,oldPrice,price,sizes} = req.body;
 
-   if(!name || !description || !category || !subCategory || !price) {
-    return res.status(400).json({
+   // Parse Size//
+
+  
+
+    let parsedSizes;
+
+    try {
+      parsedSizes = JSON.parse(sizes);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid sizes format"
+      });
+    }
+
+   if (!name || !description || !category || !subCategory || !price || !parsedSizes || parsedSizes.length === 0) {
+   
+     return res.status(400).json({
       success: false,
       message: "All required fields are required",
-    });
+     });
    };
     
-   // Convert Sizes from "S,M,L,XL" to ["S", "M", "L", "XL"]
+   // Price validation
 
-   const sizeArray = sizes ? sizes.split(",").map((size) => size.trim()) : [];
+   if (oldPrice !== undefined && Number (oldPrice) > 0 && Number (oldPrice ) <= Number(price)) {
+    return res.status (400).json({
+      success: false,
+      message: "Old price must be greater than current price"
+    });
+   }
+
+   // Size and stock validation
+
+   const invalidSize = parsedSizes.some((item) => 
+     !item.size || item.stock === undefined || item.stock < 0
+  
+  );
+
+  if (invalidSize) {
+     return res.status (400).json({
+      success: false,
+      message: "Invalid size or stock"
+     })
+  }
+
+
    let productImg = [];
 
    // Multiple image upload
@@ -43,9 +80,9 @@ export const addProduct = async (req, res) => {
     description,
     category,
     subCategory,
-    price,
-    stock,
-    sizes: sizeArray,
+    oldPrice: Number(oldPrice),
+    price : Number(price),
+    sizes: parsedSizes,
     productImg
    });
 
@@ -113,10 +150,13 @@ export const getSignleProduct = async (req, res) => {
 // update Products
 
 export const updateProduct = async (req, res) => {
+
+ 
   try {
     const {productId} = req.params;
 
-    const {name, description, category, subCategory, price, stock, sizes, isFeatured,} = req.body;
+    const {name, description, category, subCategory, price, oldPrice, sizes, isFeatured,} = req.body;
+    // -------------------Find User--------------
 
     const product = await Product.findById(productId);
 
@@ -127,24 +167,123 @@ export const updateProduct = async (req, res) => {
       });
     }
     
-    // Update fields if provided
-    if(name) product.name = name;
-    if(description) product.description = description;
-    if(category) product.category = category;
-    if(subCategory) product.subCategory = subCategory;
-
-    if(price !== undefined) product.price = price;
-    if(stock !== undefined) product.stock = stock;
-
-    if(sizes) {
-      product.sizes = sizes
-      .split(",").map((size) => size.trim());
+    // ----------------Update basic products fields----------------
+    if(name !== undefined) {
+      product.name = name;
     }
 
+    if(description !== undefined) {
+      product.description = description;
+    }
+
+    if(category !== undefined) {
+     product.category = category;
+    } 
+    if(subCategory !== undefined) {
+     product.subCategory = subCategory;
+    } 
+    // -----------------------------------
+
+    // ---------------Price Validation------------------
+  
+    
+    const finalPrice = price !== undefined ? Number(price) : product.price;
+
+
+    const finalOldPrice = oldPrice !== undefined ? Number (oldPrice) : product.oldPrice;
+
+
+    
+   // -----------------Validate Number----------------------
+
+   if (Number.isNaN (finalPrice) || finalPrice < 0) {
+    return res.status(400).json( {
+      success: false,
+      message: "Invalid price"
+    })
+   }
+
+
+   if (Number.isNaN (finalOldPrice) || finalOldPrice < 0) {
+    return res.status (400).json (
+      {
+        success: false,
+        message: "Invalid old price"
+      }
+      
+    );
+   }
+    //----------------------If there is a discount, oldPrice must be greater than current price
+
+    //-----------------------Old Price = 0 means no discount------------------
+
+
+    //--------------------Update sizes and size stock-----------------------
+    if ( finalOldPrice > 0 && finalOldPrice <= finalPrice ) {
+
+        return res.status(400).json({
+          success: false,
+          message: "Old price must be greater than current price"
+        });
+      }
+    
+     product.price = finalPrice;
+     product.oldPrice = finalOldPrice;
+      // ---------------------------Sizes & Size Stock-------------------------
+    
+          
+      let parsedSizes;
+
+if (sizes !== undefined) {
+  try {
+    parsedSizes =
+      typeof sizes === "string"
+        ? JSON.parse(sizes)
+        : sizes;
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid sizes format",
+    });
+  }
+
+  if (!Array.isArray(parsedSizes)) {
+    return res.status(400).json({
+      success: false,
+      message: "Sizes must be an array",
+    });
+  }
+
+  const invalidSize = parsedSizes.some(
+    (item) =>
+      !item.size ||
+      item.stock === undefined ||
+      Number(item.stock) < 0
+  );
+
+  if (invalidSize) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid size or stock",
+    });
+  }
+
+  product.sizes = parsedSizes.map((item) => ({
+    size: item.size.trim(),
+    stock: Number(item.stock),
+  }));
+}
+
+
+//  console.log("req.body =", req.body);
+// console.log("sizes =", req.body.sizes);
+   // -------------------------Featured product---------------------
 
     if(isFeatured !== undefined) {
-      product.isFeatured = isFeatured;
-    }
+      product.isFeatured = isFeatured === true || isFeatured === "true";
+    };
+
+    // ------------------------Save Product-----------------------------
 
     await product.save();
 
@@ -165,14 +304,16 @@ export const updateProduct = async (req, res) => {
 }
 
 export const updateProductImage = async (req, res) => {
+
   try {
     const {productId} = req.params;
 
     // Find Product 
 
     const product = await Product.findById(productId);
+
     if(!product) {
-      return res.status(500).json({
+      return res.status(404).json({
         success: false,
         true: "Product not found"
       });
@@ -186,14 +327,16 @@ export const updateProductImage = async (req, res) => {
         message: "Please upload at least one image"
       });
     }
-
+    console.log("Product ID:", productId);
+console.log("Old images:", product.productImg);
+console.log("Uploaded files:", req.files);
     // Delete old images from cloudinary
 
-    if(product.images && product.images.length > 0) {
+    if(product.productImg && product.productImg.length > 0) {
       await Promise.all(
-        product.images.map(async (images) => {
+        product.productImg.map(async (image) => {
           if(image.public_id) {
-            await cloudinary.uploader.destroy(images.public_id);
+            await cloudinary.uploader.destroy(image.public_id);
           }
         })
       );
@@ -203,33 +346,34 @@ export const updateProductImage = async (req, res) => {
      const uploadImages = []; 
 
      for (const file of req.files) {
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream({
-          folder: "Products",
-          resource_type: "image",
-        },
-        (error, result) => {
-          if(error) {
-            reject(error);
-          }else {
-            resolve(result)
-          }
-        }
-      );
-      uploadStream.end(file.buffer);
-      });
+
+      const fileUri = getDataUri(file);
+
+      const result = await cloudinary.uploader.upload (fileUri.content, 
+      {
+      folder: "mern_products",
+      resource_type: "image",
+      }
+    );
+     
+    uploadImages.push ({
+      url: result.secure_url,
+      public_id: result.public_id,
+    });
+
+
      }
 
      // Update MongoDB
 
-     product.images = uploadImages;
+     product.productImg = uploadImages;
 
      await product.save();
 
      return res.status(200).json({
       success: true,
       message: "Product images updated successfully",
-      images: product.images,
+      images: product.productImg,
       product,
      });
 
@@ -258,9 +402,9 @@ export const deleteProduct = async (req, res) => {
 
 
     // Delete product images from Cloudinary
-    if(product.images && product.images.length > 0) {
+    if(product.productImg && product.productImg.length > 0) {
       await Promise.all( 
-        product.images.map(async (image) => {
+        product.productImg.map(async (image) => {
           if(image.public_id) {
             await cloudinary.uploader.destroy(image.public_id);
           }

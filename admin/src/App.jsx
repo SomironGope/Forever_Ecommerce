@@ -10,6 +10,10 @@ import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Add from './pages/Add';
+import Dashboard from './pages/Dashboard';
+import UpdateProduct from './pages/UpdateProduct';
+
+
 
 
 
@@ -54,7 +58,8 @@ function App () {
                   <Route path='/add' element = { <Add />} />
                   <Route path='/list' element = { <List /> } />
                   <Route path='/orders' element = {<Order />} />
-                  
+                  <Route path='/dashboard' element = {<Dashboard />} />
+                  <Route path = '/update-product/:productId' element = {<UpdateProduct /> } />
               </Routes>
             </div>
         </div>

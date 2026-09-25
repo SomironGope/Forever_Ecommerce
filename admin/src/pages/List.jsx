@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import {toast} from 'react-toastify'
+import { Link } from "react-router-dom";
 
 function List() {
   
@@ -36,8 +37,11 @@ function List() {
 
 
   const removeProduct = async (id) => {
-    const url = `${import.meta.env.VITE_BACKEND_URL}/api/v1/product/${id}`;
-   
+
+    const confirmDelete = window.confirm("Are your sure you want to delete this product?");
+
+    if (!confirmDelete)  return; 
+     const url = `${import.meta.env.VITE_BACKEND_URL}/api/v1/product/${id}`;
     const token = localStorage.getItem ("adminToken");
 
 
@@ -75,7 +79,7 @@ function List() {
             <b>Name</b>
             <b>Category</b>
             <b>Price</b>
-            <b>Action</b>
+            <b>Actions</b>
          </div>
 
          {/* -----------Product List ------------*/}
@@ -86,8 +90,14 @@ function List() {
               <img src= {item.productImg?.[0]?.url} alt="" className="w-20 object-fill py-1 px-2 rounded-sm" />
                <p>{item.name}</p>
                <p>{item.category}</p>
-               <p>{currency}{item.price}</p>
-               <p onClick ={() => removeProduct(item._id)} className="text-xl pl-5 cursor-pointer">×</p>
+               <p> {currency} {item.price} </p>
+
+                <div className="flex gap-2 items-center">
+                   <Link to = {`/update-product/${item._id}`} >
+                    Edit
+                   </Link>
+                </div>
+               <button onClick ={() => removeProduct(item._id)} className="bg-red-500  text-white px-2 py-1 rounded hover:bg-red-600 transition mt-2 text-xl pl-5 cursor-pointer">Delete</button>
             </div>
           ))
          }

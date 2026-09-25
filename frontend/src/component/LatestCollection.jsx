@@ -24,7 +24,7 @@ const {latestProduct} = useContext(ShopContext);
        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
          {
          latestProduct.map((item) =>(
-          <ProductItem key = {item._id} _id = {item._id} image = {item.productImg?.[0]?.url} name = {item.name} price = {item.price} />
+          <ProductItem key = {item._id} _id = {item._id} image = {item.productImg?.[0]?.url} name = {item.name} price = {item.price}  />
          ))
           
          }

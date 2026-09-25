@@ -9,10 +9,13 @@ import userRouter from './routers/userRoutes.js';
 import productRouter from './routers/productRouters.js';
 import orderRouter from './routers/orderRoutes.js';
 import cartRouter from './routers/cartRouter.js';
+import dashBoardRouter from './routers/dashboardRoute.js';
 
+import reviewRouter from './routers/reviewRoutes.js';
 
 import cookieParser from 'cookie-parser';
 import sslcommerzPaymentRouter from './routers/sslcommerzPaymentRoute.js'
+import moyasarRouter from './routers/moyasarPaymentRoute.js';
 
 // import paymentRouter from './routers/stripePaymentRoutes.js';
 
@@ -37,7 +40,7 @@ const PORT = process.env.PORT || 3000
 app.use(express.json());
 app.use(cors({
   origin: ['http://localhost:5173','http://localhost:5174'],
-  Credential: true
+  credential: true
 }));
 app.use(cookieParser());
 
@@ -51,9 +54,20 @@ app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add
 // Stripe International Payment  temporarily disabled
 // app.use ('/api/v1/payment',paymentRouter );
  app.use ('/api/v1/payment', sslcommerzPaymentRouter);
+
+ app.use ('/api/v1/payment', moyasarRouter)
  // Admin Panel Login endpoint
 
  app.use ('/api/v1/admin',adminRouter)
+
+ // ---------------Dashboard----------------
+ app.use ('/api/v1/admin/dashboard',dashBoardRouter);
+
+ // ---------------Review Route----------------------
+
+ app.use ('/api/v1/review', reviewRouter);
+
+
 
 
 app.listen(PORT, () => {

@@ -67,7 +67,7 @@ return productCopy;
 
 
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
+    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10">
        {/* Left Side */}
        {/* Filter Options */}
         <div className="min-w-60 ">
@@ -123,10 +123,10 @@ return productCopy;
                    <option  value= "high-low" >Sort by: High to Low</option>
                 </select>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 gap-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-6">
             {
               filterProduct.map((item) => (
-                <ProductItem key={item._id} _id = {item._id} image = {item.productImg?.[0]?.url} name = {item.name} price={item.price} />
+                <ProductItem key={item._id} _id = {item._id} image = {item.productImg?.[0]?.url} name = {item.name} oldPrice = {item.oldPrice} price={item.price} />
               ))
             }
 

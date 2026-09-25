@@ -2,6 +2,8 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { useParams } from "react-router-dom";
 import RelativeProduct from "../component/RelativeProduct";
+import ReviewSection from "../component/ReviewSection";
+
 
 
 function Products() {
@@ -15,35 +17,23 @@ function Products() {
   const productData = useMemo (() => products.find((item) => item._id ===  productId)
 ,[products, productId])
 
-  // const productData = products.find((item) => item.id === Number(productId));
 
-  // console.log(productData);
 
   const displayImage = image || productData?.productImg?.[0]?.url;
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  // if (!productData) {
-  //   return <div>Loading...</div>;
-  // }
-
-
   
 
 
-  console.log("URL productId:", productId);
-console.log("Products:", products);
-console.log(
-  "IDs:",
-  products.map((item) => item._id)
-);
+  console.log("Product Data:", productData);
+console.log("Product Sizes:", productData?.sizes);
 
   return productData ? (
     <div className="">
       {/* ------------------Product Data -------------------*/}
-      <div className="w-full flex justify-between sm:gap-x-3 flex-col sm:flex-row border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
+      <div className="w-full flex justify-between sm:gap-x-3 flex-col sm:flex-row pt-10 transition-opacity ease-in duration-500 opacity-100">
 
        {/* ----------------------Left Side---------------------- */}
       
@@ -84,37 +74,11 @@ console.log(
             <div>
               <h2 className="text-sm sm:text-base text-gray-700 font-bold">{productData.name}</h2>
             </div>
-            {/* <div className="flex justify-start gap-x-0.5 py-1 sm:py-2">
-              <img
-                src={productData.starIcon}
-                alt={productData.starIcon}
-                className="w-4 object-contain "
-              />
-              <img
-                src={productData.starIcon}
-                alt={productData.starIcon}
-                className="w-4 object-contain "
-              />
-              <img
-                src={productData.starIcon}
-                alt={productData.starIcon}
-                className="w-4 object-contain "
-              />
-              <img
-                src={productData.starIcon}
-                alt={productData.starIcon}
-                className="w-4 object-contain"
-              />
-              <img
-                src={productData.haflStar}
-                alt={productData.haflStar}
-                className="w-4 object-contain"
-              />
+           
+              <div className="">
+               <span className="text-md text-gray-800 font-bold"> {currency} {productData.price} </span>
 
-              <span className="text-sm sm:text-base font-medium">{productData.rating}</span>
-            </div> */}
-              <div>
-               <span className="text-md text-gray-800 font-bold"> {productData.price} {currency}</span>
+               
             </div>
             <div>
               <p className="text-sm sm:text-base text-gray-500 py-1 sm:py-2">{productData.description}</p>
@@ -123,15 +87,28 @@ console.log(
              <div className="flex flex-col gap-4 my-8">
                 <p className="text-base sm:text-md font-medium ">Select Size</p>
                 <div className="flex gap-2">
-                  {productData?.sizes?.map((item,index)=> (
-                    <button onClick = {() => setSize(item)} className= {`border py-2 px-4 rounded-sm cursor-pointer
-                      ${size === item ? "border-orange-500 bg-orange-100" : "bg-gray-200"}`} key={index}>{item}</button>
+
+                  {productData?.sizes?.map((item)=> (
+                    
+
+                    <button onClick = {() => setSize(item.size)} className= {`border py-2 px-4 rounded-sm cursor-pointer
+                      ${size === item.size? "border-orange-500 bg-orange-100" : "bg-gray-200"}`} key={item.size}>{item.size}</button>
+                  
+                  
                   ))}
+
+                  
                 </div>
              </div>
+             
              {/* -------------------AddToCart-------------------------------- */}
-             <button onClick={() => addToCart(productData._id,size)} className="border bg-black rounded-sm py-3 px-8 text-center ml-9 outline-none text-sm font-semibold text-white transition-all ease-in-out duration-300 hover:bg-pink-700 cursor-pointer">Add to Cart</button>
+             <button onClick={() => addToCart (productData._id, size)} className="border bg-black rounded-sm py-3 px-8 text-center ml-9 outline-none text-sm font-semibold text-white transition-all ease-in-out duration-300 hover:bg-pink-700 cursor-pointer">
+              Add to Cart</button>
+
+              
             <hr className="mt-8 sm:w-4/5 text-gray-400"/>
+
+               
             <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
                <p>100% Original Product.</p>
                <p>Cash on delivery is avaible on this product.</p>
@@ -155,6 +132,7 @@ console.log(
 </p>
                </div>
             </div>
+            <ReviewSection productId={productData._id} />
             <div>
                 <RelativeProduct category={productData.category} subCategory={productData.subCategory} />
             </div>

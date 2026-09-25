@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { assets } from "../assets/products";
 import CartTotal from "../component/CartTotal";
 import Title from "../component/Title";
 import { ShopContext } from "../context/ShopContext";
@@ -8,7 +7,7 @@ import {toast} from 'react-toastify'
 
 
 function PlaceOrder() {
-   const [method,setMethod] = useState('COD')
+   const [method,setMethod] = useState('ONLINE')
    const {navigate, cartItems, token, setCartItems} = useContext (ShopContext);
    const [loading, setLoading] = useState (false);
 
@@ -125,7 +124,7 @@ function PlaceOrder() {
 
          // Redirect to SSLCOMMERZ checkout
          const paymentResponse = await axios.post (
-            `${backendUrl}/api/v1/payment/sslcommerz/create`,
+            `${backendUrl}/api/v1/payment/moyasar/create`,
             {
                orderId,
             },
@@ -138,11 +137,11 @@ function PlaceOrder() {
          );
 
          if(paymentResponse.data.success) {
-            // Redirect customer to SSLCommerz
-            window.location.href = paymentResponse.data.checkoutUrl;
+            // Redirect customer to Moyasar
+            window.location.href = paymentResponse.data.transactionUrl;
          } else {
             toast.error (
-               paymentResponse.data.message || "Failed to start SSLCommerz payment"
+               paymentResponse.data.message || "Failed to start Moyasar payment"
             );
          }
         }
@@ -205,9 +204,17 @@ function PlaceOrder() {
              <div className="flex gap-3 flex-col lg:flex-row">
 
                       {/* ------------------SSLCOMMERZ ----------------  */}
-               <div  onClick = {() => setMethod('ONLINE')}className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
+               {/* <div  onClick = {() => setMethod('ONLINE')}className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
                   <p className= {`min-w-3.5 h-3.5 border rounded-full ${method === 'ONLINE' ? 'bg-green-400' : ''}`}></p>
                   <img className="h-8 w-15  mx-4 object-cover rounded-md" src= {assets.sslcommerz}  alt="sslcommerz" />
+               </div> */}
+
+               {/* -----------------------------Moyasar Payment Gateway-------------------------------- */}
+
+                <div  onClick = {() => setMethod('ONLINE')}className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
+                  <p className= {`min-w-3.5 h-3.5 border rounded-full ${method === 'ONLINE' ? 'bg-green-400' : ''}`}></p>
+                  
+                  <p className="text-gray-500 text-sm font-medium mx-4">ONLINE</p>
                </div>
 
                 {/* ----------------------RAZORPAY ---------------------- */}
@@ -227,7 +234,7 @@ function PlaceOrder() {
 
            </div>
            <div className="w-full text-end mt-8">
-              <button type="submit" disabled = {loading} className="bg-black text-white px-6 py-3 text-sm cursor-pointer rounded-md">
+              <button type="submit" disabled = {loading} className="bg-black text-white px-6 py-3 text-sm cursor-pointer rounded-md hover:opacity-70 transition">
                
                {loading ? "PLACE ORDER..." : "PLACE ORDER" } </button>
 

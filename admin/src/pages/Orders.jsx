@@ -90,6 +90,7 @@ const updateOrderStatus = async (orderId, orderStatus) => {
 
 
 const updatePaymentStatus = async (orderId, paymentStatus) => {
+  
   try {
     
     const response = await axios.put (`${url}/api/v1/order/${orderId}/payment-status`,
@@ -126,6 +127,50 @@ const updatePaymentStatus = async (orderId, paymentStatus) => {
     console.error("Update Payment Status Error:", error);
 
     toast.error (error.response?.data?.message || "Failed to update payment status")
+  }
+}
+
+
+const refundOrder = async (orderId) => {
+
+  const confirmRefund = window.confirm ("Are you sure you want to refund this payment?");
+
+  if (!confirmRefund) return;
+
+
+  try {
+    
+    const response = await axios.post(`${url}/api/v1/payment/refund/${orderId}`, 
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      toast.success ("Refund completed successfully");
+
+      setOrders((prevOrders) => 
+      prevOrders.map((order) => order._id === orderId
+       ? {
+          ...order,
+          paymentStatus: "Refunded",
+          orderStatus: "Cancelled",
+       }
+       : order
+      
+      )
+    );
+    }
+  } catch (error) {
+
+    console.error("Refund Error:", error);
+
+    toast.error (
+      error.response?.data?.message || `Refund failed: ${error.response?.data?.paymentStatus || "Unknown error"}`
+    );
   }
 }
 
@@ -201,7 +246,12 @@ if(loading) {
 
                        <div> 
                            
-                           <label className="block text-sm font-medium mb-2" >Payment Status</label>
+                           {/* <label className="block text-sm font-medium mb-2" >Payment Status</label> */}
+
+                           <p>Payment Status: {" "} <span className= {`font-medium
+                             ${order.paymentStatus === "Refunded" ? "text-red-600" : order.paymentStatus === "Paid"
+                              ? "text-green-600" : "text-yellow-600"
+                             }`}>{order.paymentStatus}</span></p>
 
                            <select value={order.paymentStatus} onChange={(e) =>
                              updatePaymentStatus (order._id, e.target.value)} className="w-full border rounded px-3 py-2 outline-none">
@@ -210,6 +260,7 @@ if(loading) {
                              <option value= "Paid">Paid</option>
                              <option value= "Failed">Failed</option>
                              <option value= "Refunded">Refunded</option>
+                            
                              
 
                            </select>
@@ -219,6 +270,8 @@ if(loading) {
                        
                      {/* --------------------------Payment Information------------------------------- */}
                       <div className="mt-5 text-sm text-gray-600">
+
+                        
 
                         <p>Payment Method: {" "} <span className="font-medium text-black">{order.paymentMethod}</span></p>
                         
@@ -241,7 +294,33 @@ if(loading) {
                             <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.paidAt).toLocaleString() }</span></p>
                           )
                         }
+
+                        {
+                          order.refundAmount && (
+                            <p>Refund Amount: <span className="font-medium">{order.refundAmount} SAR </span></p>
+                          )
+                        }
+
+                        {
+                          order.refundedAt && (
+                            <p>Refunded At: {" "} <span className="font-medium text-black">{new Date(order.refundedAt).toLocaleString()}</span></p>
+                          )
+                        }
                       </div>
+
+
+                      {
+                        order.paymentMethod === "ONLINE" && 
+                        order.paymentProvider === "MOYASAR" && 
+                        order.paymentStatus === "Paid" && (
+                          <div className="mt-5">
+
+                              <button disabled = {loading} onClick={() => refundOrder(order._id)} className="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700 cursor-pointer hover:opacity-70 transition">
+                                Refund Payment
+                              </button>
+                            </div>
+                        )
+                      }
             </div>
 
        

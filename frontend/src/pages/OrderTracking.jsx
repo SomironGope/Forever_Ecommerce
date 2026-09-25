@@ -110,13 +110,17 @@ return (
             <div>
                 <p className='text-sm text-gray-500'>Order Date</p>
                 
-                <p>{new Date(order.createdAt).toLocaleDateString()}</p>
+          {
+              order.paidAt && (
+             <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.createdAt).toLocaleString()}</span></p>
+             )
+           }
             </div>
 
             <div>
                <p className='text-sm text-gray-500'>Total</p>
 
-               <p className='font-medium'>{order.amount} {currency}</p>
+               <p className='font-medium'>{currency} {order.amount} </p>
             </div>
          </div>
       </div>
@@ -207,6 +211,12 @@ return (
             <p className='text-sm text-gray-600 mt-1'>
              Payment Status: {" "} <span className='font-medium'> {order.paymentStatus}</span>
            </p>
+
+          {
+              order.refundedAt && (
+              <p>Refunded At: {" "} <span className="font-medium text-black">{new Date(order.refundedAt).toLocaleString()}</span></p>
+             )
+           }
         </div>
    
    </div>

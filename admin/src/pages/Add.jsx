@@ -17,11 +17,53 @@ function Add() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
+  const [oldPrice, setOldPrice] = useState ("");
+  
   const [category, setCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("Topwear");
-  const [bestSeller, setBestSeller] = useState(false);
+  // const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
+
+
+// Handle Size//
+
+const handleSizeChange = (size) => {
+
+  setSizes ((prev) => {
+    const exists = prev.find((item) => item.size === size);
+
+    if (exists) {
+      return prev.filter((item) => item.size !== size);
+    }
+
+    return [
+      ...prev,
+      {
+        size,
+        stock: 0,
+      },
+    ];
+  });
+};
+
+
+const handleStockChange = (size,stock) => {
+  setSizes ((prev) => 
+    prev.map((item) => item.size === size ? 
+    {
+      ...item,
+      stock: Number(stock),
+    }
+
+    : item
+  )
+  );
+};
+
+
+
+
+
 
 
   const onSubmitHandler = async (e) => {
@@ -36,11 +78,11 @@ function Add() {
         formData.append ("name", name)
         formData.append ("description", description)
         formData.append ("price", price)
-        formData.append ("stock", stock)
+        formData.append ("oldPrice", oldPrice)
         formData.append ("category", category)
         formData.append ("subCategory", subCategory)
-        formData.append ("bestSeller", bestSeller)
-        formData.append ("sizes",sizes.join(","))
+        
+        formData.append ("sizes",JSON.stringify (sizes))
 
 
         image1 && formData.append ("file", image1)
@@ -60,7 +102,7 @@ function Add() {
             },
         });
         
-        console.log(response.data)
+        
 
         if(response.data.success) {
             toast.success(response.data.message)
@@ -70,9 +112,7 @@ function Add() {
         console.log(formData)
     } catch (error) {
       toast.error(error.response?.data?.message);
-     console.log("Status:", error.response?.status);
-     console.log("Backend error:", error.response?.data);
-     console.log("Full error:", error);
+    
 
     }
   }
@@ -217,9 +257,20 @@ function Add() {
               placeholder="20"
             />
           </div>
+
+            <div className="mt-3">
+            <p className="text-lg font-semibold tracking-wide">Original Price</p>
+            <input
+              onChange={(e) => setOldPrice(e.target.value)}
+              value={oldPrice}
+              className="w-full sm:w-30 px-3 py-2 mt-2  outline-sky-500"
+              type="Number"
+              placeholder="20"
+            />
+          </div>
         </div>
 
-        <div className=" flex flex-col mt-3">
+        {/* <div className=" flex flex-col mt-3">
           <p className="text-lg font-semibold tracking-wide">Product Sizes</p>
           <div className="flex gap-3 rounded-sm pt-4 ">
             <div
@@ -274,6 +325,20 @@ function Add() {
                 XL
               </p>
             </div>
+
+             <div
+              onClick={() =>
+                setSizes((prev) =>
+                  prev.includes("XXL")
+                    ? prev.filter((item) => item !== "XXL")
+                    : [...prev, "XXL"],
+                )
+              }
+            >
+              <p className= {`${sizes.includes ("XXL") ? "bg-pink-400 text-white" : "bg-slate-200"}  px-4 py-2 cursor-pointer rounded-sm`}>
+                  XXL
+              </p>
+            </div>
           </div>
                
             <div className="mt-3">
@@ -287,15 +352,49 @@ function Add() {
             />
           </div>
             
-        </div>
+        </div> */}
+
+
+         <div className="flex flex-col mt-3"> 
+             <p className="text-lg font-semibold tracking-wide">Product Sizes & Stock</p>
+        
+            <div className="flex flex-row gap-3 mt-4">
+
+              {["S","M", "L", "XL", "XXL"].map((size) => {
+                const selectedSize = sizes.find((item) => item.size === size);
+
+                return (
+                   <div key={size} className="flex items-center gap-4">
+
+                    {/* ----Size button---- */}
+
+                    <button type="button" onClick={() => handleSizeChange(size)} 
+                    className= {`w-16 py-2 rounded-sm cursor-pointer ${selectedSize ? "bg-pink-400 text-white" : "bg-slate-200"}`}>
+
+                      {size}
+                    </button>
+
+                    {/* ---------------Stock Input------------ */}
+                     {
+                      selectedSize && (
+                        <input type = "number" min= "0" value={selectedSize.stock} onChange={(e) => handleStockChange(size,e.target.value)}
+                        className="w-28 px-3 py-2 border outline-sky-500 rounded-sm" placeholder="Stock" />
+                      )
+                     }
+                    </div>
+
+                )
+              })}
+                
+            </div>
+        
+        
+        
+        
+         </div>
+
       </div>
 
-      <div className="flex mt-3 gap-2">
-        <input onChange={() => setBestSeller (prev => !prev)} checked = {bestSeller} type="checkbox" id="bestseller" />
-        <label htmlFor="bestseller" className="cursor-pointer">
-          Add to bestseller
-        </label>
-      </div>
 
       <button
         type="submit"

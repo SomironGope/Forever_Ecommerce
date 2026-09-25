@@ -34,7 +34,7 @@ console.log(user);
 
 
   return (
-    <nav className="bg-[#b5e48c] rounded-sm flex items-center justify-between  px-2 py-5 font-medium border-b-2 border-gray-500">
+    <nav className="bg-[#b5e48c]  rounded-sm flex items-center justify-between  p-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] xl:px-[12vw] py-5 font-medium border-b-2 border-gray-500">
       <Link to="/">
 
         <h2 className="text-2xl font-bold text-gray-700 hover:text-[#ba181b]">SG Somiron</h2>

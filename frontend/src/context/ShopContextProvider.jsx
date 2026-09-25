@@ -7,8 +7,8 @@ import axios from 'axios';
  
 
   export const ShopContextProvider = (props) => {
-    const currency = 'BDT'
-    const delivery_fee = '10'
+    const currency = '⃁'
+    const delivery_fee = '15'
 
     const [user, setUser] = useState (null);
     const [products, setProducts] = useState ([]);
@@ -20,7 +20,8 @@ import axios from 'axios';
     const [cartItems,setCartItems] = useState ({});
     const [token, setToken] = useState (localStorage.getItem('accessToken') || "");
     const navigate = useNavigate()
-
+   
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     // ---------------Add to Cart Functionality ------------------//
 
@@ -44,10 +45,8 @@ import axios from 'axios';
       try {
          const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-             console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
-
          const response = await axios.post (`${backendUrl}/api/v1/cart/add`, {
-          productId: itemId,
+          productId:itemId,
           size,
           quantity: 1,
          },
@@ -136,6 +135,9 @@ import axios from 'axios';
         const cartData = {};
 
         response.data.cart.items.forEach ((item) => {
+
+          if (!item.productId) return;
+          
           const productId = item.productId._id;
 
           if(!cartData[productId]) {
@@ -153,7 +155,9 @@ import axios from 'axios';
       }
       
      }catch (error) {
-      console.log(error);
+      console.log("Cart Error:", error);
+console.log("Response:", error.response);
+console.log("Data:", error.response?.data);
       toast.error (error.response?.data?.message || 'Failed to fetch cart items');
      }
     }
@@ -403,7 +407,8 @@ import axios from 'axios';
        getCartAmount,
        navigate,
        latestProduct,
-       bestSellers
+       bestSellers,
+       backendUrl
       
        
     }

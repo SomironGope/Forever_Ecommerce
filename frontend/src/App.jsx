@@ -24,6 +24,10 @@ import OrderTracking from './pages/OrderTracking';
 import OTPVerify from './pages/OTPVerify';
 import Change_Password from './pages/Change_Password';
 import Forgot_Password from './pages/Forgot_Password';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailed from './pages/PaymentFailed';
+import PaymentCancel from './pages/PaymentCancel';
+
 
 
 
@@ -32,9 +36,13 @@ function App() {
   
 
   return (
-    <div className = ' p-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] xl:px-[12vw]'>
+    <div className='min-h-screen'>
         <ToastContainer />
         <Navbar />
+
+        <div className = 'p-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] xl:px-[12vw]'>
+
+       
         <SearchBar />
         <Routes >
            <Route path = '/' element = {<Home />} />
@@ -48,11 +56,17 @@ function App() {
            <Route path = '/product/:productId' element = {<Product/>} />
 
            <Route path = '/cart' element = {<Cart/>} />
+
+           <Route path='/payment/success' element = { <PaymentSuccess />} />
            
+           <Route path='/payment/failed' element = { <PaymentFailed />} />
+
+           <Route path='/payment/cancel' element = { <PaymentCancel  />} />
+          
            <Route path = '/place-order' element = {<PlaceOrder />} />
 
            <Route path='/order/:orderId' element = {<OrderTracking />} />
-
+ 
            <Route path = '/profile' element = {<Profile />} />
 
            <Route path='/signup' element = {<Signup />} />
@@ -72,6 +86,8 @@ function App() {
            <Route path = '*' element = {<NotFound/>} />
     
         </Routes>
+
+         </div>
         <Footer />
      
     </div>

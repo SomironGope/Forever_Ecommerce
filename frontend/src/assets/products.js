@@ -13,6 +13,7 @@ import secure from "./Icons/lock.png";
 import stripe from './Icons/stripe.png';
 import razorpay from './Icons/razorpay-icon.png';
 import sslcommerz from './Icons/sslcommerz.png';
+import moyasar from './Icons/moyasar.png';
 // Reviews Icons //
 
 import start from "../assets/Icons/star.png";
@@ -32,7 +33,8 @@ export const assets = {
   secure,
   stripe,
   razorpay,
-  sslcommerz
+  sslcommerz,
+  moyasar,
 
 };
 

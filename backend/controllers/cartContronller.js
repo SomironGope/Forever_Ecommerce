@@ -7,6 +7,14 @@ export const addToCart = async (req, res) => {
     const {productId, size, quantity} = req.body;
 
 
+    if (!size) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select a size"
+      });
+    }
+
+
     if(!Number.isInteger(quantity) || quantity < 1) {
       return res.status(400).json({
         success: false,
@@ -27,6 +35,28 @@ export const addToCart = async (req, res) => {
      }
 
 
+     // Find stock for selected size
+
+     const selectedSize = product.sizes.find((item) => item.size === size);
+
+     if (!selectedSize) {
+      return res.status(400).json({
+        success: false,
+        message: "Selected size is not available"
+      });
+     }
+
+
+     // Check Stock---
+
+
+     if (selectedSize.stock < 1) {
+      return res.status(400).json({
+        success: false,
+        message: `${size} size is out of stock`,
+      });
+     } 
+
    // -------------------Find user's cart---------------------
     let cart = await Cart.findOne ({ userId });
 
@@ -40,6 +70,7 @@ export const addToCart = async (req, res) => {
 
     }
 
+   
     // -------------------Check whether same product + size already exists
 
     const existingItem = cart.items.find( 
@@ -50,14 +81,14 @@ export const addToCart = async (req, res) => {
      if(existingItem) {
     const newQuantity = existingItem.quantity + quantity;
 
-    // ------------Stock Check-----------------------
+    // ------------Check size and Stock -----------------------
 
-    if(newQuantity > product.stock) {
+    if(newQuantity > selectedSize.stock) {
 
       return res.status(400).json({
 
         success: false,
-        message: `Only ${product.stock} items are available in stock`,
+        message: `Only ${selectedSize.stock} ${size} items are available in stock`,
 
       });
     }
@@ -66,12 +97,12 @@ export const addToCart = async (req, res) => {
 
 
      } else {
-      // ------------------Stock Check----------------
+      // ------------------Check size and specific stock----------------
 
-      if(quantity > product.stock) {
+      if(quantity > selectedSize.stock) {
         return res.status(400).json({
           success: false,
-          message: `Only ${product.stock} items are available in stock`,
+          message: `Only ${selectedSize.stock}  ${size} items are available in stock`,
         });
       }
 
@@ -211,10 +242,20 @@ export const updateQuantity = async (req, res) => {
       });
     }
 
-    if(quantity > product.stock) {
+
+    const selectedSize = product.sizes.find((item) => item.size === size);
+
+    if(!selectedSize) {
+      return res.status (400).json({
+        success: false,
+        message: "Selected size is not available"
+      });
+    }
+
+    if(quantity > selectedSize.stock) {
       return res.status(400).json({
         success: false,
-        message: `Only ${product.stock} items are available in stock`,
+        message: `Only ${selectedSize.stock} items are available in stock`,
       });
 
     }
@@ -245,12 +286,17 @@ export const updateQuantity = async (req, res) => {
 
 export const clearCart = async (req, res) => {
   try {
+    const userId = req.user._id;
+
 
     await Cart.findOneAndUpdate(
-    {userId: req.user._id},
-    {cartItems: {} },
+    {userId},
+    {$set: {items: [] } },
     {new: true}
   );
+  
+
+
 
   return res.status(200).json({
     success: true,

@@ -73,7 +73,7 @@ function Signup() {
       </div>
 
       <input
-        className="w-full px-3 py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none focus:border-sky-500"
+        className="w-full px-3 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
         type="text"
         id="firstName"
         name="firstName"
@@ -83,7 +83,7 @@ function Signup() {
         required
       />
       <input
-        className="w-full px-3 py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none focus:border-sky-500"
+        className="w-full px-3 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
         type="text"
         id="lastName"
         name="lastName"
@@ -94,7 +94,7 @@ function Signup() {
       />
 
       <input
-        className="w-full px-3 py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none focus:border-sky-500"
+        className="w-full px-3 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
         type="email"
         id="email"
         name="email"
@@ -108,7 +108,7 @@ function Signup() {
 
      
       <input
-        className="w-full px-3  py-2 sm:w-100 text-sm border border-gray-600 rounded-sm outline-none focus:border-sky-500"
+        className="w-full px-3  py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
         type= {showPassword ? "text" : "password" }
         id="password" focus:border-sky-500
         name="password"
