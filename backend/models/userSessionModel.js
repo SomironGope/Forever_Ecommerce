@@ -5,11 +5,13 @@ const userSessionSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    index: true,
   },
   refreshTokenHash: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
   },
 
   device: {
@@ -17,15 +19,19 @@ const userSessionSchema = new mongoose.Schema({
     default: "Unknown"
   },
   userAgent: {
-    type: String
+    type: String,
+    default: "",
   },
   
   ipAddress: {
-    type: String
+    type: String,
+    default: "",
+    
   },
   expiresAt: {
     type: Date,
-    required: true
+    required: true,
+    expired: 0
   }
 },{timestamps: true});
 

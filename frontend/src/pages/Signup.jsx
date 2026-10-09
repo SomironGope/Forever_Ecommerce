@@ -80,6 +80,7 @@ function Signup() {
         value={formData.firstName}
         onChange={handleChange}
         placeholder="Enter your first name"
+        autoComplete="First name"
         required
       />
       <input
@@ -90,6 +91,7 @@ function Signup() {
         value={formData.lastName}
         onChange={handleChange}
         placeholder="Enter your last name"
+        autoComplete="Last name"
         required
       />
 
@@ -101,6 +103,7 @@ function Signup() {
         value={formData.email}
         onChange={handleChange}
         placeholder="Enter your email"
+        autoComplete="email"
         required
       />
 
@@ -115,6 +118,7 @@ function Signup() {
         value={formData.password}
         onChange={handleChange}
         placeholder="Enter your password"
+        autoComplete="Password"
         required
       />
 

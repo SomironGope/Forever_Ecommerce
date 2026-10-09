@@ -155,11 +155,92 @@ export const getDashboardStats = async (req, res) => {
    }));
 
 
+   // ====================Top Selling Products========================
 
+    const topSellingProducts = await Order.aggregate( [
+
+      {
+        $match: {
+          paymentStatus: "Paid",
+          orderStatus: {$ne: "Cancelled"},
+        },
+      },
+
+      {
+        $unwind: "$items",
+      },
+
+      {
+        $group: {
+          _id: "$items.productId",
+          productName: {$first: "$items.name"},
+          productImage: {$first: "$items.image"},
+          totalSold: {$sum: "$items.quantity"},
+          totalRevenue: {
+            $sum: {
+              $multiply: [ "$items.price","$items.quantity"],
+            },
+          },
+        },
+      },
+
+      {
+        $sort: {
+          totalSold: -1,
+        },
+
+      },
+
+      {
+        $limit: 5,
+      }
+    ]);
+
+
+    // --------------------------Recent Orders--------------------------
+
+    const recentOrders = await Order.find().populate("userId", "firstName lastName email").sort ({createdAt: -1})
+    .limit(5)
+
+
+
+    // ===================Payment Analytics===================
+
+    const totalOnlinePayments = await Order.countDocuments({
+      paymentMethod: "ONLINE"
+    });
+
+    const successfullPayment = await Order.countDocuments ({
+      paymentMethod: "ONLINE",
+      paymentStatus: "Paid",
+    });
+
+    const failedPayments = await Order.countDocuments ({
+      paymentMethod: "ONLINE",
+      paymentStatus: "Failed",
+    });
+
+    const refundedPayments = await Order.countDocuments ({
+       paymentMethod: "ONLINE",
+       paymentStatus: "Refunded",
+    });
+   
+    const pendingPayments = await Order.countDocuments ({
+      paymentMethod: "ONLINE",
+      paymentStatus: "Pending",
+    });
+
+    const successRate = totalOnlinePayments > 0 
+                       ? Number (
+                          (successfullPayment / totalOnlinePayments) * 100
+                       ).toFixed(1)
+                       : 0;
+ 
    // Response================================
 
    return res.status (200).json({
     success: true,
+
     stats: {
       totalUser,
       totalProducts,
@@ -170,9 +251,22 @@ export const getDashboardStats = async (req, res) => {
 
     },
 
+    paymentAnalytics: {
+      totalOnlinePayments,
+      successfullPayment,
+      failedPayments,
+      refundedPayments,
+      pendingPayments,
+      successRate,
+    },
+
     monthlyRevenue: formattedRevenue,
 
     monthlyOrders: formattedOrder,
+
+    topSellingProducts,
+
+    recentOrders,
    });
 
   } catch (error) {
@@ -185,3 +279,7 @@ export const getDashboardStats = async (req, res) => {
     })
   }
 }
+
+
+// ==========================Get Payment Analytics ===========================
+

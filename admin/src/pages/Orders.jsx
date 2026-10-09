@@ -1,12 +1,26 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import axios from "axios";
 import { toast } from "react-toastify";
+
+import { IoSearch } from "react-icons/io5";
+import {useNavigate } from "react-router-dom";
+
 
 function Orders() {
 
   const [orders, setOrders] = useState ([]);
   const [loading, setLoading] = useState (false);
 
+  const [searchOrder, setSearchOrder] = useState ("");
+  const [orderStatus, setOrderStatus] = useState ("");
+
+  const [paymentStatus, setPaymentStatus] = useState ("");
+  const [sortType, setSortType] = useState ("latest");
+
+  const navigate = useNavigate ();
+
+
+ 
   const url = import.meta.env.VITE_BACKEND_URL;
 
   const token = localStorage.getItem("adminToken");
@@ -174,18 +188,135 @@ const refundOrder = async (orderId) => {
   }
 }
 
+
+
+// const filterOrders = useMemo (() => {
+
+//   let orderCopy = [...orders];
+
+//   if (searchOrder) {
+//     orderCopy = orderCopy.filter((order) => 
+//       order._id.toLowerCase().includes(searchOrder.toLocaleLowerCase())
+//     );
+//   }
+
+//   if (orderStatus) {
+//     orderCopy = orderCopy.filter ((order) => order.orderStatus === orderStatus);
+//   }
+
+//   if (paymentStatus) {
+
+//     orderCopy = orderCopy.filter ((order) => order.paymentStatus === paymentStatus);
+//   }
+
+//   orderCopy.sort ((a, b) => {
+//     if (sortType === "latest") {
+//       return new Date (b.createdAt) - new Date (a.createdAt);
+//     }
+
+//     if (sortType === "oldest") {
+//       return new Date (a.createdAt) - new Date (b.createdAt)
+//     }
+
+//     return 0;
+//   });
+
+//   return orderCopy;
+
+// },[orders,searchOrder, orderStatus, paymentStatus, sortType]);
+
+
+// ---------------search Fillter Orders-----------------
+
+const filterOrders = useMemo (() => {
+  let orderCopy = [...orders];
+
+  if (searchOrder) {
+    orderCopy = orderCopy.filter ((order) => order._id.toLowerCase().includes(searchOrder.toLowerCase()));
+  }
+
+  if (orderStatus) {
+    orderCopy = orderCopy.filter ((order) => order.orderStatus === orderStatus);
+  }
+
+  if (paymentStatus) {
+    orderCopy = orderCopy.filter ((order) => order.paymentStatus === paymentStatus);
+  }
+
+  orderCopy.sort ((a, b) => {
+    if (sortType === "latest") {
+      return new Date (b.createdAt)- new Date (a.createdAt)
+    }
+
+    if (sortType === "oldest") {
+      return new Date (a.createdAt) - new Date (b.createdAt)
+    }
+    return 0
+  })
+
+  return orderCopy;
+
+},[orders, searchOrder, orderStatus,paymentStatus, sortType])
+
+
+
+
+
+
 if(loading) {
   return (
     <div className="pt-5"><p>Loading orders...</p></div>
   );
 }
   return (
-    <div>
+    <div className="pt-5">
         <h2 className="text-2xl font-medium"> Orders</h2>
+
+         <div className="w-full md:max-w-100  z-50 flex gap2 items-center mb-5 pt-3 ">
+          <div className=" flex-1 relative ">
+             <input type="text" value = {searchOrder} onChange = {(e) => setSearchOrder(e.target.value)} placeholder="Search Order ID" className="w-full md:max-w-100 border focus:border-sky-500 outline-none rounded-sm px-2 py-1 text-gray-600 text-sm placeholder:text-sm"/>
+         
+            <div className="absolute top-1 right-2">
+                <IoSearch className=" w-5 h-5  rounded-sm gap-2 cursor-pointer"/>
+            </div>
+          </div>
+           
+            
+          </div>
+        
+
+          <div className="flex-col  space-x-2 mb-4">
+               <select onChange={(e) => setOrderStatus (e.target.value)} className="w-full md:max-w-50 border border-sky-500 outline-none rounded px-2 py-1 mb-2">
+                <option value="">All Status</option>
+                <option value= "Pending">Pending</option>
+                <option value= "Processing" >Processing</option>
+                <option value= "Shipped">Shipped</option>
+                <option value= "Delivered" >Delivered</option>
+                <option value= "Cancelled">Cancelled</option>
+            </select>
+
+             <select onChange={(e) => setPaymentStatus(e.target.value)} className="w-full md:max-w-50 border border-sky-500 outline-none rounded px-2 py-1 mb-2">
+                <option value="">All Payment</option>
+                <option value= "Pending">Pending</option>
+                <option value= "Failed" >Failed</option>
+                <option value= "Refunded">Refunded</option>
+                
+            </select>
+
+             <select onChange = {(e) => setSortType(e.target.value)} className="w-full md:max-w-50 border border-sky-500 outline-none rounded px-2 py-1 mb-2">
+                <option value="latest">Latest Orders</option>
+                <option value= "oldest">Oldest Orders</option>
+              
+            </select>
+
+             
+           </div>
+
+        
 
         <div className="flex flex-col gap-5">
            
-           {orders.map((order) => (
+           {filterOrders.map((order) => (
             <div key={order._id} className= "border rounded-lg bg-white p-5" >
 
               {/* ----------------------Order Header------------------------- */}
@@ -296,7 +427,7 @@ if(loading) {
                         }
 
                         {
-                          order.refundAmount && (
+                          order.refundAmount > 0 && (
                             <p>Refund Amount: <span className="font-medium">{order.refundAmount} SAR </span></p>
                           )
                         }
@@ -307,20 +438,29 @@ if(loading) {
                           )
                         }
                       </div>
+                     
+                      <div className="flex items-center justify-between gap-4 ">
 
-
-                      {
+                          {
                         order.paymentMethod === "ONLINE" && 
                         order.paymentProvider === "MOYASAR" && 
                         order.paymentStatus === "Paid" && (
-                          <div className="mt-5">
+                          <div className=" flex gap-4 mt-5">
 
-                              <button disabled = {loading} onClick={() => refundOrder(order._id)} className="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700 cursor-pointer hover:opacity-70 transition">
+                              <button disabled = {loading} onClick={() => refundOrder(order._id)} className="bg-red-600 text-white px-4 md:px-5 py-2 rounded hover:bg-red-700 cursor-pointer hover:opacity-70 transition">
                                 Refund Payment
                               </button>
+
+                               
                             </div>
                         )
                       }
+                             <button onClick={() => navigate (`/order-details/${order._id}`)} className=" bg-sky-500 mt-5 text-white px-3 md:px-5 py-2 rounded hover:opacity-70 cursor-pointer transition">
+                                View Details
+                              </button>
+                        </div>
+
+                     
             </div>
 
        

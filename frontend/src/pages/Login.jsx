@@ -80,9 +80,16 @@ function Login() {
 
           </div>
 
-           <input className="w-full px-3 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
-            type="email" id= 'email' name = 'email' value={formData.email} 
-            onChange={handlChange} placeholder="Enter your email" />
+           <input 
+              type ="email" 
+              id= 'email' 
+              name = 'email' 
+              value={formData.email} 
+              autoComplete="email"
+              required
+              onChange={handlChange} placeholder="Enter your email" 
+              className="w-full px-3 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
+            />
 
            <div className="w-full sm:w-100 relative">
 

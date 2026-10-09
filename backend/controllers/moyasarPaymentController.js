@@ -2,7 +2,9 @@ import axios from "axios";
 import {Order} from '../models/orderModels.js';
 import {Product} from '../models/productModels.js';
 import {Cart} from '../models/cartModels.js';
+import {User} from '../models/userModels.js';
 import mongoose from "mongoose";
+import { sendOrderConfirmationEmail } from "../emails/orderConfirmationEmail.js";
 
 
 
@@ -292,6 +294,20 @@ export const verifyMoyasarPayment = async (req, res) => {
     await session.commitTransaction ();
 
 
+   try {
+      const user = await User.findById (userId).select("email firstName");
+      
+      if (user?.email) {
+        await sendOrderConfirmationEmail(
+          user.email,
+          user.firstName,
+          order,
+        );
+      }
+   } catch (emailError) {
+    console.error("Order confirmation email failed:",emailError )
+   }
+
     return res.status(200).json({
       success: true,
       message: "Payment verified successfully",
@@ -368,15 +384,6 @@ export const refundMoyasarPayment = async (req, res) => {
       });
     }
 
-
-      // Check API key
-    console.log(
-      "Moyasar Secret Key:",
-      process.env.MOYASAR_SECRET_KEY
-        ? `${process.env.MOYASAR_SECRET_KEY.substring(0, 8)}...`
-        : "NOT FOUND"
-    );
-
     // --------------------------Check Current Moyasar Payment------------------
 
     const paymentResponse = await axios.get (`https://api.moyasar.com/v1/payments/${order.moyasarPaymentId}`, 
@@ -444,8 +451,8 @@ export const refundMoyasarPayment = async (req, res) => {
      console.error("Refund Error:", error.response?.data || error.message);
 
       return res.status(error.response?.status || 500).json({
-    success: false,
-    message:
+      success: false,
+      message:
       error.response?.data?.message ||
       error.response?.data?.error ||
       error.response?.data?.description ||

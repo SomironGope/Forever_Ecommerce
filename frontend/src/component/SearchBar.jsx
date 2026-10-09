@@ -16,12 +16,12 @@ function SearchBar() {
   }
 
   return showSearch && visible ? (
-    <div className="bg-gray-200 text-center mt-3 outline-none border-none ">
-      <div className="inline-flex bg-gray-200 items-center justify-center px-5 py-2 my-5 mx-3 rounded-full w-3/4 sm:w-1/2">
+    <div className="text-center mt-2 outline-none border-none ">
+      <div className="inline-flex bg-white border border-sky-500  items-center justify-center px-5 py-2 my-5 mx-3 rounded-full w-3/4 sm:w-1/2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-1 outline-none py-1 mr-1 rounded-md text-sm border border-sky-500"
+          className="flex-1 px-1 outline-none py-1 mr-1 rounded-md text-sm "
           type="text"
           placeholder="Search"
         />
@@ -29,7 +29,7 @@ function SearchBar() {
       </div>
       <img
         onClick={() => setShowSearch(false)}
-        className="inline w-4 cursor-pointer"
+        className="inline w-5 sm:w-6 cursor-pointer"
         src={assets.crossIcon}
         alt="Close"
       />

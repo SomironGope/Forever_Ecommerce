@@ -6,29 +6,47 @@ import Title from "./Title";
 function CartTotal() {
 
   const {currency,delivery_fee,getCartAmount} = useContext(ShopContext)
+
+  const subtotal = Number (getCartAmount()) || 0 ;
+  const shippingFee = Number (delivery_fee) || 0;
+  const total = subtotal === 0 ? 0 : subtotal + shippingFee;
+
+
   return  (
     <div className="w-full">
+
        <div className="text-2xl"> 
          <Title text1={'CART'} text2={'TOTALS'}/>
        </div>
         
 
        <div className="flex flex-col gap-2 mt-2 text-sm">
+         
+         {/* ---Subtotal--- */}
+
          <div className="flex justify-between">
            <p>Subtotal</p>
-           <p> {getCartAmount()}.00 {currency} </p>
+           <p> {currency} {subtotal.toFixed(2) } </p>
            
          </div>
+
          <hr/>
+
+         {/* ---Shipping--- */}
+
           <div className="flex justify-between">
             <p>Shipping Fee</p>
-            <p> {delivery_fee}.00 {currency} </p>
+            <p>  {currency} {shippingFee.toFixed(2)} </p>
           </div>
+
+
           <hr/>
+
+          {/* ---Total--- */}
           <div className="flex justify-between">
              <b>Total</b>
 
-             <b> {getCartAmount() === 0 ? 0 : getCartAmount() + Number(delivery_fee)}.00 {currency} </b>
+             <b> {currency} {total.toFixed(2)} </b>
           </div>
        </div>
     </div>

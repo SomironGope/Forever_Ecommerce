@@ -386,6 +386,36 @@ console.log("Data:", error.response?.data);
    },[token])
    
 
+   // ---------------------------------------Log out --------------------------------
+
+   const logout = async () => {
+
+    try {
+      
+      const response = await axios.post (`${backendUrl}/api/v1/user/logout`,
+        {},
+        {withCredentials: true}
+      );
+
+      if (!response.data.success) {
+        
+        throw new Error("Logout failed")
+      }
+
+      setToken ("");
+      localStorage.removeItem("accessToken");
+      setCartItems({});
+      toast.success ("Logged out successfully");
+
+      return response.data;
+
+    } catch (error) {
+      console.error("Logout API error:", error.response?.data || error.message);
+      throw error;
+    }   
+   }
+
+
     const value = {
       token,
       setToken,
@@ -408,7 +438,8 @@ console.log("Data:", error.response?.data);
        navigate,
        latestProduct,
        bestSellers,
-       backendUrl
+       backendUrl,
+       logout
       
        
     }

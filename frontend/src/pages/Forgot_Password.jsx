@@ -14,7 +14,9 @@ function Forgot_Password() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if(!email) {
+    const trimmedEmail = email.trim()
+
+    if(!trimmedEmail) {
       toast.error ("Email is required");
 
       return;
@@ -25,16 +27,20 @@ function Forgot_Password() {
 
       const response = await axios.post (`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/forgot-password`, 
         {
-          email,
+          email: trimmedEmail,
         }
       );
 
       if(response.data.success) {
-        toast.success (response.data.message);
-        navigate (`/forgot-password/verify-otp/${encodeURIComponent(email)}`);
+        toast.success (response.data.message || "OTP sent successfully");
+        navigate (`/forgot-password/verify-otp/${encodeURIComponent(trimmedEmail)}`);
+      }else {
+        toast.error (response.data.message || "Failed to send OTP")
       }
+
+
     } catch (error) {
-       toast.error (error.response?.data?.message || "Something went wrong")
+       toast.error (error.response?.data?.message || "Something went wrong.Please try again.")
     } finally {
       setLoading (false)
     }
@@ -43,7 +49,7 @@ function Forgot_Password() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4"> 
 
-       <div className="w-full max-w-md bg-white p-6 rounded-lg shodow-md">
+       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
             
             <h2 className="text-xl font-semibold text-center mb-2">Forgot Password</h2>
 
@@ -52,11 +58,18 @@ function Forgot_Password() {
             <form onSubmit={handleSubmit} >
                 <label className="block text-sm font-medium mb-2">Email</label>
 
-                <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail (e.target.value)}
+                <input type="email" placeholder="Enter your email"
+                 value={email} onChange={(e) => setEmail (e.target.value)}
+                 autoComplete="email"
+                 disabled = {loading}
+                 required
                 className="w-full border-2 border-gray-300 rounded-md px-3 py-2 mb-4 outline-none focus:border-black" />
             
             
-            <button type="sumbit" className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer" >
+            <button
+             type="submit"
+             disabled = {loading}
+              className="w-full bg-black text-white py-2 rounded-md disabled:opacity-50 cursor-pointer" >
               {loading ? "Sending OTP..." : "Send OTP"}
             </button>
             

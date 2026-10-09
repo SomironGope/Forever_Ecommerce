@@ -50,7 +50,7 @@ function Login ({setToken}) {
           toast.success(response.data.message);
 
           setTimeout (() => {
-            navigate('/add')
+            navigate('/dashboard')
           },1000)
           
         }
@@ -72,7 +72,7 @@ function Login ({setToken}) {
             Email Address
           </p>
           <input
-            className="border border-slate-800 px-3 py-2 rounded-md text-blue-950 text-sm sm:text-base outline-none focus:border-sky-500"
+            className="border-2 border-slate-800 px-3 py-2 rounded-md text-blue-950 text-sm sm:text-base outline-none focus:border-sky-500"
             type="text"
             placeholder="your@gmail.com"
             id="email"
@@ -89,7 +89,7 @@ function Login ({setToken}) {
           <div className="relative">
 
             <input
-            className="w-full border border-slate-800 px-3 py-2 rounded-md text-blue-950 text-sm sm:text-base outline-none focus:border-sky-500"
+            className="w-full border-2 border-slate-800 px-3 py-2 rounded-md text-blue-950 text-sm sm:text-base outline-none focus:border-sky-500"
             type= {showPassword ? "text" :"password" }
             placeholder="Enter your password"
             name="password"
@@ -98,7 +98,7 @@ function Login ({setToken}) {
             onChange={handleChang}
             required
           />
-             <div className="absolute top-2.5 right-2 cursor-pointer">
+             <div className="absolute top-3 right-2 cursor-pointer text-lg">
                
                {
                 showPassword ?  <FaEyeSlash onClick={() => setShowPassword (false)}/>  :  <IoEyeSharp onClick={() => setShowPassword(true)}/>

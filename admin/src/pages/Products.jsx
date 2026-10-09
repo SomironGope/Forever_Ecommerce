@@ -3,7 +3,7 @@ import axios from 'axios';
 import {toast} from 'react-toastify'
 import { Link } from "react-router-dom";
 
-function List() {
+function Products() {
   
   const [list, setList] = useState([]);
   const currency = "⃁"
@@ -108,4 +108,4 @@ function List() {
   )
 }
 
-export default List;
+export default Products;

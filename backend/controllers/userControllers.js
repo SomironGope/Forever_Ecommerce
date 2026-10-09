@@ -2,18 +2,19 @@
 import {User} from '../models/userModels.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-
+import crypto, { randomInt } from 'crypto';
 import { verifyEmail } from '../emails/emailVerify.js';
 import validator from 'validator';
 import {Session} from '../models/userSessionModel.js';
 import cloudinary from '../utils/cloudinary.js';
 import { sendOTPMail } from '../emails/forgotOTPVerify.js';
+import mongoose from 'mongoose';
+import path from 'path';
 
 
 
 
-
+// ---------------------------------Register----------------------
 
 export const register = async (req,res ) => {
   try {
@@ -30,6 +31,15 @@ export const register = async (req,res ) => {
     // Checking email find or exists
     const normalizEmail = email.trim().toLowerCase();
 
+    // Checking Email / It's valid or invalid
+
+   if (!validator.isEmail(normalizEmail)) {
+    return res.status (400).json ({
+      success: false,
+      message: "Please enter a valid email!"
+    })
+   };
+
    const exists = await User.findOne({email:normalizEmail});
 
    if(exists) {
@@ -39,14 +49,7 @@ export const register = async (req,res ) => {
     })
    };
 
-   // Checking Email / It's valid or invalid
-
-   if (!validator.isEmail(normalizEmail)) {
-    return res.status (400).json ({
-      success: false,
-      message: "Please enter a valid email!"
-    })
-   };
+   
    
    // Password validation
 
@@ -80,7 +83,7 @@ export const register = async (req,res ) => {
 
    // Generating OTP Code 
 
-   const otp = Math.floor(100000 + Math.random () * 900000);
+   const otp = randomInt(100000,1000000).toString();
    
    newUser.otp = otp    // Save OTP in database
 
@@ -89,7 +92,7 @@ export const register = async (req,res ) => {
 
    await newUser.save();
 
-   verifyEmail(otp,normalizEmail) // Send OTP for verification email
+   await verifyEmail(otp,normalizEmail) // Send OTP for verification email
 
    return res.status(201).json ({
     success: true,
@@ -112,7 +115,7 @@ export const register = async (req,res ) => {
 };
 
 
-
+//--------------------------Verify OTP------------------------------
 
 export const verifyOTP = async (req,res) => {
   try {
@@ -192,7 +195,7 @@ export const verifyOTP = async (req,res) => {
 }
 
 
-
+// ----------------------------Resend OTP// One Time Password-------
 export const resendOTP = async (req, res) => {
   try {
      // Check required fields
@@ -254,6 +257,7 @@ export const resendOTP = async (req, res) => {
   }
 }
 
+// ---------------------User Login ----------------------------------
 
 export const login = async (req, res) => {
   try {
@@ -261,17 +265,20 @@ export const login = async (req, res) => {
     // Required Field Validation
     const {email, password} = req.body;
 
-    if(!email || !password) {
-      return res.status(401).json({
+
+    if(typeof email !== "string" || typeof password !== "string" ||
+      !email.trim() || !password
+    ) {
+      return res.status(400).json({
         success:false,
         message: "Email and password are required"
       })
     }
 
-    // Normalize Email // 
+    // Normalize Email 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // check user exists
+    // Find user
 
     const existingUser = await User.findOne({email:normalizedEmail});
     
@@ -282,16 +289,9 @@ export const login = async (req, res) => {
       });  
     }
     
-    // Check email verification
+ 
 
-    if(!existingUser.isVerified) {
-      return res.status(401).json({
-        success: false,
-        message: "Please verify your account before logging in"
-      });
-    }
-
-    // Compare hashed password
+    // Verify password before revealing account status
 
     const isPasswordValid = await bcrypt.compare(password,existingUser.password);
 
@@ -302,47 +302,107 @@ export const login = async (req, res) => {
       });
     }
 
-    // Generate Token
+       // Check email verification
 
-    // Generate Access Token
+    if(!existingUser.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: "Please verify your account before logging in"
+      });
+    }
 
-    const accessToken = jwt.sign({id:existingUser._id, role: existingUser.role},process.env.ACCESS_TOKEN_SECRET, {expiresIn:"10m"});
+    // Check blocked account
+
+    if (existingUser.isBlocked) {
+      return res.status(403).json ({
+        success: false,
+        message: "Your account has been blocked. please contact support"
+      })
+    }
+   
+    // Validate toke secrets
+
+    if ( !process.env.ACCESS_TOKEN_SECRET ||
+         !process.env.REFRESH_TOKEN_SECRET
+       ) {
+        throw new Error ("Authentication secrets are not configured");
+       }
+
+
+       // Give the login its own session ID
+       const sessionId = new mongoose.Types.ObjectId();
+
+    // Generate Access Token: short-lived
+
+    const accessToken = jwt.sign(
+      {
+        id:existingUser._id, 
+        role: existingUser.role
+      },
+      process.env.ACCESS_TOKEN_SECRET, {expiresIn:"10m"}
+    );
     
-    // Generate Refresh Token
-    const refreshToken = jwt.sign({id:existingUser._id, role: existingUser.role}, process.env.REFRESH_TOKEN_SECRET, {expiresIn:"30d"});
+    // Generate Refresh Token: tied to this specific session
+
+    const refreshToken = jwt.sign(
+      {
+        id:existingUser._id,
+         role: existingUser.role,
+         sid: sessionId.toString(),
+        }, 
+        process.env.REFRESH_TOKEN_SECRET, 
+        {expiresIn:"30d"}
+      );
   
-   // Crypto Hash Refresh Token 
+   //  Hash Refresh Token 
 
-   const refreshTokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+   const refreshTokenHash = crypto
+       .createHash("sha256")
+       .update(refreshToken)
+       .digest("hex");
+   
+       // Session expires in 30 days
+    const expiresAt = new Date(
+       Date.now() + 30 * 24 * 60 * 60 * 1000
+    )
 
-    existingUser.isLoggedIn = true;
-    await existingUser.save();
+    const userAgent = req.get("user-agent") || "";
 
-    // Manage Session
-    const existingSession = await Session.findOne ({userId: existingUser._id})
   
-    if(existingSession) {
-      await Session.deleteOne({userId: existingUser._id});
-    };
+
+  // Create a seperate session; do not delete other devices
 
     await Session.create({
+      _id: sessionId,
      userId: existingUser._id,
      refreshTokenHash,
-     device: req.headers["user-agent"],
-     userAgent: req.headers["user-agent"],
-     expiresAt: new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000
-  )
+     device: userAgent || "Unknown",
+     userAgent,
+     ipAddress: req.ip || "",
+     expiresAt,
+  
 });
 
-     // Cookie 
+// This legacy field is global, not device-specific.
+// Keep in true while the user has active sessioin.
+
+if ( !existingUser.isLoggedIn) {
+  existingUser.isLoggedIn = true;
+  
+  await existingUser.save();
+}
+
+     // Set the refresh-token Cookie
 
      res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: "/",
      });
+
+
       // Return user data
 
     return res.status(200).json({
@@ -361,37 +421,102 @@ export const login = async (req, res) => {
 
   
   } catch (error) {
+    // Keep detailed error in server logs, not API response.
+    console.error ("Login error:", error);
+
     return res.status(500).json({
       success:false,
-      message: error.message
+      message: "Internal server error"
     })
   }
 }
-
+// -----------------------User Log Out-------------------------------
 export const logout = async (req,res) => {
   try {
-    const userId = req.id;
-    await Session.deleteMany({userId});
-    await User.findByIdAndUpdate(userId, {isLoggedIn: false});
+   console.log("Refresh token exists:", !!req.cookies?.refreshToken);
+    const refreshToken = req.cookies?.refreshToken;
 
-    // res.clearCookie ("refreshToken",{
-    //   httpOnly: true,
-    //   secure: process.env
-    // })
+    // Get the current device's refresh token
 
+    if (refreshToken) {
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+
+      const {id: userId, sid } = decoded;
+
+      if (userId && sid) {
+        const refreshTokenHash = crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex");
+
+        // Delete only this device's session
+
+        console.log("Decoded session ID:", sid);
+console.log("Decoded user ID:", userId);
+console.log("Token hash:", refreshTokenHash);
+
+        const deletedSession = await Session.deleteOne({
+          _id: sid,
+          userId,
+          refreshTokenHash
+        });
+
+         // Check whether the user has another active session
+
+         if (deletedSession.deletedCount === 1) {
+           
+           const activeSession = await Session.exists({
+              userId,
+              expiresAt: { $gt: new Date() }
+             });
+
+               // Update the legacy global login status
+        
+        if (!activeSession) {
+          await User.findByIdAndUpdate(userId, {
+            isLoggedIn: false
+          });
+        }
+       }  
+      }
+    }
+
+    // Clear the refresh-token cookie
+
+    res.clearCookie ("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/"
+    })
+   
     return res.status(200).json({
       success:true,
       message: "User logged out successfully"
     })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message
+    console.error ("Logout error:", error);
+     
+    // clear the cookie even if the token is invalid
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/"
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User logged out successfully"
     })
   }
 }
 
-// -------------------------FORGET PASSWORD--------------------------------
+// -------------------------FORGET PASSWORD--------------------------
 
 export const forgotPassword = async (req, res) => {
   try {
@@ -449,7 +574,7 @@ export const forgotPassword = async (req, res) => {
 }
 
 
-// -----------------------------------OTP Verify--------------------------
+// --------------------------------OTP Verify--------------------------
 
 export const OTPVerify = async (req, res) => {
   try {
@@ -542,7 +667,7 @@ export const OTPVerify = async (req, res) => {
   }
 }
 
-// ----------------------Change Password----------------------------------
+// ----------------------Change Password------------------------------
 
 export const changePassword = async (req, res) => {
 
@@ -624,6 +749,7 @@ export const changePassword = async (req, res) => {
   }
 }
 
+// ------------------------User Profile--------------------------------
 
 export const profile = async (req,res) => {
   try {
@@ -651,6 +777,7 @@ export const profile = async (req,res) => {
   }
 }
 
+// -----------------------Get All User---------------------------------
 
 export const getAllUser = async (req,res) => {
   try {
@@ -670,7 +797,7 @@ export const getAllUser = async (req,res) => {
 }
 
 
-
+// ----------------------Update Profile --------------------------------
 
 export const updateProfile = async (req, res) => {
   try {
@@ -777,4 +904,79 @@ export const updateProfile = async (req, res) => {
 }
 
 
+// ----------------------------Block User------------------------------
 
+export const blcokUser = async (req, res) => {
+
+  try {
+    
+    const {userId} = req.params;
+
+    const user = await User.findById (userId);
+
+    if (!user) {
+      return res.status (404).json ({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (req.user.role === "admin") {
+      return res.status (403).json ({
+        success: false,
+        message: "Admin account cannot be blocked"
+      });
+    }
+
+    user.isBlocked = true;
+
+    await user.save ();
+    return res.status(200).json ({
+      success: true,
+      message: "User blocked successfully",
+    });
+
+  } catch (error) {
+    console.log ("User Blocked Error:", error);
+    return res.status (500).json ({
+      success: false,
+      message: error.message,
+    })
+  }
+}
+
+
+// ------------------------Unblock User---------------------
+
+export const unblockedUser = async (req, res) => {
+  try {
+    
+     const {userId} = req.params;
+
+     const user = await User.findById (userId);
+     if (!user) {
+      return res.status (404).json ({
+        success: false,
+        message: "User not found",
+      });
+     }
+
+     user.isBlocked = false;
+
+     await user.save();
+
+     return res.status(200).json ({
+      success: false,
+      message: "User unblocked successfully",
+     });
+
+
+  } catch (error) {
+    console.log ("Unblocked User Error:", error);
+
+    return res.status (500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}

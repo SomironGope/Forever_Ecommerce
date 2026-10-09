@@ -3,7 +3,6 @@ import './App.css'
 import Navbar from './component/Navbar'
 import {Routes, Route, Navigate} from 'react-router-dom';
 import Sidebar from './component/Sidebar'
-import List from './pages/List'
 import Order from './pages/Orders';
 import Login from './component/Login';
 import { useEffect, useState } from 'react';
@@ -12,30 +11,28 @@ import 'react-toastify/dist/ReactToastify.css';
 import Add from './pages/Add';
 import Dashboard from './pages/Dashboard';
 import UpdateProduct from './pages/UpdateProduct';
+import OrderDetailsPage from './pages/OrderDetailsPage';
+import Users from './pages/Users';
+import Products from './pages/Products';
 
 
 
-
-
-function App () {
+   function App () {
  
-   
 
-  const [token, setToken] = useState(localStorage.getItem('adminToken') || "" );
+   const [token, setToken] = useState(localStorage.getItem('adminToken') || "" );
 
-  useEffect(() => {
+    useEffect(() => {
 
     if(token) {
       localStorage.setItem('adminToken', token)
     }
     
-  },[token]);
-
-  const logout = () => {
+   },[token]);
+    const logout = () => {
     localStorage.removeItem("adminToken");
     setToken("");
     
-  
   };
 
 
@@ -56,8 +53,11 @@ function App () {
                   
                   <Route path='/' element = {< Navigate to = "/add" /> }/>
                   <Route path='/add' element = { <Add />} />
-                  <Route path='/list' element = { <List /> } />
-                  <Route path='/orders' element = {<Order />} />
+                  <Route path='/products' element = { <Products /> } />
+                  <Route path='/orders' element = { <Order />} />
+                  <Route path='/users' element = { <Users /> } />
+
+                  <Route path='/order-details/:orderId' element = { <OrderDetailsPage />} />
                   <Route path='/dashboard' element = {<Dashboard />} />
                   <Route path = '/update-product/:productId' element = {<UpdateProduct /> } />
               </Routes>
@@ -67,17 +67,10 @@ function App () {
         
       }
       
-        
-        
-     
-        
-      
      
   </div>
 
-  )
-     
-  
+  ) 
  
 }
 

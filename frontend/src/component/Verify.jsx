@@ -30,19 +30,48 @@ function Verify() {
     }
   };
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const pastedData = e.clipboardData
+    .getData("text")
+    .replace (/\D/g, "")
+    .slice(0, 6);
+
+    if (!pastedData.length === 0 ) return;
+
+    const newOtp = ["", "", "", "", "", ""];
+
+    pastedData.split ("").forEach((digit, index) => {
+      newOtp[index] = digit;
+    });
+
+    setOtp(newOtp);
+
+    // ------------Focus the next empty input, or the last input-----------------
+
+    const focusIndex = Math.min(pastedData.length, 5);
+    inputRefs.current [focusIndex]?.focus();
+  };
+
+
+
   const handleKeyDown = (e,index) => {
     // Move back when pressing Backspace
     if(e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index -1]?.focus();
     }
   }
+
+
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
 
     const otpCode = otp.join("");
     
     if(otpCode.length !== 6) {
-      alert ("Please enter the complete OTP");
+      toast.error("Please enter the complete OTP");
       return;
     };
 
@@ -55,7 +84,7 @@ function Verify() {
 
       if(response.data.success) {
         toast.success(response.data.message);
-
+        localStorage.removeItem("email");
         navigate('/login',);
 
       }
@@ -86,9 +115,15 @@ function Verify() {
 
 
   const handleResendOTP = async () => {
+
+    if (!email) {
+      toast.error ("Email not found. Please register again.");
+      navigate ("/register");
+      return;
+    }
     try {
       const {data} = await axios.post(
-        `{import.meta.env.VITE_BACKEND_URL}/api/v1/user/resend-otp`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/resend-otp`,
          {
           email
         }
@@ -100,23 +135,27 @@ function Verify() {
         // restart 2 minutes timer
         setTimeLeft(120);
 
+        // Clear previous OTP
+        setOtp(["", "", "", "", "", ""]);
+
+        // Focus first OTP input
+        inputRefs.current[0]?.focus();
+
       }
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      console.error ("Resend OTP error:", error)
+      toast.error(error.response?.data?.message || "Failed to resend OTP");
     }
   };
 
 
-
-
-
-
   
   return (
+     
     <form onSubmit={handleVerifyOTP} className="min-h-screen flex items-center justify-center flex-col">
         <div className=" w-100 h-auto px-2 mb-5  flex items-center justify-center flex-col rounded-lg ">
-          <h1 className="pb-10 text-2xl font-extrabold text-black">Verify Your Email</h1>
-      <div className="flex flex-col text-center">
+             <h1 className="pb-10 text-2xl font-extrabold text-black">Verify Your Email</h1>
+       <div className="flex flex-col text-center">
 
         <div className="flex gap-2 items-center justify-center">
             {otp.map((digit,index) => (
@@ -128,30 +167,35 @@ function Verify() {
               value={digit}
               onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e)=> handleKeyDown(e, index)}
+              onPaste={handlePaste}
               className="w-12 h-12 border rounded-lg text-center text-xl outline-none" />
             ))}
             
-             </div>
+      </div>
              <p className="text-sm sm:text-sm py-5 text-center">Enter the 6-digit code sent to your email</p>
         </div>
           <button type="submit" className=" w-full px-5 py-2 mx-4 border my-7 rounded-2xl bg-linear-to-r from-sky-400 to-purple-600  cursor-pointer border-slate-800 text-sm font-semibold hover:bg-linear-to-r hover:from-orange-400 hover:to-pink-500 hover:text-white transition-all duration-300 ease-in-out">Verify OTP</button>
           <p>Didn't receive the code?</p>
-          <div>
+
+           <div>
               {timeLeft > 0 ? (
-                <p>Resend OTP in {Math.floor(timeLeft/ 60 )} :
+                <p>Resend OTP in {Math.floor(timeLeft / 60 )} :
                 {String(timeLeft % 60).padStart(2, "0")}
                 </p>
               ) : (
-                <button onClick={handleResendOTP}>Resend OTP</button>
+                <button  type = "button" onClick={ (e) => { e.preventDefault();
+                  handleResendOTP();}}>Resend OTP</button>
               )}
           </div>
-         
-         
-         
+      
          </div>
+      
         
       
     </form>
+   
+          
+  
   )
 }
 

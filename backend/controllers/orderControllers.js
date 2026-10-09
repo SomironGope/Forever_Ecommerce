@@ -1,6 +1,9 @@
 import {Product} from '../models/productModels.js'
 import {Order} from '../models/orderModels.js';
 import {Cart} from '../models/cartModels.js';
+import {User} from '../models/userModels.js';
+import { sendOrderConfirmationEmail } from '../emails/orderConfirmationEmail.js';
+import { sendOrderStatusEmail } from '../emails/sendOrderStatusEmail.js';
 import mongoose from 'mongoose';
 
 
@@ -180,6 +183,29 @@ export const createOrder = async (req, res) => {
 
     await session.commitTransaction();
 
+    //-----------------Send Order Confirmation Email----------------------
+
+    if (paymentMethod === "COD") {
+       try {
+      const user = await User.findById (userId);
+
+      if (user?.email) {
+        await sendOrderConfirmationEmail(
+          user.email,
+          user.firstName,
+          order[0],
+        );
+      }
+    } catch (emailError) {
+
+      console.error("Order confirmation email failed:",emailError)
+      
+    }
+    }
+    
+  
+   
+
     // ------------------------Response-------------------------------
 
     return res.status(201).json({
@@ -234,7 +260,7 @@ export const getSingleOrder = async (req, res) => {
     const {orderId} = req.params;
     const userId = req.user._id;
 
-    const order = await Order.findOne({_id: orderId, userId});
+    const order = await Order.findOne({ _id: orderId, userId: req.user._id });
 
     if(!order) {
       return res.status(404).json({
@@ -250,13 +276,42 @@ export const getSingleOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Get Signle Order Error:", error)
+    console.error("Get Single Order Error:", error)
     return res.status(500).json({
       success: false,
       message: error.message
     })
   }
 }
+// ========================Admin Controllers========================
+export const getSingleOrderAdmin = async (req, res) => {
+  try{
+   
+     const {orderId} = req.params;
+
+     const order =await Order.findById (orderId).populate("userId", "firstName lastName email");
+
+     if (!order) {
+      return res.status(404).json ({
+        success: false,
+        message: "Order not found"
+      });
+     }
+
+     return res.status(200).json ({
+      success: true,
+      order,
+     });
+
+
+  }catch(error) {
+    return res.status(500).json ({
+      success:fasle,
+      message: error.message
+    })
+  }
+}
+
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -308,7 +363,7 @@ export const updateOrderStatus = async (req, res) => {
     }
     
     // Find Order
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("userId","firstName email");
 
     if(!order) {
       return res.status(404).json({
@@ -317,11 +372,43 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Update status
+    // Save old Status
+
+    const oldStatus = order.orderStatus;
+
+    // Don't send email if status hasn't changed
+
+    if (oldStatus === orderStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "Order status is already" + orderStatus,
+      });
+    }
+
+    //Update status
+   
     order.orderStatus = orderStatus;
+    
 
     await order.save();
+    
+    // send status notification email/
 
+    if (order.userId?.email) {
+      try {
+        console.log("Sending status email to:", order.userId.email);
+
+        await sendOrderStatusEmail(
+          order.userId.email,
+          order.userId.firstName,
+          order
+        )
+
+        console.log("Status email sent successfully");
+      } catch (emailError) {
+        console.log("Order status email failed:", emailError.message);
+      }
+    }
     return res.status(200).json({
       success: true,
       message: "Order status updated successfully",
@@ -497,5 +584,172 @@ export const cancelOrder = async (req, res) => {
   
 }
 
+// ====================Get Payment Analytics========================
+
+export const getPaymentAnalytics = async (req, res) => {
+  try {
+    const analytics = await Order.aggregate ([
+      {
+         $facet: {
+           // =================Payment Status=====================
+           paymentStatus: [
+             {
+              $group: {
+                 _id: "$paymentStatus",
+                 count: {$sum: 1},
+                 amount: {$sum: "$amount"},
+              },
+             },
+             {
+              $sort: {amount: -1},
+             },
+           ],
+
+           // ============================Payment Method===================
+
+           paymentMethod: [
+            {
+              $group: {
+                _id: "$paymentMethod",
+                count: {$sum: 1},
+                amount: {$sum: "$amount"},
+              },
+            },
+           ],
+
+           //===================Payment Provider=========================
+
+           paymentProvider: [
+            {
+               $match: {
+                paymentProvider: {$ne: null},
+               },
+            },
+
+            {
+              $group: {
+                _id: "$paymentProvider",
+                amount: {$sum: "$amount"},
+                count: {$sum: 1},
+              },
+            },
+           ],
+           
+           // =======================Total Paid ========================
+
+           totalPaid: [
+            {
+              $match: {
+                  paymentStatus : "Paid",
+              },
+              
+            },
+            {
+              $group: {
+                _id: null,
+                amount: {$sum: "$amount"},
+                count: {$sum: 1},
+              },
+            },
+           ],
+
+           // =====================Total Pending========================
+           totalPending: [
+            {
+               $match: {
+                 paymentStatus: "Pending",
+               },
+            },
+            {
+              $group: {
+                _id: null,
+                amount: {$sum: "$amount"},
+                count: {$sum: 1},
+              },
+            },
+           ],
+
+
+           // ==================Total Failed===============================
+
+           totalFailed: [
+             {
+                $match: {
+                  paymentStatus: "Failed",
+                },
+             },
+             {
+              $group: {
+                _id: null,
+                amount: {$sum: "$amount"},
+                count: {$sum: 1},
+              },
+             },
+           ],
+
+           // ================Total Refunded==============================
+
+           totalRefunded: [
+            {
+              $match: {
+                paymentStatus: "Refunded",
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                amount: {$sum: "$refundAmount"},
+                count: {$sum: 1},
+              },
+            },
+           ],
+         },
+      },
+    ]);
+
+    const data = analytics[0]
+
+    return res.status(200).json({
+      success: true,
+
+      paymentStatus: data.paymentStatus,
+
+      paymentMethod: data.paymentMethod,
+
+      paymentProvider: data.paymentProvider,
+
+      summary: {
+        paid: data.totalPaid[0] || {
+          amount: 0,
+          count: 0,
+        },
+
+        
+          pending: data.totalPending [0] || {
+            amount: 0,
+            count: 0,
+          },
+        
+          failed: data.totalFailed [0] || {
+            amount: 0,
+            count: 0,
+          },
+
+          refunded: data.totalRefunded[0] || {
+            amount: 0,
+            count: 0,
+          },
+      },
+
+    });
+
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
 
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { changePassword, forgotPassword, getAllUser, login, logout, OTPVerify, profile, register, resendOTP, updateProfile, verifyOTP } from '../controllers/userControllers.js';
+import { blcokUser, changePassword, forgotPassword, getAllUser, login, logout, OTPVerify, profile, register, resendOTP, unblockedUser, updateProfile, verifyOTP } from '../controllers/userControllers.js';
 import { isAdmin, isAuthenticate } from '../middleware/isAuthenticate.js';
 import { singleUpLoadImg } from '../multer/Multer.js';
 
@@ -29,6 +29,10 @@ router.get ('/profile',isAuthenticate,profile);
 router.put ('/profile', isAuthenticate,singleUpLoadImg ,updateProfile);
 
 router.get ('/all-user',isAuthenticate,isAdmin, getAllUser);
+
+router.put ('/block-user/:userId', isAuthenticate, isAdmin, blcokUser);
+
+router.put ('/unblock-user/:userId', isAuthenticate,isAdmin,unblockedUser);
 
 
 

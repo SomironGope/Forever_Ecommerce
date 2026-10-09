@@ -30,19 +30,17 @@ function ChangePassword() {
 
    const submitChangePassword = async (e) => {
       e.preventDefault();
+
+      if (!newPassword || !confirmPassword) {
+         toast.error ("All fields are required");
+
+         return;
+      }
      
-      // if (!newPassword || confirmPassword) {
-      //    toast.error ("All fields are required");
-      //    return ;
-      // }
-
-      // if (newPassword !== confirmPassword) {
-      //    toast.error ("Password do not match");
-         
-      //    return;
-      // }
-
-
+      if (newPassword !== confirmPassword) {
+         toast.error ("Password do not match");
+         return;
+      }
       try {
 
          setLoading (true);
@@ -55,8 +53,10 @@ function ChangePassword() {
    );
 
    if (response.data.success) {
-      toast.success (response.data.message);
+      toast.success (response.data.message || "Password changed successfully");
       navigate ('/login')
+   } else {
+      toast.error (response.data.message || "Failed to change password")
    }
          
       } catch (error) {
@@ -73,7 +73,7 @@ function ChangePassword() {
    return(
     <div className="min-h-screen flex items-center justify-center px-4"> 
 
-       <div className="w-full h-auto max-w-md bg-white shodow-lg rounded-lg p-6">
+       <div className="w-full h-auto max-w-md bg-white shadow-lg rounded-lg p-6">
             
             <h1 className="text-2xl font-bold text-center mb-6 ">Change Password</h1>
 
@@ -83,10 +83,16 @@ function ChangePassword() {
                    <label className="block mb-1">New Password</label>
                   
                   <div className="relative">
-                      <input type={showPassword ? "text" : "password" } placeholder="Enter new password" 
-                       value={newPassword} 
-                       onChange={(e) => setNewPassword (e.target.value)} 
-                        className="w-full border rounded-md px-3 py-2 outline-none focus:border-sky-500"/>
+                      <input 
+                         type={showPassword ? "text" : "password" }
+                         placeholder="Enter new password" 
+                         value={newPassword} 
+                         onChange={(e) => setNewPassword (e.target.value)} 
+                         required
+                         minLength={8}
+                         disabled = {loading}
+                         autoComplete="new-password"
+                         className="w-full border rounded-md px-3 py-2 outline-none focus:border-sky-500 disabled:bg-gray-100"/>
                 
                 <div className="absolute top-2.5 right-2">
                    {
@@ -103,10 +109,15 @@ function ChangePassword() {
                      
                      <div className="relative">
 
-                        <input type={showConfirmPassword ? "text" : "password" } placeholder="Enter confirm password"
+                        <input 
+                          type={showConfirmPassword ? "text" : "password" } 
+                          placeholder="Enter confirm password"
                           value={confirmPassword}
-                           onChange={(e) => setConfirmPassword (e.target.value)}
-                           className="w-full border rounded-md px-3 py-2 outline-none focus:border-sky-500" />
+                          onChange={(e) => setConfirmPassword (e.target.value)}
+                          disabled = {loading}
+                          autoComplete="new-password"
+                          minLength={8}
+                          className="w-full border rounded-md px-3 py-2 outline-none focus:border-sky-500 disabled:bg-gray-100" />
                         <div className="absolute top-2.5 right-2 cursor-pointer">
 
                            {
@@ -118,7 +129,9 @@ function ChangePassword() {
                     
                 </div>
 
-                <button type="submit" className="w-full py-2 rounded-md bg-black text-white cursor-pointer">
+                <button type="submit" 
+                disabled = {loading}
+                className="w-full py-2 rounded-md bg-black text-white cursor-pointer disabled:opacity-50">
                   
                   {
                      loading ? "Updating..." : "Change Password"

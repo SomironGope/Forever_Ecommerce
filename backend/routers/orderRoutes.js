@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAdmin, isAuthenticate } from '../middleware/isAuthenticate.js';
-import { cancelOrder, createOrder, getAllOrders, getMyOrders, getSingleOrder, updateOrderStatus, updatePaymentStatus } from '../controllers/orderControllers.js';
+import { cancelOrder, createOrder, getAllOrders, getMyOrders, getPaymentAnalytics, getSingleOrder,getSingleOrderAdmin, updateOrderStatus, updatePaymentStatus } from '../controllers/orderControllers.js';
 
 const router = express.Router();
 
@@ -19,9 +19,20 @@ router.get ('/my-orders', isAuthenticate,getMyOrders);
 
 router.get ('/all-orders', isAuthenticate,isAdmin,getAllOrders);
 
+
+//======================Get Payment Analytics==================
+
+router.get ('/payment-analytics', isAuthenticate, isAdmin, getPaymentAnalytics);
+
 // ------------------Get Signle Order-------------------------
 
 router.get ('/:orderId',isAuthenticate,getSingleOrder);
+
+
+
+//--------------------------Admin Routes-----------------------------
+
+router.get ('/admin/:orderId', isAuthenticate, isAdmin, getSingleOrderAdmin)
 
 // ----------------------------Update OrderStatus---------------------------
 
@@ -34,6 +45,8 @@ router.put ('/:orderId/payment-status', isAuthenticate, isAdmin, updatePaymentSt
 // -------------------------------Order Cancel--------------------------------------
 
 router.put ('/cancel-order/:orderId', isAuthenticate, cancelOrder);
+
+
 
 
 
