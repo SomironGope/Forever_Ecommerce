@@ -1,11 +1,7 @@
 import { useState } from "react";
 import uploadImg from "../assets/share.png";
-import axios from "axios";
 import { toast } from "react-toastify";
-
-
-
-
+import adminAxios from "../utils/AdminAxios";
 
 function Add() {
   const [image1, setImage1] = useState(false);
@@ -14,110 +10,131 @@ function Add() {
   const [image4, setImage4] = useState(false);
   const [image5, setImage5] = useState(false);
 
+  const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [oldPrice, setOldPrice] = useState ("");
-  
+  const [oldPrice, setOldPrice] = useState("");
+
   const [category, setCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("Topwear");
   // const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
 
+  // Handle Size//
 
-// Handle Size//
+  const handleSizeChange = (size) => {
+    setSizes((prev) => {
+      const exists = prev.find((item) => item.size === size);
 
-const handleSizeChange = (size) => {
+      if (exists) {
+        return prev.filter((item) => item.size !== size);
+      }
 
-  setSizes ((prev) => {
-    const exists = prev.find((item) => item.size === size);
+      return [
+        ...prev,
+        {
+          size,
+          stock: 0,
+        },
+      ];
+    });
+  };
 
-    if (exists) {
-      return prev.filter((item) => item.size !== size);
-    }
-
-    return [
-      ...prev,
-      {
-        size,
-        stock: 0,
-      },
-    ];
-  });
-};
-
-
-const handleStockChange = (size,stock) => {
-  setSizes ((prev) => 
-    prev.map((item) => item.size === size ? 
-    {
-      ...item,
-      stock: Number(stock),
-    }
-
-    : item
-  )
-  );
-};
-
-
-
-
-
-
+  const handleStockChange = (size, stock) => {
+    setSizes((prev) =>
+      prev.map((item) =>
+        item.size === size
+          ? {
+              ...item,
+              stock: Number(stock),
+            }
+          : item,
+      ),
+    );
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    const url = `${import.meta.env.VITE_BACKEND_URL}/api/v1/product/add-product`
+    if (loading) return;
+
+    setLoading(true);
 
     try {
+      const images = [image1, image2, image3, image4, image5].filter(Boolean);
 
-        const formData = new FormData();
+      if (images.length === 0) {
+        toast.error("Please upload at least one product image.");
 
-        formData.append ("name", name)
-        formData.append ("description", description)
-        formData.append ("price", price)
-        formData.append ("oldPrice", oldPrice)
-        formData.append ("category", category)
-        formData.append ("subCategory", subCategory)
-        
-        formData.append ("sizes",JSON.stringify (sizes))
+        return;
+      }
 
+      if (Number(price) <= 0 || price.trim() === "") {
+        toast.error("Please enter a valid product price.");
+        return;
+      }
 
-        image1 && formData.append ("file", image1)
-        image2 && formData.append ("file", image2)
-        image3 && formData.append ("file", image3)
-        image4 && formData.append ("file", image4)
-        image5 && formData.append ("file", image5)
-        
+      if (oldPrice.trim() !== "" && Number(oldPrice) < 0) {
+        toast.error("Original price cannot be negative.");
 
-        const token = localStorage.getItem ("adminToken");
+        return;
+      }
 
+      if (Number(oldPrice) > 0 && Number(oldPrice) <= Number(price)) {
+        toast.error("Original price must be greater than the product price.");
+        return;
+      }
 
+      if (sizes.length === 0) {
+        toast.error("Please select at least one product size.");
+        return;
+      }
 
-        const response = await axios.post (url, formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        
-        
+      if (
+        sizes.some((item) => !Number.isInteger(item.stock) || item.stock < 0)
+      ) {
+        toast.error("Stock must be a non-negative whole number.");
+        return;
+      }
 
-        if(response.data.success) {
-            toast.success(response.data.message)
-        }
+      const formData = new FormData();
 
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("oldPrice", oldPrice);
+      formData.append("category", category);
+      formData.append("subCategory", subCategory);
 
-        console.log(formData)
+      formData.append("sizes", JSON.stringify(sizes));
+
+      image1 && formData.append("file", image1);
+      image2 && formData.append("file", image2);
+      image3 && formData.append("file", image3);
+      image4 && formData.append("file", image4);
+      image5 && formData.append("file", image5);
+
+      const response = await adminAxios.post(
+        "/api/v1/product/add-product",
+        formData,
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+      }
+
+      console.log(formData);
     } catch (error) {
-      toast.error(error.response?.data?.message);
-    
-
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to add product. Please try again.",
+      );
+    } finally {
+      setLoading(false);
     }
-  }
-   
-  
+  };
+
   return (
     <form onSubmit={onSubmitHandler}>
       <div>
@@ -132,8 +149,9 @@ const handleStockChange = (size,stock) => {
               alt="uploadImg"
             />
             <input
-              onChange={(e) => setImage1(e.target.files[0])}
+              onChange={(e) => setImage1(e.target.files[0] || false)}
               type="file"
+              accept="image/*"
               id="image1"
               alt="uploadImg 1"
               hidden
@@ -146,8 +164,9 @@ const handleStockChange = (size,stock) => {
               alt="uploadImg"
             />
             <input
-              onChange={(e) => setImage2(e.target.files[0])}
+              onChange={(e) => setImage2(e.target.files[0] || false)}
               type="file"
+              accept="image/*"
               id="image2"
               hidden
             />
@@ -159,8 +178,9 @@ const handleStockChange = (size,stock) => {
               alt="uploadImg"
             />
             <input
-              onChange={(e) => setImage3(e.target.files[0])}
+              onChange={(e) => setImage3(e.target.files[0] || false)}
               type="file"
+              accept="image/*"
               id="image3"
               hidden
             />
@@ -172,8 +192,9 @@ const handleStockChange = (size,stock) => {
               alt="uploadImg"
             />
             <input
-              onChange={(e) => setImage4(e.target.files[0])}
+              onChange={(e) => setImage4(e.target.files[0] || false)}
               type="file"
+              accept="image/*"
               id="image4"
               hidden
             />
@@ -185,8 +206,9 @@ const handleStockChange = (size,stock) => {
               alt="uploadImg"
             />
             <input
-              onChange={(e) => setImage5(e.target.files[0])}
+              onChange={(e) => setImage5(e.target.files[0] || false)}
               type="file"
+              accept="image/*"
               id="image5"
               hidden
             />
@@ -250,157 +272,78 @@ const handleStockChange = (size,stock) => {
           <div className="mt-3">
             <p className="text-lg font-semibold tracking-wide">Product Price</p>
             <input
+              type="number"
+              min="0"
+              step="0.01"
               onChange={(e) => setPrice(e.target.value)}
               value={price}
-              className="w-full sm:w-30 px-3 py-2 mt-2  outline-sky-500"
-              type="Number"
+              required
               placeholder="20"
+              className="w-full sm:w-30 px-3 py-2 mt-2  outline-sky-500"
             />
           </div>
 
-            <div className="mt-3">
-            <p className="text-lg font-semibold tracking-wide">Original Price</p>
+          <div className="mt-3">
+            <p className="text-lg font-semibold tracking-wide">
+              Original Price
+            </p>
             <input
+              type="number"
+              min="0"
+              step="0.01"
               onChange={(e) => setOldPrice(e.target.value)}
               value={oldPrice}
-              className="w-full sm:w-30 px-3 py-2 mt-2  outline-sky-500"
-              type="Number"
+              required
               placeholder="20"
+              className="w-full sm:w-30 px-3 py-2 mt-2  outline-sky-500"
             />
           </div>
         </div>
+        <div className="flex flex-col mt-3">
+          <p className="text-lg font-semibold tracking-wide">
+            Product Sizes & Stock
+          </p>
 
-        {/* <div className=" flex flex-col mt-3">
-          <p className="text-lg font-semibold tracking-wide">Product Sizes</p>
-          <div className="flex gap-3 rounded-sm pt-4 ">
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("S")
-                    ? prev.filter((item) => item !== "S")
-                    : [...prev, "S"],
-                )
-              }
-            >
-              <p className={`${sizes.includes("S") ? "bg-pink-400 text-white" : "bg-slate-200"} px-4 py-2 cursor-pointer rounded-sm`}>
-                S
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("M")
-                    ? prev.filter((item) => item !== "M")
-                    : [...prev, "M"],
-                )
-              }
-            >
-              <p className = {`${ sizes.includes ("M") ? "bg-pink-400 text-white" : "bg-slate-200" }  px-4 py-2 cursor-pointer rounded-sm`}>
-                M
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("L")
-                    ? prev.filter((item) => item !== "L")
-                    : [...prev, "L"],
-                )
-              }
-            >
-              <p className= {`${sizes.includes ("L") ? "bg-pink-400 text-white" : "bg-slate-200"}  px-4 py-2 cursor-pointer rounded-sm`}>
-                L
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("XL")
-                    ? prev.filter((item) => item !== "XL")
-                    : [...prev, "XL"],
-                )
-              }
-            >
-              <p className= {`${sizes.includes ("XL") ? "bg-pink-400 text-white" : "bg-slate-200"}  px-4 py-2 cursor-pointer rounded-sm`}>
-                XL
-              </p>
-            </div>
+          <div className="flex flex-row gap-3 mt-4">
+            {["S", "M", "L", "XL", "XXL"].map((size) => {
+              const selectedSize = sizes.find((item) => item.size === size);
 
-             <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("XXL")
-                    ? prev.filter((item) => item !== "XXL")
-                    : [...prev, "XXL"],
-                )
-              }
-            >
-              <p className= {`${sizes.includes ("XXL") ? "bg-pink-400 text-white" : "bg-slate-200"}  px-4 py-2 cursor-pointer rounded-sm`}>
-                  XXL
-              </p>
-            </div>
+              return (
+                <div key={size} className="flex items-center gap-4">
+                  {/* ----Size button---- */}
+
+                  <button
+                    type="button"
+                    onClick={() => handleSizeChange(size)}
+                    className={`w-16 py-2 rounded-sm cursor-pointer ${selectedSize ? "bg-pink-400 text-white" : "bg-slate-200"}`}
+                  >
+                    {size}
+                  </button>
+
+                  {/* ---------------Stock Input------------ */}
+                  {selectedSize && (
+                    <input
+                      type="number"
+                      min="0"
+                      value={selectedSize.stock}
+                      onChange={(e) => handleStockChange(size, e.target.value)}
+                      className="w-28 px-3 py-2 border outline-sky-500 rounded-sm"
+                      placeholder="Stock"
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
-               
-            <div className="mt-3">
-            <p className="text-lg font-semibold tracking-wide">Product Stock</p>
-            <input
-              onChange={(e) => setStock(e.target.value)}
-              value={stock}
-              className="w-full sm:w-30 px-3 py-2 mt-2  outline-sky-500"
-              type="Number"
-              placeholder="0"
-            />
-          </div>
-            
-        </div> */}
-
-
-         <div className="flex flex-col mt-3"> 
-             <p className="text-lg font-semibold tracking-wide">Product Sizes & Stock</p>
-        
-            <div className="flex flex-row gap-3 mt-4">
-
-              {["S","M", "L", "XL", "XXL"].map((size) => {
-                const selectedSize = sizes.find((item) => item.size === size);
-
-                return (
-                   <div key={size} className="flex items-center gap-4">
-
-                    {/* ----Size button---- */}
-
-                    <button type="button" onClick={() => handleSizeChange(size)} 
-                    className= {`w-16 py-2 rounded-sm cursor-pointer ${selectedSize ? "bg-pink-400 text-white" : "bg-slate-200"}`}>
-
-                      {size}
-                    </button>
-
-                    {/* ---------------Stock Input------------ */}
-                     {
-                      selectedSize && (
-                        <input type = "number" min= "0" value={selectedSize.stock} onChange={(e) => handleStockChange(size,e.target.value)}
-                        className="w-28 px-3 py-2 border outline-sky-500 rounded-sm" placeholder="Stock" />
-                      )
-                     }
-                    </div>
-
-                )
-              })}
-                
-            </div>
-        
-        
-        
-        
-         </div>
-
+        </div>
       </div>
-
 
       <button
         type="submit"
-        className="w-28 py-3 mt-4 bg-black text-md text-white rounded-md cursor-pointer hover:bg-sky-500 hover:text-black transition"
+        disabled={loading}
+        className="w-28 py-3 mt-4 bg-black text-md text-white rounded-md cursor-pointer hover:bg-sky-500 hover:text-black transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Add
+        {loading ? "Adding..." : "Add"}
       </button>
     </form>
   );

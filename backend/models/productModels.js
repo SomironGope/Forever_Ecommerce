@@ -7,10 +7,36 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    name: { type: String, required: true, trim: true },
-    description: { type: String, required: true, trim: true },
-    category: { type: String, required: true },
-    subCategory: { type: String, required: true },
+
+    name: { 
+      type: String,
+      required: [true, "Product name is required"],
+      trim: true,
+      minLength: [2, "Product name must be at least 2 characters"],
+      maxLength: [150, "Product name cannot exceed 150 characters"],
+    },
+
+    description: {
+       type: String, 
+       required: [true, "Product description is required"],
+       trim: true,
+       maxLength : [5000, "Description cannot exceed 5000 characters"],
+
+       },
+
+    category: { 
+      type: String,
+      required: [true, "Category is required"],
+      trim: true,
+      maxLength: [100, "Category cannot exceed 100 characters"],
+    },
+
+    subCategory: {
+       type: String,
+       required: [true, "Subcategory is required"],
+       trim: true,
+       maxLength: [100, "Subcategory cannot exceed 100 characters"],
+      },
 
     price: {
       type: Number,

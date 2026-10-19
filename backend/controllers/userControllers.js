@@ -88,11 +88,11 @@ export const register = async (req,res ) => {
    newUser.otp = otp    // Save OTP in database
 
    // OTP Expired Time
-   newUser.otpExpired = new Date(Date.now() + 10 *60 *1000);
+   newUser.otpExpired = new Date(Date.now() + 10 * 60 * 1000);
 
    await newUser.save();
 
-   await verifyEmail(otp,normalizEmail) // Send OTP for verification email
+    verifyEmail(otp,normalizEmail) // Send OTP for verification email
 
    return res.status(201).json ({
     success: true,
@@ -394,7 +394,7 @@ if ( !existingUser.isLoggedIn) {
 
      // Set the refresh-token Cookie
 
-     res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -422,7 +422,7 @@ if ( !existingUser.isLoggedIn) {
   
   } catch (error) {
     // Keep detailed error in server logs, not API response.
-    console.error ("Login error:", error);
+    console.error ("Authentication middleware error:", error);
 
     return res.status(500).json({
       success:false,
@@ -430,92 +430,184 @@ if ( !existingUser.isLoggedIn) {
     })
   }
 }
-// -----------------------User Log Out-------------------------------
-export const logout = async (req,res) => {
+
+// ------------------------------Logout ------------------------------
+
+
+export const logout = async (req, res) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite:
+      process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
+  };
+
   try {
-   console.log("Refresh token exists:", !!req.cookies?.refreshToken);
     const refreshToken = req.cookies?.refreshToken;
 
-    // Get the current device's refresh token
-
     if (refreshToken) {
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.REFRESH_TOKEN_SECRET
-      );
+      try {
+        const decoded = jwt.verify(
+          refreshToken,
+          process.env.REFRESH_TOKEN_SECRET
+        );
 
-      const {id: userId, sid } = decoded;
+        const { id: userId, sid } = decoded;
 
-      if (userId && sid) {
-        const refreshTokenHash = crypto
-        .createHash("sha256")
-        .update(refreshToken)
-        .digest("hex");
+        if (userId && sid) {
+          const refreshTokenHash = crypto
+            .createHash("sha256")
+            .update(refreshToken)
+            .digest("hex");
 
-        // Delete only this device's session
-
-        console.log("Decoded session ID:", sid);
-console.log("Decoded user ID:", userId);
-console.log("Token hash:", refreshTokenHash);
-
-        const deletedSession = await Session.deleteOne({
-          _id: sid,
-          userId,
-          refreshTokenHash
-        });
-
-         // Check whether the user has another active session
-
-         if (deletedSession.deletedCount === 1) {
-           
-           const activeSession = await Session.exists({
-              userId,
-              expiresAt: { $gt: new Date() }
-             });
-
-               // Update the legacy global login status
-        
-        if (!activeSession) {
-          await User.findByIdAndUpdate(userId, {
-            isLoggedIn: false
+          // Delete only the session belonging to this device.
+          const deletedSession = await Session.deleteOne({
+            _id: sid,
+            userId,
+            refreshTokenHash,
           });
+
+          console.log(
+            "Session deletion result:",
+            deletedSession.deletedCount
+          );
+
+          if (deletedSession.deletedCount === 1) {
+            // Check for another active session.
+            const activeSession = await Session.exists({
+              userId,
+              expiresAt: { $gt: new Date() },
+            });
+
+            // Update legacy login status only when no session remains.
+            if (!activeSession) {
+              await User.findByIdAndUpdate(userId, {
+                isLoggedIn: false,
+              });
+            }
+          }
         }
-       }  
+      } catch (tokenError) {
+        // An invalid or expired refresh token should not prevent
+        // the user from clearing the local cookie.
+        console.warn("Refresh token invalid or expired.");
       }
     }
 
-    // Clear the refresh-token cookie
-
-    res.clearCookie ("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      path: "/"
-    })
-   
-    return res.status(200).json({
-      success:true,
-      message: "User logged out successfully"
-    })
-  } catch (error) {
-    console.error ("Logout error:", error);
-     
-    // clear the cookie even if the token is invalid
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      path: "/"
-    });
+    res.clearCookie("refreshToken", cookieOptions);
 
     return res.status(200).json({
       success: true,
-      message: "User logged out successfully"
-    })
-  }
-}
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
 
+    res.clearCookie("refreshToken", cookieOptions);
+
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed",
+    });
+  }
+};
+
+
+// -------------------------Refresh Access Token ---------------------
+
+
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token missing. Please log in again.",
+      });
+    }
+
+    if (!process.env.REFRESH_TOKEN_SECRET ||
+        !process.env.ACCESS_TOKEN_SECRET) {
+      throw new Error("Authentication secrets are not configured");
+    }
+
+    let decoded;
+
+    try {
+      decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+    } catch {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token expired or invalid. Please log in again.",
+      });
+    }
+
+    const { id: userId, sid, role } = decoded;
+
+    if (!userId || !sid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid refresh token.",
+      });
+    }
+
+    const refreshTokenHash = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+
+    const session = await Session.findOne({
+      _id: sid,
+      userId,
+      refreshTokenHash,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!session) {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired or revoked. Please log in again.",
+      });
+    }
+
+    const user = await User.findById(userId).select(
+      "_id role isBlocked isVerified"
+    );
+
+    if (!user || user.isBlocked || !user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: "Account unavailable. Please log in again.",
+      });
+    }
+
+    const accessToken = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "10m" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      accessToken,
+    });
+  } catch (error) {
+    console.error("Refresh access token error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to refresh access token.",
+    });
+  }
+};
 // -------------------------FORGET PASSWORD--------------------------
 
 export const forgotPassword = async (req, res) => {
@@ -912,6 +1004,9 @@ export const blcokUser = async (req, res) => {
     
     const {userId} = req.params;
 
+    // Find the target user
+  
+
     const user = await User.findById (userId);
 
     if (!user) {
@@ -920,13 +1015,34 @@ export const blcokUser = async (req, res) => {
         message: "User not found",
       });
     }
+   // Only admins can block users
 
-    if (req.user.role === "admin") {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin only"
+      })
+    }
+
+    // Prevent blocking another admin
+
+    if (req.user === "admin") {
       return res.status (403).json ({
         success: false,
         message: "Admin account cannot be blocked"
       });
     }
+ 
+    // Prevent unnecessary updates
+    
+    if (user.isBlocked) {
+      return res.status(400).json({
+        success: false,
+        message: "User is already blocked"
+      });
+    }
+   
+    // Block the target user
 
     user.isBlocked = true;
 

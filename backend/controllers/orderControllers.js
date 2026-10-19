@@ -259,8 +259,19 @@ export const getSingleOrder = async (req, res) => {
   try {
     const {orderId} = req.params;
     const userId = req.user._id;
+   
 
-    const order = await Order.findOne({ _id: orderId, userId: req.user._id });
+     if (!mongoose.isValidObjectId(orderId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order ID",
+      });
+    }
+    // const order = await Order.findOne({ _id: orderId, userId: req.user._id });
+
+    // Find only the authenticated user's order
+
+    const order = await Order.findOne ({_id: orderId, userId,});
 
     if(!order) {
       return res.status(404).json({
@@ -268,6 +279,8 @@ export const getSingleOrder = async (req, res) => {
         message: "Order not found"
       });
     }
+     
+   
 
     return res.status(200).json({
       success: true,
@@ -276,10 +289,11 @@ export const getSingleOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Get Single Order Error:", error)
+    console.error("Get Single Order Error:", error);
+    
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: "Unable to fetch order. Please try again later.",
     })
   }
 }
@@ -305,10 +319,11 @@ export const getSingleOrderAdmin = async (req, res) => {
 
 
   }catch(error) {
+   
     return res.status(500).json ({
       success:fasle,
       message: error.message
-    })
+    });
   }
 }
 

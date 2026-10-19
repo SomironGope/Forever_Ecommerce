@@ -2,6 +2,7 @@ import { Product } from "../models/productModels.js"
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/datauri.js";
 import {Order} from '../models/orderModels.js';
+import mongoose from "mongoose";
 
 export const addProduct = async (req, res) => {
   try {
@@ -390,6 +391,17 @@ console.log("Uploaded files:", req.files);
 export const deleteProduct = async (req, res) => {
   try {
     const {productId} = req.params;
+ 
+    // Validate product ID
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
+    }
+ 
+    // Find Product ID
 
     const product = await Product.findById(productId);
 
@@ -400,25 +412,36 @@ export const deleteProduct = async (req, res) => {
       });
     }
 
+    // Save Cloudinary IDs before deleting the document
 
-    // Delete product images from Cloudinary
-    if(product.productImg && product.productImg.length > 0) {
-      await Promise.all( 
-        product.productImg.map(async (image) => {
-          if(image.public_id) {
-            await cloudinary.uploader.destroy(image.public_id);
-          }
-        })
-      );
-    }
+    const publicIds = ( product.productImg || [])
+     .map((image) => image.public_id)
+     .filter(Boolean);
+     
 
     // Delete Product from MongoDB
 
     await Product.findByIdAndDelete(productId);
 
+
+     // Delete Cloudinary images indenpendently
+
+     const results = await Promise.allSettled(
+      publicIds.map((publicId) => cloudinary.uploader.destroy(publicId))
+     );
+
+    
+     const failedDeletations = results.filter ((result) => result.status === "rejected");
+
+     if (failedDeletations) {
+      console.error("Some Cloudinary images could not be deleted:", failedDeletations);
+     }
+
     return res.status(200).json({
       success: true,
       message: "Product deleted successfully",
+      imageDeleted: results.length - failedDeletations.length,
+      imagesFailed: failedDeletations.length,
     });
 
   } catch (error) {

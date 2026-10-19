@@ -15,8 +15,6 @@ function Signup() {
   const [showPassword, setShowPassword] = useState (false);
 
 
-
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -35,7 +33,7 @@ function Signup() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log(formData);
+   
 
     try {
       setLoading(true);
@@ -51,11 +49,12 @@ function Signup() {
       );
 
       if (res.data.success) {
+        localStorage.setItem ("email", formData.email.trim().toLowerCase());
         toast.success(res.data.message);
         navigate("/verify");
       }
     } catch (error) {
-      console.log(error);
+     
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -80,7 +79,7 @@ function Signup() {
         value={formData.firstName}
         onChange={handleChange}
         placeholder="Enter your first name"
-        autoComplete="First name"
+        autoComplete="given-name"
         required
       />
       <input
@@ -91,7 +90,7 @@ function Signup() {
         value={formData.lastName}
         onChange={handleChange}
         placeholder="Enter your last name"
-        autoComplete="Last name"
+        autoComplete="family-name"
         required
       />
 
@@ -111,21 +110,34 @@ function Signup() {
 
      
       <input
-        className="w-full px-3  py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
+        className="w-full px-3 pr-10 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
         type= {showPassword ? "text" : "password" }
-        id="password" focus:border-sky-500
+        id="password" 
         name="password"
         value={formData.password}
         onChange={handleChange}
         placeholder="Enter your password"
-        autoComplete="Password"
+        autoComplete="new-password"
+        minLength={8}
         required
       />
 
-       <div className="absolute top-2.5 right-3 ">
-           {showPassword ?<FaEyeSlash onClick={() => setShowPassword (false)} /> 
-           : <IoEyeSharp onClick={() => setShowPassword (true)} /> }
-       </div>
+       
+         <button 
+         type="button"
+         onClick={() => setShowPassword((prev) => !prev)}
+         className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-600 hover:text-sky-600
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded" 
+         aria-label= {showPassword ? "Hide password": "Show password"}
+         aria-pressed = {showPassword}
+             
+       >
+        {showPassword ?  <FaEyeSlash  />  : <IoEyeSharp /> }
+       </button>
+           
+    
+
+      
 
        </div>
 
@@ -140,6 +152,7 @@ function Signup() {
       </div>
       <button
         type="submit"
+        disabled = {loading}
         className="text-sm px-8 py-2 mt-5 tracking-wider bg-black text-white rounded-sm cursor-pointer transition-all ease-in-out duration-300 hover:bg-pink-500 hover:text-gray-800"
       >
         {loading ? <p>Loading...</p> : <p>Signup</p>}

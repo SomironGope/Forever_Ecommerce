@@ -171,8 +171,18 @@ export const getDashboardStats = async (req, res) => {
       },
 
       {
+          $sort : {
+        createdAt: -1,
+      },
+      },
+
+   
+
+      {
         $group: {
-          _id: "$items.productId",
+             _id: {
+            $ifNull: ["$items.productId", "$items.name"],
+          },
           productName: {$first: "$items.name"},
           productImage: {$first: "$items.image"},
           totalSold: {$sum: "$items.quantity"},
@@ -187,6 +197,8 @@ export const getDashboardStats = async (req, res) => {
       {
         $sort: {
           totalSold: -1,
+          totalRevenue: -1,
+          productName: 1,
         },
 
       },

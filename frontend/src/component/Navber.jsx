@@ -10,38 +10,36 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 
-
-
 function Navber() {
   const navigate = useNavigate();
   const [visibleMenu, setVisibleMenu] = useState(false);
-  const [showProfileIcon, setShowProfileIcon] = useState(false);
-  const { setShowSearch, getCartCount, token, setToken,logout, user, setCartItems } =
-        useContext(ShopContext);
+
+  const { setShowSearch, getCartCount, token, logout, user } =
+    useContext(ShopContext);
+
+  const [loading, setLoading] = useState(false);
 
   const logoutHandler = async () => {
-   console.log("Logout button clicked")
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       // Call backend logout API
 
-      await logout();
+      const success = await logout();
 
-    // Clear frontend authentication data
+      if (success) {
+        navigate("/login", { replace: true });
+      }
 
-    localStorage.removeItem("accessToken");
-    setToken("");
-    setCartItems({});
-    setShowProfileIcon(false);
-
-    navigate("/login");
-
+      // Clear frontend authentication data
     } catch (error) {
-       console.error("Logout failed:", error.response?.data || error.message);
+      console.error("Logout failed:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
     }
-    
   };
-
-
 
   return (
     <nav className="bg-[#b5e48c]  rounded-sm flex items-center justify-between  p-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] xl:px-[12vw] py-5 font-medium border-b-2 border-gray-500">
@@ -106,47 +104,45 @@ function Navber() {
         {/* // User Profile // */}
 
         <div className=" relative">
-          <img
-            src={
-              user?.profilePic ||
-              assets.userIcon
-            }
-            alt="Profile"
-            className="w-5 h-5 rounded-full object-cover  cursor-pointer"
-            onClick={() => {
-              if (!token) {
-                navigate("/login");
-              } else {
-                setShowProfileIcon((prev) => !prev);
-              }
-            }}
-          />
+          <div className="relative group">
+            <img
+              src={user?.profilePic || assets.userIcon}
+              alt="Profile"
+              className="w-5 h-5 rounded-full object-cover cursor-pointer"
+              onClick={() => {
+                if (!token) {
+                  navigate("/login");
+                }
+              }}
+            />
 
-          {token && showProfileIcon ? (
-            <div className=" absolute right-0 top-3.5 z-50 pt-7.5 text-gray-500 ">
-              <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 rounded-md">
-                <NavLink
-                  to="/profile"
-                  onClick={() => setShowProfileIcon(false)}
-                >
-                  <p className="cursor-pointer hover:text-[#03045e]">
-                    My Profile
-                  </p>
-                </NavLink>
-                <NavLink to="/orders" onClick={() => setShowProfileIcon(false)}>
-                  <p className="cursor-pointer hover:text-[#03045e]">Orders</p>
-                </NavLink>
-                <p
-                  onClick={logoutHandler}
-                  className="cursor-pointer hover:text-[#03045e]"
-                >
-                  Logout
-                </p>
+            {token && (
+              <div className="absolute right-0 top-4 z-50 hidden pt-2 group-hover:block">
+                <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 rounded-md shadow-md text-gray-500">
+                  <NavLink to="/profile">
+                    <p className="cursor-pointer hover:text-[#03045e]">
+                      My Profile
+                    </p>
+                  </NavLink>
+
+                  <NavLink to="/orders">
+                    <p className="cursor-pointer hover:text-[#03045e]">
+                      Orders
+                    </p>
+                  </NavLink>
+
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={logoutHandler}
+                    className="text-left cursor-pointer hover:text-[#03045e] disabled:opacity-50"
+                  >
+                    {loading ? "Logging out..." : "Logout"}
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            ""
-          )}
+            )}
+          </div>
         </div>
 
         {/* Cart Icons */}

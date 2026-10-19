@@ -1,5 +1,5 @@
 import express from 'express';
-import { blcokUser, changePassword, forgotPassword, getAllUser, login, logout, OTPVerify, profile, register, resendOTP, unblockedUser, updateProfile, verifyOTP } from '../controllers/userControllers.js';
+import { blcokUser, changePassword, forgotPassword, getAllUser, login, logout, OTPVerify, profile, refreshAccessToken, register, resendOTP, unblockedUser, updateProfile, verifyOTP } from '../controllers/userControllers.js';
 import { isAdmin, isAuthenticate } from '../middleware/isAuthenticate.js';
 import { singleUpLoadImg } from '../multer/Multer.js';
 
@@ -16,7 +16,9 @@ router.post ('/resend-otp', resendOTP);
 
 router.post ('/login',login);
 
-router.post ('/logout',isAuthenticate,logout);
+router.post ('/logout',logout);
+
+router.post ('/refresh', refreshAccessToken);
 
 router.post ('/forgot-password', forgotPassword);
 

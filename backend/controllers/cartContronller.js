@@ -1,19 +1,33 @@
+import mongoose from 'mongoose';
 import {Cart} from '../models/cartModels.js';
 import { Product } from '../models/productModels.js';
 
 
 export const addToCart = async (req, res) => {
   try{
-    const {productId, size, quantity} = req.body;
+    const { productId, size, quantity } = req.body;
+    const userId = req.user._id;
 
+    // ---------------Validate Product ID----------------
 
-    if (!size) {
+    if (!mongoose.isValidObjectId(productId)) {
       return res.status(400).json({
+        success:false,
+        message: "Invalid product ID",
+      })
+    }
+
+
+    if (typeof size !== "string" || !size.trim()) {
+       return res.status(400).json({
         success: false,
         message: "Please select a size"
       });
     }
 
+    const normalizedSize = size.trim();
+
+    // Validate quantity
 
     if(!Number.isInteger(quantity) || quantity < 1) {
       return res.status(400).json({
@@ -22,7 +36,7 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    const userId = req.user._id;
+    
 
      // ----------------Find Product-------------------
      const product = await Product.findById( productId );
@@ -37,9 +51,11 @@ export const addToCart = async (req, res) => {
 
      // Find stock for selected size
 
-     const selectedSize = product.sizes.find((item) => item.size === size);
+     const selectedSize = product.sizes.find((item) => item.size === normalizedSize);
 
-     if (!selectedSize) {
+     // Reject missing or invalid stock
+
+     if (!selectedSize || !Number.isSafeInteger(selectedSize.stock) || selectedSize.stock < 0 ) {
       return res.status(400).json({
         success: false,
         message: "Selected size is not available"
@@ -47,23 +63,23 @@ export const addToCart = async (req, res) => {
      }
 
 
-     // Check Stock---
+     // Reject out of stock size
 
 
-     if (selectedSize.stock < 1) {
+     if (selectedSize.stock === 0) {
       return res.status(400).json({
         success: false,
-        message: `${size} size is out of stock`,
+        message: `${normalizedSize} size is out of stock`,
       });
      } 
 
-   // -------------------Find user's cart---------------------
+   // -------------------Find or create user's cart---------------------
     let cart = await Cart.findOne ({ userId });
 
 
     if(!cart) {
 
-       cart = new Cart ({
+        cart = new Cart ({
         userId,
         items: [],
        });
@@ -71,48 +87,52 @@ export const addToCart = async (req, res) => {
     }
 
    
-    // -------------------Check whether same product + size already exists
+    // ------------------- Find existing product + size 
 
     const existingItem = cart.items.find( 
 
-      (item) => item.productId.toString() === productId && item.size === size);
+      (item) => item.productId.toString() === productId && item.size === normalizedSize);
+
+      // Calculate requested total quantity safely
 
 
-     if(existingItem) {
-    const newQuantity = existingItem.quantity + quantity;
+     const currentQuantity = existingItem ? existingItem.quantity : 0;
 
-    // ------------Check size and Stock -----------------------
+
+    const newQuantity = currentQuantity + quantity;
+
+    // ------------Check avaible  Stock -----------------------
 
     if(newQuantity > selectedSize.stock) {
 
       return res.status(400).json({
 
         success: false,
-        message: `Only ${selectedSize.stock} ${size} items are available in stock`,
+        message: `Only ${selectedSize.stock} ${normalizedSize} items are available in stock`,
 
       });
     }
 
+    // Update or add item
+    if (existingItem) {
       existingItem.quantity = newQuantity;
-
-
-     } else {
-      // ------------------Check size and specific stock----------------
-
-      if(quantity > selectedSize.stock) {
-        return res.status(400).json({
-          success: false,
-          message: `Only ${selectedSize.stock}  ${size} items are available in stock`,
-        });
-      }
-
+    }else {
       cart.items.push({
         productId,
-        size,
+        size: normalizedSize,
         quantity,
       });
+    }
 
-     }
+      // ------------------Check size and specific stock----------------
+
+      // if(quantity > selectedSize.stock) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: `Only ${selectedSize.stock}  ${size} items are available in stock`,
+      //   });
+      // }
+     
 
 
       await cart.save();
@@ -123,9 +143,12 @@ export const addToCart = async (req, res) => {
       });
 
     } catch(error){
-    res.status(500).json({
+
+      console.error ("Add to cart error:", error);
+
+      res.status(500).json({
       success: false,
-      message: error.message
+      message: "Unable to add product to cart",
     });
   }
   }

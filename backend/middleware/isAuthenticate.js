@@ -39,7 +39,14 @@ export const isAuthenticate = async (req, res, next) => {
         message: "Invalid access token"
       });
     }
-    // User lookup
+
+    if (!decoded.id) {
+      return res.status(401).json({
+        success:false,
+        message: "Invalid access token"
+      });
+    }
+     // User lookup
    
     const user = await User.findById (decoded.id).select("-password -otp -otpExpired");
     if(!user) {

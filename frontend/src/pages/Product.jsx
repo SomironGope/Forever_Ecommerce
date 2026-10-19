@@ -12,10 +12,12 @@ function Products() {
   const [image, setImage] = useState(null);
   const [size,setSize] = useState('')
 
+  const [activeTab, setActiveTab] = useState("description")
 
 
-  const productData = useMemo (() => products.find((item) => item._id ===  productId)
-,[products, productId])
+
+  const productData = useMemo (() => products.find((item) => item._id ===  productId),
+  [products, productId])
 
 
 
@@ -27,8 +29,7 @@ function Products() {
   
 
 
-  console.log("Product Data:", productData);
-console.log("Product Sizes:", productData?.sizes);
+  
 
   return productData ? (
     <div className="">
@@ -88,21 +89,45 @@ console.log("Product Sizes:", productData?.sizes);
                 <p className="text-base sm:text-md font-medium ">Select Size</p>
                 <div className="flex gap-2">
 
-                  {productData?.sizes?.map((item)=> (
+                  {productData?.sizes?.map((item)=> {
                     
+                    const isOutOfStock = !Number.isFinite(item.stock) || item.stock <= 0;
 
-                    <button onClick = {() => setSize(item.size)} className= {`border py-2 px-4 rounded-sm cursor-pointer
-                      ${size === item.size? "border-orange-500 bg-orange-100" : "bg-gray-200"}`} key={item.size}>{item.size}</button>
+                    return (
+                       
+                    <button 
+                    type="button"
+                    key={item.size}
+                    disabled = {isOutOfStock}
+                    onClick = {() => setSize(item.size)} 
+
+                    className= {`border py-2 px-4 rounded-sm cursor-pointer
+                      ${isOutOfStock? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through"
+                        : size === item.size ? "border-orange-500  bg-orange-100 text-gray-900" 
+                        : "bg-gray-200 border-gray-300 hover:border-gray-500 cursor-pointer"}`}>
+                           {item.size} 
+                           {isOutOfStock && ""}
+                     </button>
                   
                   
-                  ))}
+                    )
+
+               })}
 
                   
                 </div>
              </div>
              
              {/* -------------------AddToCart-------------------------------- */}
-             <button onClick={() => addToCart (productData._id, size)} className="border bg-black rounded-sm py-3 px-8 text-center ml-9 outline-none text-sm font-semibold text-white transition-all ease-in-out duration-300 hover:bg-pink-700 cursor-pointer">
+             <button 
+               type= "button"
+               disabled = {!size}
+
+               onClick={() => addToCart(productData._id, size)} 
+              className= {`border  rounded-sm py-3 px-8  text-center ml-9 outline-none text-sm font-semibold text-white transition-all  duration-300
+                  ${!size ? "bg-gray-400 cursor-not-allowed"
+                     : "bg-black hover:bg-pink-700 cursor-pointer"}`}
+                >
               Add to Cart</button>
 
               
@@ -123,16 +148,40 @@ console.log("Product Sizes:", productData?.sizes);
            {/* ------------------Description and Review-------------- */}
             <div className="mt-20">
                <div className="flex gap-1 text-gray-600">
-                 <b className="border px-5 py-3 text-sm rounded-sm">Description</b>
-                 <p className="border px-5 py-3 text-sm rounded-sm">Reviews </p>
+                 <button type="button"
+                  onClick={() => setActiveTab("description")}
+                  className= {`border px-5 py-3 text-sm rounded-sm ${activeTab === "description" 
+                    ? "bg-black text-white" : "bg-white text-gray-500"
+                  }`}
+                 >
+                 Description    
+                 </button>
+
+                 <button
+                   type = "button"
+                   onClick={() => setActiveTab ("reviews")}
+                   className= {`border px-5 py-3 text-sm rounded-sm ${activeTab === "reviews" 
+                    ? "bg-black text-white" : "bg-white text-gray-600"}`}
+                      >
+
+                   Reviews
+                 </button>
+
                </div>
-               <div className="flex flex-col gap-4 px-6 py-6 text-sm text-gray-500">
-                   <p>An e-commerce website is an online platform that facilitates the buying and selling of product or services over the internet. it services as a virtual marketplace where businessses and individuals can showcase their products, interact with customers, and conduct transition.  </p>
-                  <p>E-commerce is the process of buying and selling products or services through the internet. It allows customers to browse products, compare prices, and make purchases from anywhere at any time. Online stores provide a convenient shopping experience by offering secure payment methods, fast delivery services, and a wide range of products. Businesses use e-commerce platforms to reach customers globally, reduce operational costs, and increase sales. With the growth of digital technology and mobile devices, e-commerce has become one of the most important sectors in the modern economy.
-</p>
+               <div className="px-6 py-6">
+
+                {activeTab === "description" ? (
+                  <div  className="flex flex-col gap-4 px-6 py-6 text-sm text-gray-500">
+                     <p>{productData.description}</p>
+                    </div>
+                ) : (
+                  <ReviewSection productId={productData._id} />
+                )
+              }
+                   
                </div>
             </div>
-            <ReviewSection productId={productData._id} />
+            {/* Related Products */}
             <div>
                 <RelativeProduct category={productData.category} subCategory={productData.subCategory} />
             </div>

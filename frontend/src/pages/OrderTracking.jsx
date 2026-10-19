@@ -9,7 +9,9 @@ function OrderTracking() {
   const {orderId} = useParams();
   const {currency, token} = useContext (ShopContext)
   const [order, setOrder] = useState (null);
-  const [loading, setLoading] = useState (true)
+  const [loading, setLoading] = useState (true);
+
+  const [errorMessage, setErrorMessage] = useState ("");
 
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -21,12 +23,19 @@ function OrderTracking() {
 
 useEffect (() => {
   const fetchOrder = async () => {
+    
     if(!token || !orderId) {
+      setOrder (null);
       setLoading (false);
       return;
     }
+      setLoading (true);
+      setOrder (null)
+      setErrorMessage ("");
+
 
     try {
+      
       const response = await axios.get(`${backendUrl}/api/v1/order/${orderId}`, 
         {
           headers: {
@@ -34,18 +43,23 @@ useEffect (() => {
           },
         }
       );
-      
-
-      console.log("orderId:", orderId);
-      console.log("token:", token);
-
-
+    
       if(response.data.success) {
         setOrder (response.data.order);
       }
 
     } catch (error) {
-      console.error ("Get Signle Order Error:",error);
+      const status = error.response?.status;
+
+      if (status === 401) {
+        setErrorMessage ("Your session has expired. Please log in again.");
+      } else if ( status === 403) {
+        setErrorMessage ("You are not allowed to view this order.");
+      } else if ( status === 404) {
+        setErrorMessage ("Order not found.");
+      } else {
+        setErrorMessage ("Unable to load your order. Please try again.");
+      }
       
     }finally {
       setLoading(false)
@@ -73,7 +87,9 @@ if(!order) {
   return (
     <div className='border-t pt-16'>
        <Title text1={"ORDER"} text2={"TRACKING"} />
-       <p className='mt-8 text-red-500'>Order not found</p>
+       <p className='mt-8 text-red-500'>
+          {errorMessage || "Please log in to track your order."}
+       </p>
 
     </div>
   )
@@ -93,6 +109,8 @@ const statuses = [
 
 const currentStatus = statuses.indexOf(order.orderStatus);
 
+const isValidStatus = currentStatus !== -1;
+
 return (
   <div className='pt-20'>
       <Title text1={"ORDER"} text2={"TRACKING"} />
@@ -109,10 +127,16 @@ return (
 
             <div>
                 <p className='text-sm text-gray-500'>Order Date</p>
+
+                <p className='font-medium'>
+                  {order.createdAt
+                   ? new Date(order.createdAt).toLocaleString() : "Date unavailable"
+                  }
+                </p>
                 
           {
               order.paidAt && (
-             <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.createdAt).toLocaleString()}</span></p>
+             <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.paidAt).toLocaleString()}</span></p>
              )
            }
             </div>
@@ -133,7 +157,15 @@ return (
 
             <p className='mt-2 text-sm text-gray-600'>This order has been cancelled.</p>
           </div>
-      ): (
+      ): !isValidStatus ? (
+
+        <div className='mt-8 rounded-md border p-6'>
+            <p className='font-medium'>Order status unavailable</p>
+            <p className='mt-2 text-sm text-gray-600'>Please contact support for assistance.</p>
+        </div>
+
+      ) :
+       (
       // -------------------TRACKING----------------------------------------------------
 
        <div className='mt-20'>
@@ -147,7 +179,8 @@ return (
                 {/* -----------------------Progress Line------------------------------ */}
 
                  <div className='absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200'>
-                     <div className="bg-black w-full transition-all duration-500" style={{ height: currentStatus >= 0 ? `${(currentStatus / (statuses.length - 1)) * 100}%` : "0%", }} />
+                     <div className="bg-black w-full transition-all duration-500" 
+                     style={{ height: isValidStatus ? `${(currentStatus / (statuses.length - 1)) * 100}%` : "0%", }} />
                   
                   </div>
 
@@ -182,7 +215,7 @@ return (
 
                                      {status === "Shipped" && "Your order is on the way."} 
 
-                                     {status === "Delivered" && "Your order has been deliver"}
+                                     {status === "Delivered" && "Your order has been delivered successfully."}
                                    </p>
                                 
                                 </div>

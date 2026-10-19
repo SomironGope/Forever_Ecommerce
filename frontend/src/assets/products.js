@@ -18,7 +18,8 @@ import moyasar from './Icons/moyasar.png';
 
 import start from "../assets/Icons/star.png";
 import haflStar from "../assets/Icons/halfStar.png";
-
+import forver_banner from '../assets/MenBanner/Forever Fashion_Banner.png';
+import small_device_banner from "../assets/MenBanner/Small Device banner.png";
 export const assets = {
   menuIcon,
   searchIcon,
@@ -35,6 +36,8 @@ export const assets = {
   razorpay,
   sslcommerz,
   moyasar,
+  forver_banner,
+  small_device_banner,
 
 };
 

@@ -13,7 +13,8 @@ import { IoEyeSharp } from "react-icons/io5";
 function Login() {
    const navigate = useNavigate();
    const {setToken} = useContext(ShopContext);
-   const [showPassword, setPassword] = useState (false)
+   const [showPassword, setPassword] = useState (false);
+   const [loading, setLoading] = useState (false);
 
 
    const [formData, setFormData] = useState ({
@@ -34,39 +35,51 @@ function Login() {
 
 
     const submitHandler = async (e) => {
+
       e.preventDefault()
-     console.log(formData);
+
+      if (loading) return;
+      
+     setLoading (true);
 
      try {
        const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/login`, formData,{
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/login`, formData,
+        {
+          withCredentials: true,
+          
           headers: {
             "Content-Type": "application/json"
           }
         }
        );
        
-       console.log(response.data);
+      
+       const data = response.data;
 
-       if(response.data.success) {
-     
+       // Valide the login respose
 
-         console.log("Token from backend:", response.data.accessToken);
+       if(!data.success && !data.accessToken) {
+        
+        toast.error(data.message || "Login failed.");
+        return;
 
+       }
+       // Store access - token
         localStorage.setItem("accessToken", response.data.accessToken);
-
-
-          
+        
+        // Update global authentication state
         setToken(response.data.accessToken);
         toast.success(response.data.message);
         navigate('/');
-
-
-      
-       }
      } catch (error) {
-      toast.error(error.response?.data?.message);
+      
+      toast.error(error.response?.data?.message || 
+        error.message || "Login failed. Please try again.");
+     } finally {
+      setLoading (false);
      }
+
     };
 
   
@@ -93,18 +106,28 @@ function Login() {
 
            <div className="w-full sm:w-100 relative">
 
-             <input className="w-full px-3  py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500" 
-            type= {showPassword ?  "text" : "password" } id= 'password' name="password" value={formData.password} 
-            onChange = {handlChange} placeholder="Enter your password" />
+             <input   
+               type= {showPassword ?  "text" : "password" }
+               id= 'password' name="password" 
+               value={formData.password} 
+               onChange = {handlChange}
+               autoComplete="current-password"
+               required
+               placeholder="Enter your password"
+               className="w-full px-3  py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500" 
+               />
 
-              <div className="absolute top-2.5 right-3">
+              <button type="button"
+              onClick={() => setPassword ((prev) => !prev)}
+              aria-label= {showPassword ? "Hide password" : "Show password"}
+               className="absolute top-2.5 right-3">
 
                 {
-                  showPassword ? <FaEyeSlash onClick={() => setPassword (false)}/> : <IoEyeSharp onClick={() => setPassword (true)}/>
+                  showPassword ? <FaEyeSlash /> : <IoEyeSharp />
                 }
                    
                              
-              </div>
+              </button>
            </div>
            
 
@@ -124,8 +147,11 @@ function Login() {
               </Link>
               
             </div>
-            <button type="submit" className="text-sm px-8 py-2 mt-5 tracking-wider bg-black text-white rounded-sm cursor-pointer transition-all ease-in-out duration-300 hover:bg-pink-500 hover:text-gray-800">
-                <p>Login</p>
+            <button 
+             type="submit" 
+             disabled = {loading}
+             className="text-sm px-8 py-2 mt-5 tracking-wider bg-black text-white rounded-sm cursor-pointer transition-all ease-in-out duration-300 hover:bg-pink-500 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                 {loading ? "Logging in..." : "Login"}
             </button>
     </form>
   )

@@ -37,11 +37,16 @@ const PORT = process.env.PORT || 3000
 // SSLCOMMERZ PAYMENT
 
 
-app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173','http://localhost:5174'],
-  credential: true
+  origin: [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://forever-ecommerce-f73m.vercel.app',
+  ],
+  credentials: true
 }));
+
+app.use(express.json());
 app.use(cookieParser());
 
 // api endpoints
@@ -51,10 +56,7 @@ app.use('/api/v1/product',productRouter);
 app.use('/api/v1/order',orderRouter);
 app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add
 
-// Stripe International Payment  temporarily disabled
-// app.use ('/api/v1/payment',paymentRouter );
- app.use ('/api/v1/payment', sslcommerzPaymentRouter);
-
+/
  app.use ('/api/v1/payment', moyasarRouter)
  // Admin Panel Login endpoint
 

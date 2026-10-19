@@ -39,7 +39,7 @@ function Verify() {
     .replace (/\D/g, "")
     .slice(0, 6);
 
-    if (!pastedData.length === 0 ) return;
+    if (pastedData.length === 0 ) return;
 
     const newOtp = ["", "", "", "", "", ""];
 

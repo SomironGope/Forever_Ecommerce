@@ -149,7 +149,7 @@ function Orders() {
                     
                      {
                       order.paidAt && (
-                         <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.createdAt).toLocaleString()}</span></p>
+                         <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.paidAt).toLocaleString()}</span></p>
                          )
                      }
                      

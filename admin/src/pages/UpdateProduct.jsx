@@ -1,17 +1,16 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AdminContext } from "../context/AdminContext";
-import axios from "axios";
 
 import { toast } from "react-toastify";
+import adminAxios from "../utils/AdminAxios";
 
 function UpdateProduct() {
   const { productId } = useParams();
   const navigate = useNavigate();
 
-  const { backendUrl, adminToken } = useContext(AdminContext);
-
   const [loading, setLoading] = useState(false);
+
+  const [updating, setUpdating] = useState(false);
 
   const [imageLoading, setImageLoading] = useState(false);
 
@@ -39,8 +38,10 @@ function UpdateProduct() {
 
   const [isFeatured, setIsFeatured] = useState(false);
 
-  const [images, setImages] = useState([]);
-  const [previewImages, setPreviewIamges] = useState([]);
+  // const [images, setImages] = useState([]);
+  // const [previewImages, setPreviewIamges] = useState([]);
+
+  const [selectedImages, setSelectedImages] = useState([]);
 
   // ---------------------------------Get Product--------------------------
 
@@ -49,14 +50,7 @@ function UpdateProduct() {
       try {
         setLoading(true);
 
-        const response = await axios.get(
-          `${backendUrl}/api/v1/product/${productId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${adminToken}`,
-            },
-          },
-        );
+        const response = await adminAxios.get(`/api/v1/product/${productId}`);
 
         if (response.data.success) {
           const data = response.data.product;
@@ -68,7 +62,7 @@ function UpdateProduct() {
 
           setCategory(data.category || "Men");
 
-          setSubCategory(data.subCategory || "Towear");
+          setSubCategory(data.subCategory || "Topwear");
 
           setOldPrice(data.oldPrice ?? "");
 
@@ -113,7 +107,7 @@ function UpdateProduct() {
     };
 
     fetchProduct();
-  }, [backendUrl, productId, adminToken]);
+  }, [productId]);
 
   // ---------------------Size / Stock----------------------------------
 
@@ -145,102 +139,98 @@ function UpdateProduct() {
 
   // --------------------Image Select------------------------
 
+  const handleImageChange = (event) => {
+    const selectedFiles = Array.from(event.target.files || []);
 
- const handleImageChange = (event) => {
-  const selectedFiles = Array.from(event.target.files);
+    event.target.value = "";
 
-  if (selectedFiles.length === 0) return;
+    if (selectedFiles.length === 0) return;
 
+    const remainingSlots = 5 - selectedImages.length;
 
-
-  setImages((prevImages) => {
-    const combinedImages = [...prevImages, ...selectedFiles];
-
-    if (combinedImages.length > 5) {
-      toast.error("You can upload maximum 5 images");
-      return prevImages;
+    if (remainingSlots <= 0) {
+      toast.error("You can upload a maximun of 5 images");
+      return;
     }
 
-    return combinedImages;
-  });
+    const acceptedFiles = selectedFiles.slice(0, remainingSlots);
 
-  const newPreviews = selectedFiles.map((file) =>
-    URL.createObjectURL(file)
-  );
+    if (acceptedFiles.length < selectedFiles.length) {
+      toast.warning(`Only ${remainingSlots} more image(s) can be selected`);
+    }
 
-  setPreviewIamges((prevPreviews) => [
-    ...prevPreviews,
-    ...newPreviews,
-  ]);
+    const newImages = acceptedFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
 
-  // Important: allows the file picker to select files again
-  event.target.value = "";
-};
+    setSelectedImages((prev) => [...prev, ...newImages]);
+  };
 
- const removePreviewImage = (index) => {
+  const removePrivewImage = (index) => {
+    setSelectedImages((prev) => {
+      const imageToRemove = prev[index];
 
-  // Remove selected file
+      if (imageToRemove) {
+        URL.revokeObjectURL(imageToRemove.preview);
+      }
 
-  setImages ((prevImages) => prevImages.filter((_,i) => i !== index));
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
-  // Remove preview
+  //  const removePreviewImage = (index) => {
 
-  setPreviewIamges((prePreviews) => {
-    // Release the object URL
+  //   // Remove selected file
 
-    URL.revokeObjectURL(prePreviews[index]);
+  //   setImages ((prevImages) => prevImages.filter((_,i) => i !== index));
 
-    return prePreviews.filter((_, i) => i !== index);
-  });
- };
+  //   // Remove preview
+
+  //   setPreviewIamges((prePreviews) => {
+  //     // Release the object URL
+
+  //     URL.revokeObjectURL(prePreviews[index]);
+
+  //     return prePreviews.filter((_, i) => i !== index);
+  //   });
+  //  };
   // ------------------------Update Information-----------------------
 
   const handleUpdateProduct = async (event) => {
     event.preventDefault();
     try {
-      setLoading(true);
+      setUpdating(true);
 
-      const response = await axios.put(
-        `${backendUrl}/api/v1/product/${productId}`,
-        {
-          name,
-          description,
-          category,
-          subCategory,
-          oldPrice: Number(oldPrice),
-          price: Number(price),
-          sizes,
-          isFeatured,
-        },
-
-        {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const response = await adminAxios.put(`/api/v1/product/${productId}`, {
+        name,
+        description,
+        category,
+        subCategory,
+        oldPrice: Number(oldPrice),
+        price: Number(price),
+        sizes,
+        isFeatured,
+      });
 
       if (response.data.success) {
-        toast.success("Product information updated successfully");
-
         setProduct(response.data.product);
+        toast.success("Product information updated successfully");
       }
     } catch (error) {
       console.error("Update product error:", error);
 
       toast.error(error.response?.data?.message || "Failed to update product");
     } finally {
-      setLoading(false);
+      setUpdating(false);
     }
   };
 
   // --------------------Update Product Image-----------------------------------------
 
   const handleUpdateImages = async () => {
-    if (images.length === 0) {
+    if (selectedImages.length === 0) {
       toast.error("Please select at least one image");
-
       return;
     }
 
@@ -249,28 +239,24 @@ function UpdateProduct() {
 
       const formData = new FormData();
 
-      images.forEach((image) => {
-        formData.append("file", image);
+      selectedImages.forEach(({ file }) => {
+        formData.append("file", file);
       });
 
-      const response = await axios.put(
-        `${backendUrl}/api/v1/product/${productId}/images`,
+      const response = await adminAxios.put(
+        `/api/v1/product/${productId}/images`,
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-          },
-        },
       );
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        selectedImages.forEach(({ preview }) => {
+          URL.revokeObjectURL(preview);
+        });
 
         setProduct(response.data.product);
+        setSelectedImages([]);
 
-        setImages([]);
-
-        setPreviewIamges([]);
+        toast.success(response.data.message);
       }
     } catch (error) {
       console.error("Update image error:", error);
@@ -301,7 +287,7 @@ function UpdateProduct() {
         <h1 className="text-2xl font-semibold">Update Product</h1>
 
         <button
-          onClick={() => navigate("/list")}
+          onClick={() => navigate("/products")}
           className="border px-4 py-2 rounded"
         >
           Back
@@ -352,7 +338,7 @@ function UpdateProduct() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 outline-none focus:border-sky-500"
             >
               <option value="Men"> Men</option>
               <option value="Women"> Women</option>
@@ -367,8 +353,8 @@ function UpdateProduct() {
 
             <select
               value={subCategory}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              onChange={(e) => setSubCategory(e.target.value)}
+              className="w-full border rounded px-3 py-2 outline-none focus:border-sky-500"
               required
             >
               <option value="Topwear">Towear</option>
@@ -474,10 +460,10 @@ function UpdateProduct() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={updating}
           className="bg-black text-white px-6 py-3 rounded"
         >
-          {loading ? "Updating... " : "Update Product"}
+          {updating ? "Updating... " : "Update Product"}
         </button>
       </form>
 
@@ -519,7 +505,6 @@ function UpdateProduct() {
             className="cursor-pointer"
           />
 
-
           <p className="text-sm text-gray-500 mt-2">
             Select up to images. Updating images will replace the existing
             product images.
@@ -528,28 +513,26 @@ function UpdateProduct() {
 
         {/* ---------------Preview Image-------------------------- */}
 
-        {previewImages.length > 0 && (
+        {selectedImages.length > 0 && (
           <div className="mb-6">
             <h3 className="font-medium mb-3">New Images Preview</h3>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {previewImages.map((image, index) => (
-                <div key={index}className="relative">
-                
-                <img
-                  
-                  src={image}
-                  alt={`Preview ${index + 1}`}
-                  className="w-full h-32 object-cover rounded border"
-                />
+              {selectedImages.map((image, index) => (
+                <div key={image.preview} className="relative">
+                  <img
+                    src={image.preview}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-32 object-cover rounded border"
+                  />
 
-                <button
-                  type="button"
-                  onClick={() => removePreviewImage(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white border px-2 py-1 rounded text-xs hover:bg-red-600"
-                >
-                  Remove
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => removePrivewImage(index)}
+                    className="absolute top-2 right-2 bg-red-500 text-white border px-2 py-1 rounded text-xs hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>
@@ -559,8 +542,8 @@ function UpdateProduct() {
         <button
           type="button"
           onClick={handleUpdateImages}
-          disabled={imageLoading || images.length === 0}
-          className="bg-black text-white px-6 py-3 rounded disabled:opacity-50"
+          disabled={imageLoading || selectedImages.length === 0}
+          className="bg-black text-white px-6 py-3 mt-3 rounded disabled:opacity-50"
         >
           {imageLoading ? "Upading Images..." : "Update Images"}
         </button>
