@@ -14,27 +14,16 @@ import dashBoardRouter from './routers/dashboardRoute.js';
 import reviewRouter from './routers/reviewRoutes.js';
 
 import cookieParser from 'cookie-parser';
-import sslcommerzPaymentRouter from './routers/sslcommerzPaymentRoute.js'
+
 import moyasarRouter from './routers/moyasarPaymentRoute.js';
 
-// import paymentRouter from './routers/stripePaymentRoutes.js';
 
-// import { stripeWebhook } from './controllers/paymentControllers.js';
 
 
 const app = express();
 
 const PORT = process.env.PORT || 3000
 
-// Middlewares
-// ----------Stripe ------
-// app.post('/api/v1/payment/stripe/webhook',
-//    express.raw({type: "application/json"}),
-//   stripeWebhook
-//   );  // Webhook
-// --------------------------------
-
-// SSLCOMMERZ PAYMENT
 
 
 app.use(cors({
@@ -56,7 +45,7 @@ app.use('/api/v1/product',productRouter);
 app.use('/api/v1/order',orderRouter);
 app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add
 
-/
+
  app.use ('/api/v1/payment', moyasarRouter)
  // Admin Panel Login endpoint
 

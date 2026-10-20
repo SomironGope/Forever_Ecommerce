@@ -67,22 +67,52 @@ export const verifyEmail = async (otp, email) => {
     subject: "Verify your Forever E-Commerce account",
     text: `Your verification code is ${otp}. It expires in 10 minutes.`,
     html: `
-      <div style="font-family:Arial,sans-serif;padding:30px;background:#f4f4f5;">
-        <div style="max-width:500px;margin:auto;background:#ffffff;
-          border-radius:12px;padding:30px;text-align:center;">
-          <h2 style="color:#2563eb;">Email Verification</h2>
-          <p>Welcome to Forever E-Commerce!</p>
-          <p>Use the code below to verify your account.</p>
-          <h1 style="color:#2563eb;letter-spacing:8px;">${otp}</h1>
-          <p style="color:#ef4444;">
-            This OTP expires in 10 minutes.
-          </p>
-          <p style="color:#6b7280;font-size:13px;">
-            If you did not create an account, please ignore this email.
-          </p>
-        </div>
+<div style="font-family:Arial,sans-serif;padding:35px 15px;background:#f4f4f5;">
+
+  <div style="max-width:500px;margin:0 auto;background:#eff6ff;border:2px dashed #2563eb;border-radius:14px;padding:18px;">
+
+    <div style="background:#ffffff;border-radius:10px;padding:35px 25px;text-align:center;">
+
+      <p style="font-size:13px;font-weight:bold;letter-spacing:2px;color:#2563eb;margin:0 0 12px;">
+        FOREVER E-COMMERCE
+      </p>
+
+      <h2 style="color:#1e3a8a;margin:0 0 15px;font-size:25px;">
+        Email Verification
+      </h2>
+
+      <p style="color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 10px;">
+        Welcome to Forever E-Commerce!
+      </p>
+
+      <p style="color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 25px;">
+        Please use the verification code below to verify your email address.
+      </p>
+
+      <div style="background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:18px 10px;margin:0 0 20px;">
+        <h1 style="color:#2563eb;letter-spacing:8px;font-size:32px;margin:0 0 5px 8px;">
+          ${otp}
+        </h1>
       </div>
-    `,
+
+      <p style="color:#ef4444;font-size:14px;font-weight:bold;margin:0 0 20px;">
+        This OTP expires in 10 minutes.
+      </p>
+
+      <p style="color:#6b7280;font-size:13px;line-height:1.7;margin:0 0 25px;">
+        If you did not create an account, you can safely ignore this email.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;">
+
+      <p style="color:#9ca3af;font-size:12px;line-height:1.6;margin:0;">
+        © 2026 Forever E-Commerce. All rights reserved.
+      </p>
+
+    </div>
+  </div>
+</div>
+`
   };
 
   const info = await transporter.sendMail(mailConfig);
