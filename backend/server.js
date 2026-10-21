@@ -59,9 +59,19 @@ app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add
  app.use ('/api/v1/review', reviewRouter);
 
 
+async function startServer() {
+  try {
+    await connectDB();
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server is running at port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 
-app.listen(PORT, () => {
-  connectDB();
-  console.log(`Server is running at port ${PORT}`)
-})
