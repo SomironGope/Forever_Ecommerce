@@ -1,8 +1,8 @@
 
 import './App.css'
 import { Routes, Route} from 'react-router-dom';
-import Navbar from './component/Navber';
-import Footer from './component/Footer';
+import Navbar from './components/Navber';
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import Collection from './pages/Collection'; 
 import About from './pages/About';
@@ -10,16 +10,15 @@ import Contact from './pages/Contact';
 import Product from './pages/Product';
 import Cart from './pages/Cart';
 import PlaceOrder from './pages/PlaceOrder';
-import NotFound from './component/NotFound';
+import NotFound from './components/NotFound';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
-import SearchBar from './component/SearchBar';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import SearchBar from './components/SearchBar';
+
 import Orders from './pages/Orders';
 import Signup from './pages/Signup';
 
-import Verify from './component/verify';
+import Verify from './components/Verify';
 import OrderTracking from './pages/OrderTracking';
 import OTPVerify from './pages/OTPVerify';
 import Change_Password from './pages/Change_Password';
@@ -27,7 +26,8 @@ import Forgot_Password from './pages/Forgot_Password';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
 import PaymentCancel from './pages/PaymentCancel';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 

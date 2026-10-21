@@ -1,10 +1,13 @@
-import axios from "axios";
+
 import { useCallback, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import { ShopContext } from "../context/ShopContext";
+import api from "../utils/axiosInstance";
+
 
 const Stars = ({ value, interactive = false, onChange }) => {
+
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -24,7 +27,8 @@ const Stars = ({ value, interactive = false, onChange }) => {
 };
 
 const ReviewSection = ({ productId }) => {
-  const { backendUrl, token, user } = useContext(ShopContext);
+
+  const { token, user } = useContext(ShopContext);
 
   const [reviews, setReviews] = useState([]);
   const [totalReviews, setTotalReviews] = useState(0);
@@ -46,8 +50,8 @@ const ReviewSection = ({ productId }) => {
     try {
       setLoading(true);
 
-      const response = await axios.get(
-        `${backendUrl}/api/v1/review/product/${productId}`,
+      const response = await api.get(
+        `/api/v1/review/product/${productId}`,
       );
 
       if (response.data.success) {
@@ -60,7 +64,9 @@ const ReviewSection = ({ productId }) => {
     } finally {
       setLoading(false);
     }
-  }, [backendUrl, productId]);
+  }, [productId]);
+
+  // -------------------Get Product ID---------------------
 
   useEffect(() => {
     if (!productId) return;
@@ -71,8 +77,8 @@ const ReviewSection = ({ productId }) => {
       try {
         setLoading(true);
 
-        const response = await axios.get(
-          `${backendUrl}/api/v1/review/product/${productId}`,
+        const response = await api.get(
+          `/api/v1/review/product/${productId}`,
         );
 
         if (!cancelled && response.data.success) {
@@ -95,7 +101,7 @@ const ReviewSection = ({ productId }) => {
     return () => {
       cancelled = true;
     };
-  }, [backendUrl, productId]);
+  }, [productId]);
 
   //-------------------------Add Review---------------------------
 
@@ -117,18 +123,12 @@ const ReviewSection = ({ productId }) => {
     try {
       setSubmitting(true);
 
-      const response = await axios.post(
-        `${backendUrl}/api/v1/review/add`,
+      const response = await api.post(
+        "/api/v1/review/add",
         {
           productId,
           rating,
           comment,
-        },
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -159,13 +159,8 @@ const ReviewSection = ({ productId }) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await axios.delete(
-        `${backendUrl}/api/v1/review/${reviewId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+      const response = await api.delete(
+        `/api/v1/review/${reviewId}`,
       );
 
       if (response.data.success) {
@@ -203,17 +198,11 @@ const ReviewSection = ({ productId }) => {
     }
 
     try {
-      const response = await axios.put(
-        `${backendUrl}/api/v1/review/${reviewId}`,
+      const response = await api.put(
+        `/api/v1/review/${reviewId}`,
         {
           rating: editRating,
           comment: editComment,
-        },
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -317,10 +306,6 @@ const ReviewSection = ({ productId }) => {
 
   </div>
 </div>
-
-
-      
-      
 
       {/* ------------------Add Review----------------- */}
 

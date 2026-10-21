@@ -1,15 +1,13 @@
 import { toast } from "react-toastify";
 import { AdminContext } from "./AdminContext"
-import axios from 'axios';
 import { useEffect, useState } from "react";
 
-import {setAdminAccessTokenUpdater} from "../utils/AdminAxios";
+import adminAxios, {setAdminAccessTokenUpdater} from "../utils/AdminAxios";
 
 export const AdminContextProvider = (props) => {
 
   const [token, setToken] = useState (localStorage.getItem("adminAccessToken") || "");
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL
 
   const currency = '⃁'
 
@@ -28,7 +26,7 @@ export const AdminContextProvider = (props) => {
 
     try {
       
-       const response = await axios.post (`${backendUrl}/api/v1/admin/logout`, 
+       const response = await adminAxios.post ("/api/v1/admin/logout", 
         {},
         {
           withCredentials: true
@@ -60,7 +58,6 @@ export const AdminContextProvider = (props) => {
   const value = {
    token,
    setToken,
-   backendUrl,
    currency,
    logout
   }

@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from '../utils/axiosInstance';
 import { useState, useRef} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -7,11 +7,14 @@ import { toast } from "react-toastify";
 function OTPVerify() {
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
   const [ loading, setLoading] = useState (false)
 
   const inputRefs = useRef ([]);
+
   const navigate  = useNavigate ();
-  // Get Email from URL//
+
+  // ------Get Email from URL-------//
 
   const {email} = useParams();
 
@@ -39,7 +42,7 @@ function OTPVerify() {
  
   };
 
-// ------------------------OTP Past-----------------------------------------------
+// --------------------------OTP Past-----------------------------------------------
   const handlePaste = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -74,7 +77,7 @@ function OTPVerify() {
   }
 
 
-  // ------------------------------Verify OTP --------------------------------
+  // ------------------------------Verify OTP -------------------------------------
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
@@ -95,7 +98,7 @@ function OTPVerify() {
 
       setLoading (true)
       
-      const response = await axios.post (`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/forgot-password/verify-otp/${encodeURIComponent(email)}`,
+      const response = await api.post (`/api/v1/user/forgot-password/verify-otp/${encodeURIComponent(email)}`,
      {
         otp: otpCode,
       }
@@ -104,7 +107,7 @@ function OTPVerify() {
     if(response.data.success) {
       toast.success (response.data.message || "OTP verified successfully");
 
-      // Go to change password page//
+      // -----------------Go to change password page----------------------------//
 
       navigate (`/forgot-password/change-password/${encodeURIComponent(email)}`);
     }else {

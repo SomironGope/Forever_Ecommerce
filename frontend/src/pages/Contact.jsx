@@ -1,7 +1,7 @@
 import {Mail, Phone, MapPin, Clock, Send} from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toast";
-import Title from '../component/Title';
+import Title from '../components/Title';
 
 function Contact() {
 
@@ -57,7 +57,7 @@ function Contact() {
   return (
     <main className="px-4 sm:px-8 md:px-12 lg:px-20 py-10 md:py-16">
 
-        {/* ---------------Page Heading------------------------- */}
+        {/* -------------------------Page Heading------------------------- */}
            <div className="text-center mb-12"> 
                <Title text1={"CONTACT"} text2={"US"}/>
 
@@ -68,7 +68,7 @@ function Contact() {
                    </p>
                
            </div>
-          {/* --------------------Contact Content---------------- */}
+          {/* ----------------------Contact Content------------------------ */}
 
            <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 max-w-6xl mx-auto'>
                <section>
@@ -116,7 +116,7 @@ function Contact() {
                     </div>
                </section>
 
-               {/* ------------------Contact Form------------------------- */}
+               {/* ------------------------------Contact Form------------------------- */}
 
                <section>
                     <h2 className="text-xl font-medium mb-6">Send Us a message</h2>

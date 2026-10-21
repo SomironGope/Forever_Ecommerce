@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import {useNavigate} from 'react-router-dom'
-import Title from "../component/Title";
-import axios from "axios";
+import Title from "../components/Title";
+import api from '../utils/axiosInstance';
 
 
 
 
 function Orders() {
-  const { currency, token} = useContext(ShopContext);
+
+  const { currency } = useContext(ShopContext);
 
   const [orders, setOrders] = useState ([]);
 
@@ -16,16 +17,6 @@ function Orders() {
 
   const navigate = useNavigate()
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-
-
-
-
-
-
-
-  
 
 
 
@@ -35,13 +26,7 @@ function Orders() {
 
     try {
       
-      const response = await axios.get (`${backendUrl}/api/v1/order/my-orders`, 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get ("/api/v1/order/my-orders",);
 
       if(response.data.success) {
 
@@ -59,7 +44,7 @@ function Orders() {
   };
 
   fetchOrders ();
-  }, [token, backendUrl]);
+  }, []);
 
 
 

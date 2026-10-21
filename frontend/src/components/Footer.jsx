@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 
+
 function Footer() {
+
   return (
     <div className="px-4">
        <div className="flex flex-col sm:grid sm:grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-gray-600 ">
           <div>
-            {/* ---Brand--- */}
+            {/* -------------------Brand-------------------- */}
             <Link to="/">
                     <h2 className="text-2xl font-medium text-gray-700">Forever</h2>
             </Link> 
@@ -16,7 +18,7 @@ function Footer() {
             </p>
           </div>
 
-          {/* ---Company--- */}
+          {/* ---------------------Company-------------------- */}
 
           <div>
              <p className="text-xl font-medium mb-5 text-gray-800">COMPANY</p>
@@ -31,7 +33,7 @@ function Footer() {
              </ul>
           </div>
 
-          {/* ---Contact--- */}
+          {/* -----------------------Contact--------------------*/}
           <div>
              <p className="text-xl font-medium mb-5 text-gray-800">GET IN TOUCH</p>
              <ul className="flex flex-col gap-1 text-gray-600">
@@ -42,7 +44,7 @@ function Footer() {
           
        </div>
 
-       {/* ---Copyright--- */}
+       {/* --------------------------Copyright---------------------- */}
        <div>
              <hr/>
              <p className="text-[11px] text-gray-600 text-center py-1 sm:text-sm  sm:py-1.5">Copyright @ {new Date().getFullYear()} forever. All Right Reserved</p>

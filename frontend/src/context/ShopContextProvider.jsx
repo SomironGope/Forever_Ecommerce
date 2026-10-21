@@ -1,7 +1,6 @@
 import { ShopContext } from "./ShopContext"
  import api,{setAccessTokenUpdater} from "../utils/axiosInstance";
  import { useEffect, useState } from "react";
-//  import {products} from '../assets/products';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -204,11 +203,6 @@ useEffect(() => {
     }, []);
 
 
-
-    // useEffect (() => {
-    //   console.log(cartItems)
-
-    // },[cartItems])
 
     // ---------------------Cart Items Count-------------------------------
 

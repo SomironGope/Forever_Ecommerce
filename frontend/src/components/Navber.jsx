@@ -10,8 +10,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 
+
 function Navber() {
+
   const navigate = useNavigate();
+
   const [visibleMenu, setVisibleMenu] = useState(false);
 
   const { setShowSearch, getCartCount, token, logout, user } =
@@ -19,6 +22,9 @@ function Navber() {
 
   const [loading, setLoading] = useState(false);
 
+
+
+// ---------------------Logout Handler-----------------------
   const logoutHandler = async () => {
     if (loading) return;
 
@@ -40,6 +46,8 @@ function Navber() {
       setLoading(false);
     }
   };
+
+  
 
   return (
     <nav className="bg-[#b5e48c]  rounded-sm flex items-center justify-between  p-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] xl:px-[12vw] py-5 font-medium border-b-2 border-gray-500">

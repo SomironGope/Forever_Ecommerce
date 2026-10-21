@@ -5,8 +5,11 @@ import { toast } from "react-toastify";
 function NewLetterBox() {
 
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false)
 
+  const [loading, setLoading] = useState(false);
+
+
+// -----------------------Submit Handler--------------------
    const onSubmitHandler = (e) => {
     e.preventDefault()
    
