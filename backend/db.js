@@ -1,19 +1,22 @@
+
 import mongoose from "mongoose";
 import "dotenv/config";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(`${process.env.MONGODB_URI}/forever-ecommerce`);
+    const mongoURI = process.env.MONGODB_URI;
 
-    console.log("MongoDB Connection Successfully!");
+    if (!mongoURI) {
+      throw new Error("MONGODB_URI is missing from environment variables");
+    }
+
+    await mongoose.connect(`${mongoURI}/forever-ecommerce`);
+
+    console.log("MongoDB connected successfully!");
   } catch (error) {
-    console.error(error);
-    console.log('MongoDB Connection Failed')
+    console.error("MongoDB connection failed:", error.message);
+    throw error;
   }
 };
 
 export default connectDB;
-
-
-
-
