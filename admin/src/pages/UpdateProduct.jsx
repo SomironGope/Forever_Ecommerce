@@ -38,9 +38,7 @@ function UpdateProduct() {
 
   const [isFeatured, setIsFeatured] = useState(false);
 
-  // const [images, setImages] = useState([]);
-  // const [previewImages, setPreviewIamges] = useState([]);
-
+  
   const [selectedImages, setSelectedImages] = useState([]);
 
   // ---------------------------------Get Product--------------------------
@@ -179,23 +177,6 @@ function UpdateProduct() {
     });
   };
 
-  //  const removePreviewImage = (index) => {
-
-  //   // Remove selected file
-
-  //   setImages ((prevImages) => prevImages.filter((_,i) => i !== index));
-
-  //   // Remove preview
-
-  //   setPreviewIamges((prePreviews) => {
-  //     // Release the object URL
-
-  //     URL.revokeObjectURL(prePreviews[index]);
-
-  //     return prePreviews.filter((_, i) => i !== index);
-  //   });
-  //  };
-  // ------------------------Update Information-----------------------
 
   const handleUpdateProduct = async (event) => {
     event.preventDefault();
@@ -269,7 +250,7 @@ function UpdateProduct() {
     }
   };
 
-  // --------------------Loading-------------------------
+  // --------------------------------Loading-------------------------
 
   if (loading) {
     return (
@@ -302,7 +283,7 @@ function UpdateProduct() {
       >
         <h2 className="text-xl font-medium mb-5">Product Information</h2>
 
-        {/* -----Name---- */}
+        {/* --------------Name--------------- */}
         <div className="mb-4">
           <label className="block mb-2">Product Name</label>
 
@@ -315,7 +296,7 @@ function UpdateProduct() {
           />
         </div>
 
-        {/* -----Description----- */}
+        {/* -----------Description---------- */}
 
         <div className="mb-4">
           <label className="block mb-2">Description</label>
@@ -329,7 +310,7 @@ function UpdateProduct() {
           />
         </div>
 
-        {/* -----Category----- */}
+        {/* ----------Category------------- */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
@@ -346,7 +327,7 @@ function UpdateProduct() {
             </select>
           </div>
 
-          {/* -----Sub Category---- */}
+          {/* -----------Sub Category----------- */}
 
           <div>
             <label className="block mb-2">Sub Category</label>
@@ -364,7 +345,7 @@ function UpdateProduct() {
           </div>
         </div>
 
-        {/* -----Old Price----- */}
+        {/* ------------Old Price------------ */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
@@ -379,7 +360,7 @@ function UpdateProduct() {
             />
           </div>
 
-          {/* ----Price----- */}
+          {/* -----------Price----------- */}
 
           <div>
             <label className="block mb-2">Current Price</label>
@@ -394,7 +375,7 @@ function UpdateProduct() {
           </div>
         </div>
 
-        {/* -----Sizes---- */}
+        {/* --------------Sizes-------------- */}
 
         <div className="mb-6">
           <div className="flex justify-between items-center mb-3">
@@ -445,7 +426,7 @@ function UpdateProduct() {
           </div>
         </div>
 
-        {/* ------------------Featured-------------- */}
+        {/* -------------Featured------------- */}
 
         <div className="flex items-center gap-3 mb-6">
           <input
@@ -467,12 +448,12 @@ function UpdateProduct() {
         </button>
       </form>
 
-      {/* --------------------Product Images----------------------------- */}
+      {/* ---------------Product Images------------ */}
 
       <div className="bg-white border rounded-lg p-6">
         <h2 className="text-xl font-medium mb-5">Product Images</h2>
 
-        {/* -------------Current Images--------------- */}
+        {/* -----------Current Images--------------*/}
 
         {product?.productImg?.length > 0 && (
           <div className="mb-6">
@@ -491,7 +472,7 @@ function UpdateProduct() {
           </div>
         )}
 
-        {/* --------------Select New Images------------------ */}
+        {/* ------------Select New Images--------------- */}
 
         <div>
           <label className="block mb-2 font-medium">Select New Images</label>
@@ -511,7 +492,7 @@ function UpdateProduct() {
           </p>
         </div>
 
-        {/* ---------------Preview Image-------------------------- */}
+        {/* ---------------Preview Image----------------- */}
 
         {selectedImages.length > 0 && (
           <div className="mb-6">

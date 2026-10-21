@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { FaEyeSlash } from "react-icons/fa";
 import { IoEyeSharp } from "react-icons/io5";
+import api from "../utils/axiosInstance";
 
 
 function Signup() {
@@ -31,6 +31,8 @@ function Signup() {
     }));
   };
 
+
+  // -------------------Submit Handler--------------------
   const submitHandler = async (e) => {
     e.preventDefault();
    
@@ -38,15 +40,9 @@ function Signup() {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/register`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const res = await api.post(
+        "/api/v1/user/register",
+        formData,);
 
       if (res.data.success) {
         localStorage.setItem ("email", formData.email.trim().toLowerCase());
@@ -60,6 +56,8 @@ function Signup() {
       setLoading(false);
     }
   };
+
+  
 
   return (
     <form

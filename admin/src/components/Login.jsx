@@ -1,11 +1,13 @@
 import { useContext, useState } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../context/AdminContext";
 // -------------Icons---------------
 import { FaEyeSlash } from "react-icons/fa";
 import { IoEyeSharp } from "react-icons/io5";
+import adminAxios from "../utils/AdminAxios";
+
+
 
 function Login() {
   const { setToken } = useContext(AdminContext);
@@ -35,8 +37,8 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/admin/login`,
+      const response = await adminAxios.post(
+        "/api/v1/admin/login",
         { email: formData.email.trim(), password: formData.password },
         {
           withCredentials: true,

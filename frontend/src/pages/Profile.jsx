@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {toast} from 'react-toastify'
-import axios from 'axios';
 import { ShopContext } from "../context/ShopContext";
+import api from "../utils/axiosInstance";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
@@ -18,9 +18,8 @@ function Profile() {
   
    const {user, setUser} = useContext (ShopContext);
 
-   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
    const fileInputRef = useRef (null);
+
    const submittingRef = useRef (false);
 
    const token = localStorage.getItem("accessToken")
@@ -28,9 +27,10 @@ function Profile() {
    const [image, setImage] = useState (null)
 
 
-   
    const [saving, setSaving] = useState (false);
+
    const [editing, setEditing] = useState (false);
+   
    const [errors, setErrors] = useState ({});
 
    const [loading, setLoading]  = useState (true);
@@ -61,12 +61,8 @@ function Profile() {
           return;
         }
         try {
-          const response = await axios.get (`${backendUrl}/api/v1/user/profile`, 
-            {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          });
+          const response = await api.get ("/api/v1/user/profile", );
+           
 
           if(response.data.success) {
 
@@ -108,31 +104,11 @@ function Profile() {
       return () => {
         active = false;
       }
-   },[token,backendUrl,setUser]);
+   },[token,setUser]);
 
 
-  //  Create and clean up the image preview URL
 
-// useEffect(() => {
-//   if (!image) return;
-
-//   const previewUrl = URL.createObjectURL(image);
-
-//   imagePreviewRef.current = previewUrl;
-//   setImagePreview(previewUrl);
-
-//   return () => {
-//     URL.revokeObjectURL(previewUrl);
-
-//     if (imagePreviewRef.current === previewUrl) {
-//       imagePreviewRef.current = "";
-//     }
-//   };
-// }, [image]);
-
-  
-  //  ----------------------------------Handle Input------------------------------------
-
+// ---------------------Image Preview-------------------------
 
 const imagePreview = useMemo(() => {
   if (!image) return "";
@@ -166,7 +142,7 @@ useEffect(() => {
     }))
    };
 
-   // Validate an image before seletecting it
+   // ------------------------Validate an image before seletecting it-----------------------
 
    const handleImageChange  = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -202,7 +178,7 @@ useEffect(() => {
    };
 
 
-   // Validate the form before sending the request
+   // -------------------------Validate the form before sending the request-------------------
 
    const validateForm = () => {
     const nextErrors = {};
@@ -252,7 +228,7 @@ useEffect(() => {
     const handleSubmit = async (e) => {
       e.preventDefault();
 
-      // Protect against repeated submissions
+      //----------- Protect against repeated submissions---------------
 
      
       if (submittingRef.current || saving) return;
@@ -289,19 +265,8 @@ useEffect(() => {
 
       try {
         
-        const response = await axios.put (`${backendUrl}/api/v1/user/profile`, form,
+        const response = await api.put ("/api/v1/user/profile", form,);
          
-        {
-
-           headers: {
-          Authorization: `Bearer ${token}`,
-               // Don't need to manually set Content-Type.
-                                                         // Axios will set multipart/form-data with the boundary.
-        },
-      }
-    
-    );
-
 
     if(response.data.success) {
 
@@ -374,6 +339,8 @@ useEffect(() => {
         fileInputRef.current.value = "";
       }
     }
+
+
 
 //  -----------------------------------Loading------------------------------------
 

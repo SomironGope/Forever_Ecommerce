@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {useContext} from 'react';
 import {ShopContext} from '../context/ShopContext';
 import {toast} from 'react-toastify'
-import axios from 'axios';
+import api from "../utils/axiosInstance";
 
 import { FaEyeSlash } from "react-icons/fa";
 import { IoEyeSharp } from "react-icons/io5";
@@ -11,9 +11,13 @@ import { IoEyeSharp } from "react-icons/io5";
 
 
 function Login() {
+
    const navigate = useNavigate();
+
    const {setToken} = useContext(ShopContext);
+
    const [showPassword, setPassword] = useState (false);
+   
    const [loading, setLoading] = useState (false);
 
 
@@ -43,14 +47,11 @@ function Login() {
      setLoading (true);
 
      try {
-       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/login`, formData,
+       const response = await api.post(
+        "/api/v1/user/login", formData,
         {
           withCredentials: true,
-          
-          headers: {
-            "Content-Type": "application/json"
-          }
+        
         }
        );
        

@@ -1,15 +1,15 @@
 import { assets } from "../assets/products";
-import Title from "../component/Title";
+import Title from "../components/Title";
 
 function About() {
   return (
     <main className="px-4 sm:px-8 md:px-14 lg:px-20 py-10">
-      {/* ------------Page Heading--------------- */}
+      {/* ---------------------Page Heading---------------------- */}
       <div className="text-center mb-10">
         <Title text1={"ABOUT"} text2={"US"} />
       </div>
 
-      {/* ------------Brand Introduction------------- */}
+      {/* ------------------Brand Introduction------------------- */}
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <picture>
@@ -42,7 +42,7 @@ function About() {
         </div>
       </section>
 
-      {/* --------------Mission------------------- */}
+      {/* ------------------------Mission--------------------------- */}
 
       <section className="mt-16">
         <h2 className="text-xl font-semibold mb-4">Our Mission</h2>
@@ -53,7 +53,7 @@ function About() {
           browing products to receiving an order.
         </p>
       </section>
-      {/* -------------Why Choose Us--------- */}
+      {/* --------------------------Why Choose Us-------------------- */}
 
       <section className="mt-16">
         <h2 className="text-xl from-taupe-50 mb0=8">

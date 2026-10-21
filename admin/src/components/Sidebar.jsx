@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 
 function Sidebar() {
   return (
-    <div className="w-[18%] min-h-screen border-r-2 border-gray-400 ">
+    <div className="w-[20%] min-h-screen border-r-2 border-gray-400 ">
       <div className="flex flex-col gap-4 pt-6 pl-[20%] text-[15p] mr-2">
         <NavLink
           to="/add"
@@ -22,7 +22,7 @@ function Sidebar() {
           className="flex items-center gap-2.5 border border-gray-300 px-3 object-fill py-1 rounded-md hover:opacity-55"
         >
           <img src={packeage} alt="products" className="w-5" />
-          <p className="hidden md:block"> Products</p>
+          <p className="hidden md:block">Products</p>
         </NavLink>
 
         <NavLink

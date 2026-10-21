@@ -1,8 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { useParams } from "react-router-dom";
-import RelativeProduct from "../component/RelativeProduct";
-import ReviewSection from "../component/ReviewSection";
+import RelativeProduct from "../components/RelativeProduct";
+import ReviewSection from "../components/ReviewSection";
 
 
 
@@ -33,12 +33,12 @@ function Products() {
 
   return productData ? (
     <div className="">
-      {/* ------------------Product Data -------------------*/}
+      {/* --------------------Product Data ---------------------*/}
       <div className="w-full flex justify-between sm:gap-x-3 flex-col sm:flex-row pt-10 transition-opacity ease-in duration-500 opacity-100">
 
        {/* ----------------------Left Side---------------------- */}
       
-        {/* ---------------Product Images----------------- */}
+        {/* -------------------Product Images------------------- */}
 
         <div className="flex-1  gap-2 sm:flex-row">
 
@@ -70,7 +70,7 @@ function Products() {
 
           </div>
           {/* -----------------------Right Side ------------------- */}
-          {/*--------------- Product Info ---------------  */}
+          {/*--------------------- Product Info --------------------  */}
           <div className="flex-1 mt-5 sm:mt-0 ">
             <div>
               <h2 className="text-sm sm:text-base text-gray-700 font-bold">{productData.name}</h2>
@@ -118,7 +118,7 @@ function Products() {
                 </div>
              </div>
              
-             {/* -------------------AddToCart-------------------------------- */}
+             {/* -------------------------------AddToCart-------------------------------- */}
              <button 
                type= "button"
                disabled = {!size}
@@ -145,7 +145,7 @@ function Products() {
           </div>
           
           </div>
-           {/* ------------------Description and Review-------------- */}
+           {/* ------------------------Description and Review---------------------- */}
             <div className="mt-20">
                <div className="flex gap-1 text-gray-600">
                  <button type="button"
@@ -181,7 +181,7 @@ function Products() {
                    
                </div>
             </div>
-            {/* Related Products */}
+            {/*------------------------------- Related Products-------------------------------- */}
             <div>
                 <RelativeProduct category={productData.category} subCategory={productData.subCategory} />
             </div>

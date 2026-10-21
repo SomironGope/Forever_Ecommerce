@@ -1,23 +1,29 @@
 import { assets } from "../assets/products";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 
 function SearchBar() {
+  
   const { search, setSearch, showSearch, setShowSearch } =
     useContext(ShopContext);
 
   const location = useLocation();
 
-  const visible = location.pathname.includes("collection");
+  const visible = location.pathname === "/" || location.pathname.includes("collection");
+
+  useEffect (() => {
+    setSearch("");
+    setShowSearch(false);
+  }, [location.pathname, setSearch, setShowSearch] );
 
   if (!showSearch || !visible) {
     return null;
   }
 
   return showSearch && visible ? (
-    <div className="text-center mt-2 outline-none border-none ">
-      <div className="inline-flex bg-white border border-sky-500  items-center justify-center px-5 py-2 my-5 mx-3 rounded-full w-3/4 sm:w-1/2">
+    <div className="text-center mt-0 outline-none border-none ">
+      <div className="inline-flex bg-white border border-sky-500  items-center justify-center px-5 py-2 my-1 mx-3 rounded-full w-3/4 sm:w-1/2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}

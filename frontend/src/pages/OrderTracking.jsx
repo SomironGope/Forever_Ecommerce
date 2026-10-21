@@ -1,20 +1,23 @@
 import { useContext, useEffect, useState } from 'react';
 import {ShopContext} from '../context/ShopContext';
 import {useParams} from 'react-router-dom'
-import Title from '../component/Title';
-import axios from 'axios';
+import Title from '../components/Title';
+import api from '../utils/axiosInstance';
 
 function OrderTracking() {
   
-  const {orderId} = useParams();
-  const {currency, token} = useContext (ShopContext)
-  const [order, setOrder] = useState (null);
-  const [loading, setLoading] = useState (true);
+  const { orderId } = useParams();
 
-  const [errorMessage, setErrorMessage] = useState ("");
+  const { currency,token } = useContext (ShopContext)
+
+  const [ order, setOrder ] = useState (null);
+
+  const [ loading, setLoading ] = useState (true);
+
+  const [ errorMessage, setErrorMessage ] = useState ("");
 
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+ 
 
 
 //  ------------------------------Get Signle Order-------------------------------
@@ -36,13 +39,9 @@ useEffect (() => {
 
     try {
       
-      const response = await axios.get(`${backendUrl}/api/v1/order/${orderId}`, 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/api/v1/order/${orderId}`,); 
+     
+      
     
       if(response.data.success) {
         setOrder (response.data.order);
@@ -67,10 +66,10 @@ useEffect (() => {
   }
 
     fetchOrder()
-}, [token,orderId,backendUrl])
+}, [token, orderId])
 
 
-// --------------------------Loading-------------------
+// --------------------------------Loading----------------------------
 
 if(loading) {
   return (
@@ -96,7 +95,7 @@ if(!order) {
 }
 
 
-//-----------------------------ORDER STATUS------------------------------
+//-------------------------------ORDER STATUS-------------------------
 
 const statuses = [
   "Pending",
@@ -115,7 +114,7 @@ return (
   <div className='pt-20'>
       <Title text1={"ORDER"} text2={"TRACKING"} />
 
-      {/* -------------------ORDER INFORMATION------------------------ */}
+      {/* -----------------------ORDER INFORMATION------------------------ */}
 
       <div className='mt-8 border rounded-md p-5'> 
          <div className='flex flex-col sm:flex-row sm:justify-between gap-3'>
@@ -149,7 +148,7 @@ return (
          </div>
       </div>
 
-      {/* --------------------------------CANCELLED ORDER------------------------ */}
+      {/* --------------------------------CANCELLED ORDER---------------------------- */}
 
       {order.orderStatus === "Cancelled" ? (
          <div className='mt-8 border border-red-200 bg-red-100 rounded-md p-6'>
@@ -166,7 +165,7 @@ return (
 
       ) :
        (
-      // -------------------TRACKING----------------------------------------------------
+      // -------------------------------------TRACKING----------------------------------
 
        <div className='mt-20'>
          
@@ -176,7 +175,7 @@ return (
 
             <div className='relative'>
                 
-                {/* -----------------------Progress Line------------------------------ */}
+                {/* ------------------------Progress Line------------------------------ */}
 
                  <div className='absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200'>
                      <div className="bg-black w-full transition-all duration-500" 
@@ -186,7 +185,7 @@ return (
 
 
 
-                  {/* ---------------Status Items-------------------------- */}
+                  {/* -------------------------Status Items-------------------------- */}
 
                     <div>
                         {statuses.map((status,index) => {
@@ -195,7 +194,7 @@ return (
                          return (
                           <div key={status} className='relative flex items-center gap-5'>
 
-                             {/* -------------------------Circle---------------------------- */}
+                             {/* -------------------------Circle------------------------- */}
 
                                <div className= {`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
                                 completed ? "bg-green-500 text-white border-black font-bold" : "bg-white text-gray-400 border-gray-300"
@@ -204,7 +203,7 @@ return (
 
                                </div>
 
-                               {/* -----------------------Status Text------------------------ */}
+                               {/* -----------------------Status Text---------------------- */}
 
                                <div>
                                   <p className= {`font-medium ${completed ? "text-black" : "text-gray-400"}`}>{status}</p>

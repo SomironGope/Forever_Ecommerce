@@ -6,9 +6,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { AdminContext } from './context/AdminContext';
-import Navbar from './component/Navbar';
-import Sidebar from './component/Sidebar';
-import Login from './component/Login';
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import Login from './components/Login';
 
 import Add from './pages/Add';
 import Dashboard from './pages/Dashboard';
@@ -18,10 +18,11 @@ import Users from './pages/Users';
 import UpdateProduct from './pages/UpdateProduct';
 import OrderDetailsPage from './pages/OrderDetailsPage';
 
+
 function App() {
   const { token, authLoading } = useContext(AdminContext);
 
-  // Wait until the refresh-token check finishes.
+  // ------Wait until the refresh-token check finishes.-----
   if (authLoading) {
     return (
       <div className="bg-gray-50 min-h-screen flex items-center justify-center">
@@ -31,7 +32,7 @@ function App() {
     );
   }
 
-  // Show only the login page when not authenticated.
+  // -----Show only the login page when not authenticated.-----
   if (!token) {
     return (
       <div className="bg-gray-50 min-h-screen">
@@ -48,7 +49,7 @@ function App() {
     );
   }
 
-  // Show the admin panel when authenticated.
+  // -----Show the admin panel when authenticated.-----
   return (
     <div className="bg-gray-50 min-h-screen">
       <ToastContainer />

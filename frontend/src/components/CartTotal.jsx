@@ -22,7 +22,7 @@ function CartTotal() {
 
        <div className="flex flex-col gap-2 mt-2 text-sm">
          
-         {/* ---Subtotal--- */}
+         {/* --------------------Subtotal--------------------- */}
 
          <div className="flex justify-between">
            <p>Subtotal</p>
@@ -32,7 +32,7 @@ function CartTotal() {
 
          <hr/>
 
-         {/* ---Shipping--- */}
+         {/* --------------------Shipping---------------------- */}
 
           <div className="flex justify-between">
             <p>Shipping Fee</p>
@@ -42,7 +42,7 @@ function CartTotal() {
 
           <hr/>
 
-          {/* ---Total--- */}
+          {/* --------------------Total-------------------------- */}
           <div className="flex justify-between">
              <b>Total</b>
 

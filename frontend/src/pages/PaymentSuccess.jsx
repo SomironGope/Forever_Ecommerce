@@ -1,15 +1,25 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/axiosInstance";
+import {ShopContext} from '../context/ShopContext';
+
+
 
 function PaymentSuccess() {
+  
+  const {token} = useContext (ShopContext)
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+
   const [success, setSuccess] = useState(false);
 
+
+  // --------------------------------Verify Payment---------------------------------
   useEffect(() => {
+
     const verifyPayment = async () => {
       try {
         const paymentId = searchParams.get("id");
@@ -22,13 +32,13 @@ function PaymentSuccess() {
         console.log("Payment Status:", status);
         console.log("Moyasar Message:", message);
 
-        // Payment Id is required
+        //------------------ Payment Id is required--------------------
 
         if (!paymentId) {
           setSuccess(false);
           return;
         }
-         // Payment Failed// 
+         // -------------------Payment Failed---------------------------
          if (status === "failed") {
           navigate ('/payment/failed');
           return;
@@ -41,30 +51,20 @@ function PaymentSuccess() {
           return;
         }
 
-
-        const token = localStorage.getItem ("accessToken");
-
-        console.log("Access token exists:", !!token);
-
         if (!token) {
           console.error ("Access token not found");
           setSuccess(false);
           return;
         }
 
-        const response = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/moyasar/verify`,
+        const response = await api.post(
+          "/api/v1/payment/moyasar/verify",
           {
             paymentId,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          
         );
 
-        console.log("Verify response:", response.data);
 
         if (response.data.success) {
           setSuccess(true);
@@ -83,7 +83,7 @@ function PaymentSuccess() {
     };
 
     verifyPayment();
-  }, [searchParams, navigate]);
+  }, [searchParams, token, navigate]);
 
 
 

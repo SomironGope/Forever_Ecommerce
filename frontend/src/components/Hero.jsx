@@ -1,10 +1,14 @@
 import { Link } from 'react-router-dom';
 import Banner2 from '../assets/MultiBanner/MultiBanner-2.jpg';
+
+
+
 function Hero() {
+
   return (
     <div className="flex flex-col sm:flex-row border border-gray-400 mt-5">
 
-       {/*--- Hero Left Side --- */}
+       {/*------------------Hero Left Side --------------------- */}
 
        <div className="w-full sm:w-1/2 flex items-center justify-center py-10 sm:py-0">
           <div className="text-[#414141]">
@@ -24,7 +28,7 @@ function Hero() {
           </div>
        </div>
 
-       {/*--- Hero Right Side ----*/}
+       {/*------------------------- Hero Right Side ----------------------*/}
         <img className = 'w-full object-cover sm:w-1/2' src= {Banner2} alt='' />
        
     </div>

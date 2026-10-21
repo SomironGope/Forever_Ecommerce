@@ -1,9 +1,10 @@
-import axios from "axios";
+
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import api from '../utils/axiosInstance';
 import { toast } from "react-toastify";
 
-// -------------Icons---------------
+// -------------------------Icons-------------------------
 import { FaEyeSlash } from "react-icons/fa";
 import { IoEyeSharp } from "react-icons/io5";
 
@@ -45,7 +46,7 @@ function ChangePassword() {
 
          setLoading (true);
 
-         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/forgot-password/change-password/${encodeURIComponent(email)}`,
+         const response = await api.post(`/api/v1/user/forgot-password/change-password/${encodeURIComponent(email)}`,
       {
          newPassword,
          confirmPassword,

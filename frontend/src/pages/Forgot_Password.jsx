@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
+import api from '../utils/axiosInstance';
+
 
 function Forgot_Password() {
 
   const [email, setEmail] = useState ("")
+
   const [loading, setLoading] = useState (false);
+
   const navigate = useNavigate ();
 
 
@@ -25,7 +28,7 @@ function Forgot_Password() {
     try {
       setLoading (true);
 
-      const response = await axios.post (`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/forgot-password`, 
+      const response = await api.post ("/api/v1/user/forgot-password", 
         {
           email: trimmedEmail,
         }

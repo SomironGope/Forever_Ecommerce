@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from '../utils/axiosInstance';
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -55,16 +55,16 @@ function Verify() {
     inputRefs.current [focusIndex]?.focus();
   };
 
-
+  // -------------------Key Backspace--------------------
 
   const handleKeyDown = (e,index) => {
-    // Move back when pressing Backspace
+    //------- Move back when pressing Backspace------------
     if(e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index -1]?.focus();
     }
   }
 
-
+// -----------------------Verify OTP--------------------------
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
 
@@ -76,8 +76,8 @@ function Verify() {
     };
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/verify-otp`, {
+      const response = await api.post(
+        "/api/v1/user/verify-otp", {
           otp: otpCode,
         }
       );
@@ -114,6 +114,8 @@ function Verify() {
   }, [timeLeft]);
 
 
+
+  // --------------------Resend OTP---------------------------
   const handleResendOTP = async () => {
 
     if (!email) {
@@ -122,8 +124,8 @@ function Verify() {
       return;
     }
     try {
-      const {data} = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/resend-otp`,
+      const {data} = await api.post(
+        "/api/v1/user/resend-otp",
          {
           email
         }
@@ -132,10 +134,10 @@ function Verify() {
       if(data.success) {
         toast.success(data.message);
 
-        // restart 2 minutes timer
+        // ------------restart 2 minutes timer----------------
         setTimeLeft(120);
 
-        // Clear previous OTP
+        // --------------Clear previous OTP-------------------
         setOtp(["", "", "", "", "", ""]);
 
         // Focus first OTP input

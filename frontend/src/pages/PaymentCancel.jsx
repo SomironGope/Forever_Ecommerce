@@ -11,7 +11,7 @@ function PaymentCancel() {
     <div className="min-h-[80vh] flex items-center justify-center"> 
 
        <div className="w-full min-h-75 max-w-md rounded-lg border border-gray-200 bg-white px-8 shadow-sm text-center">
-           {/* ------------Cancellation Icon------------- */}
+           {/* -----------------------Cancellation Icon---------------------- */}
            <div className="mx-auto m-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 text-3xl">
                <p className="text-center mb-2" >⚠️</p>
            </div>

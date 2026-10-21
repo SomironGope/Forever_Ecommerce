@@ -1,19 +1,26 @@
 import { useContext, useMemo, useState} from "react";
 import {ShopContext} from '../context/ShopContext';
-import Title from '../component/Title';
+import Title from '../components/Title';
 import {assets} from '../assets/products';
-import ProductItem from "../component/ProductItem";
+import ProductItem from "../components/ProductItem";
+
+
 function Collection() {
-  const {products,search,showSearch} = useContext (ShopContext)
+
+  const {products,search,showSearch} = useContext (ShopContext);
+
   const [showFilter, setShowFilter] = useState(false);
+
   const [category, setCategory] = useState([]);
+
   const [subCategory, setSubCategory] = useState ([]);
+
   const [sortType, setSortType] = useState ('relevant');
 
   const [priceRange,setPriceRange] = useState ("");
   
 
-  // Category ToggleHandler//
+  // -----------------------Category ToggleHandler----------------------
 
   const toggleCategory = (e) => {
     if(category.includes(e.target.value)){
@@ -23,7 +30,7 @@ function Collection() {
     }
   }
 
-  // Sub Category TogggleHandler //
+  // ------------------------SubCategory TogggleHandler------------------ 
 
   const toggleSubCategory = (e) => {
     if(subCategory.includes(e.target.value)) {
@@ -33,7 +40,7 @@ function Collection() {
     }
   };
  
-  //-------------------------Search Filter----------------------
+  //--------------------------------Search Filter-------------------------
 
 const filterProduct = useMemo(() => {
   let productCopy = [...products];
@@ -46,7 +53,7 @@ if(subCategory.length > 0) {
   productCopy = productCopy.filter((item) => subCategory.includes (item.subCategory));
 }
 
-if(search && showSearch) {
+if( showSearch && search.trim()) {
   productCopy = productCopy.filter ((item) => item.name.toLowerCase().includes(search.toLowerCase()))
 }
 
@@ -82,13 +89,13 @@ return productCopy;
 }, [products, category,subCategory,search,showSearch,sortType, priceRange])
 
 
-  
+  const isSearching = showSearch && search.trim().length > 0
 
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10">
-       {/* Left Side */}
-       {/* Filter Options */}
+       {/* -----------------------Left Side-------------------- */}
+       {/* -----------------------Filter Options--------------- */}
         <div className="min-w-60 ">
             <p onClick = {() => setShowFilter (!showFilter)} className="my-2 text-xl flex items-center cursor-pointer gap-2" >FILTERS 
               <img className= {`h-3  sm:hidden ${showFilter ? 'rotate-90': ''}`} src= {assets.dropdownarrow} alt="" />
@@ -102,7 +109,7 @@ return productCopy;
             }}
                className="mt-3 text-sm font-semibold tracking-wider text-red-500 underline">Clear Filters</button>
              
-            {/* -------------------Category Filter------------------ */}
+            {/* --------------------Category Filter------------------ */}
             <div  className= {`border-2  border-gray-300 py-3 mt-6 ${showFilter ? '' : 'hidden'} sm:block`}>
                <p className="mb-3 text-sm font-medium px-2">CATEGORIES</p>
                <div className="px-2">
@@ -188,39 +195,77 @@ return productCopy;
                 <Title text1 = {'All'} text2 = {'COLLECTIONS'}/>
                 {/* ---------------Product Sort -------------------------*/}
                 <select onChange = {(e) => setSortType (e.target.value)} className="border-2 border-gray-300 text-sm px-2 outline-none">
-                   <option  value= "relevent" >Sort by: Relevant</option>
+                   <option  value= "relevant" >Sort by: Relevant</option>
                    <option  value= "low-high" >Sort by: Low to High</option>
                    <option  value= "high-low" >Sort by: High to Low</option>
                 </select>
           </div>
             {/* --------------Product Count------------- */}
-           <p className="text-sm text-gray-500 mb-4">Showing {filterProduct.length} products</p>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-6">
            
+{!isSearching ? (
+  <>
+    <p className="text-sm text-gray-500 mb-4">
+      Showing {filterProduct.length} products
+    </p>
 
-             {
-             filterProduct.length === 0 ? (
-              <div className="col-span-full text-center py-16">
-                 <p className="text-lg text-gray-500">No products found</p>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-6">
+      {filterProduct.length === 0 ? (
+        <div className="col-span-full text-center py-16">
+          <p className="text-lg text-gray-500">
+            No products found
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            Try changing your search or filters.
+          </p>
+        </div>
+      ) : (
+        filterProduct.map((item) => (
+          <ProductItem
+            key={item._id}
+            _id={item._id}
+            image={item.productImg?.[0]?.url}
+            name={item.name}
+            oldPrice={item.oldPrice}
+            price={item.price}
+          />
+        ))
+      )}
+    </div>
+  </>
+) : filterProduct.length > 0 ? (
+  <>
+    <p className="text-sm text-gray-500 mb-4">
+      {filterProduct.length} products found for "{search}"
+    </p>
 
-                 <p className="text-sm text-gray-400 mt-2"> Try changing your search or filters.</p>
-              </div>
-             )
-             : (
-              filterProduct.map((item) => (
-                <ProductItem key={item._id} 
-                _id = {item._id} 
-                image = {item.productImg?.[0]?.url} 
-                name = {item.name} 
-                oldPrice = {item.oldPrice} 
-                price={item.price} />
-              ))
-             )
-           }
-           
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-6">
+      {filterProduct.map((item) => (
+        <ProductItem
+          key={item._id}
+          _id={item._id}
+          image={item.productImg?.[0]?.url}
+          name={item.name}
+          oldPrice={item.oldPrice}
+          price={item.price}
+        />
+      ))}
+    </div>
+  </>
+) : (
+  <div className="text-center py-16">
+    <p className="text-lg text-gray-500">
+      No matching products found
+    </p>
+    <p className="text-sm text-gray-400 mt-2">
+      Try another search.
+    </p>
+  </div>
+)}
 
-          </div>
+          
+
+
+         
 
         
         </div>
