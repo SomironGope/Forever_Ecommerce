@@ -16,6 +16,7 @@ function Navber() {
   const navigate = useNavigate();
 
   const [visibleMenu, setVisibleMenu] = useState(false);
+  const [visibleProfile, setVisibleProfile] = useState (false);
 
   const { setShowSearch, getCartCount, token, logout, user } =
     useContext(ShopContext);
@@ -112,7 +113,12 @@ function Navber() {
         {/* // User Profile // */}
 
         <div className=" relative">
-          <div className="relative group">
+          <div className="relative group"
+               onMouseEnter={() => {
+              if (token) setVisibleProfile(true);
+               }}
+             onMouseLeave={() => setVisibleProfile(false)}
+          >
             <img
               src={user?.profilePic || assets.userIcon}
               alt="Profile"
@@ -120,14 +126,20 @@ function Navber() {
               onClick={() => {
                 if (!token) {
                   navigate("/login");
+                } else {
+                  setVisibleProfile((prev) => !prev);
                 }
               }}
             />
 
             {token && (
-              <div className="absolute right-0 top-4 z-50 hidden pt-2 group-hover:block">
+              <div className={`absolute right-0 top-4 z-50 hidden pt-2 
+                ${visibleProfile ? "block" : "hidden"}`
+              }>
                 <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 rounded-md shadow-md text-gray-500">
-                  <NavLink to="/profile">
+                  <NavLink to="/profile" 
+                    onClick={() => setVisibleProfile(false)}
+                  >
                     <p className="cursor-pointer hover:text-[#03045e]">
                       My Profile
                     </p>
