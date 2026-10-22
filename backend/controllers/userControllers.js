@@ -92,7 +92,7 @@ export const register = async (req,res ) => {
 
    await newUser.save();
 
-    verifyEmail(otp,normalizEmail) // Send OTP for verification email
+    await verifyEmail(otp,normalizEmail) // Send OTP for verification email
 
    return res.status(201).json ({
     success: true,

@@ -115,13 +115,28 @@ export const verifyEmail = async (otp, email) => {
 `
   };
 
+  // const info = await transporter.sendMail(mailConfig);
+
+  // if (!info.accepted?.some(
+  //   (address) => address.toLowerCase() === email.toLowerCase()
+  // )) {
+  //   throw new Error("The email server did not accept the recipient.");
+  // }
+
+  // return info;
+
+try {
   const info = await transporter.sendMail(mailConfig);
 
-  if (!info.accepted?.some(
-    (address) => address.toLowerCase() === email.toLowerCase()
-  )) {
-    throw new Error("The email server did not accept the recipient.");
-  }
 
   return info;
+} catch (error) {
+  console.error("[OTP] Email error:", {
+    message: error.message,
+    code: error.code,
+    response: error.response,
+  });
+
+  throw error;
+}
 };
