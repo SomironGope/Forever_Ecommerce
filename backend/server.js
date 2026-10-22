@@ -31,6 +31,7 @@ app.use(cors({
   'http://localhost:5173',
   'http://localhost:5174',
   'https://forever-ecommerce-f73m.vercel.app',
+  "https://forever-ecommerce-14hq.vercel.app",
   ],
   credentials: true
 }));
