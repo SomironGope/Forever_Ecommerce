@@ -8,6 +8,8 @@ function Products() {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   const currency = "⃁";
 
@@ -37,19 +39,21 @@ function Products() {
   const removeProduct = async (id) => {
     if (deletingId !== null) return;
 
-    const confirmDelete = window.confirm(
-      "Are your sure you want to delete this product?",
-    );
+    setSelectedProductId(id);
+    setShowDeleteModal(true);
+  };
 
-    if (!confirmDelete) return;
+  const confirmRemoveProduct = async () => {
+    if (!selectedProductId || deletingId !== null) return;
+
+    const id = selectedProductId;
 
     try {
       setDeletingId(id);
-      const response = await adminAxios.delete(`/api/v1/product/${id}`, {});
+
+      const response = await adminAxios.delete(`/api/v1/product/${id}`);
 
       if (response.data.success) {
-        // Remove product from UI immediately
-
         setProduct((prev) => prev.filter((item) => item._id !== id));
         toast.success(response.data.message || "Product deleted successfully.");
       } else {
@@ -60,6 +64,8 @@ function Products() {
       toast.error(error.response?.data?.message || "Failed to delete product.");
     } finally {
       setDeletingId(null);
+      setShowDeleteModal(false);
+      setSelectedProductId(null);
     }
   };
 
@@ -84,6 +90,44 @@ function Products() {
           </div>
 
           {/* -----------Product List ------------*/}
+
+          
+                  {showDeleteModal && (
+                    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
+                      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
+                        <h2 className="text-lg font-semibold text-gray-800 text-center">
+                          Delete Product
+                        </h2>
+
+                        <p className="mt-3 text-sm text-gray-600 text-center">
+                          Are you sure you want to delete this product?
+                        </p>
+
+                        <div className="mt-6 flex justify-center gap-3">
+                          <button
+                            type="button"
+                            disabled={deletingId !== null}
+                            onClick={() => {
+                              setShowDeleteModal(false);
+                              setSelectedProductId(null);
+                            }}
+                            className="rounded border px-4 py-2 text-sm hover:bg-gray-100"
+                          >
+                            Cancel
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={deletingId !== null}
+                            onClick={confirmRemoveProduct}
+                            className="rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+                          >
+                            {deletingId !== null ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
           {product.map((item) => (
             <div key={item._id}>
@@ -118,7 +162,7 @@ function Products() {
                     to={`/update-product/${item._id}`}
                     aria-disabled={deletingId !== null}
                     onClick={(e) => {
-                      if (deletingId !== null) e.preventDefault();
+                      if (deletingId !== null || showDeleteModal) e.preventDefault();
                     }}
                   >
                     <p
@@ -129,14 +173,16 @@ function Products() {
                       Edit
                     </p>
                   </Link>
+
                   <button
-                    type="button"
-                    disabled={deletingId !== null}
-                    onClick={() => removeProduct(item._id)}
-                    className="bg-red-500  text-white px-3 py-2 rounded hover:bg-red-600 disabled:opacity-50 text-sm text-center cursor-pointer  "
-                  >
-                    {deletingId === item._id ? "Deleting..." : "Delete"}
-                  </button>
+    type="button"
+    disabled={deletingId !== null}
+    onClick={() => removeProduct(item._id)}
+    className="bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600 disabled:opacity-50"
+  >
+    Delete
+  </button>
+
                 </div>
               </div>
 
