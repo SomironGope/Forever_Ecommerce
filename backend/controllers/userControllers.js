@@ -7,7 +7,7 @@ import { verifyEmail } from '../emails/emailVerify.js';
 import validator from 'validator';
 import {Session} from '../models/userSessionModel.js';
 import cloudinary from '../utils/cloudinary.js';
-import { sendOTPMail } from '../emails/forgotOTPVerify.js';
+import { sendPasswordResetEmail } from '../emails/forgotOTPVerify.js';
 import mongoose from 'mongoose';
 import path from 'path';
 
@@ -649,7 +649,7 @@ export const forgotPassword = async (req, res) => {
 
     // ----------------------Send OTP email---------------------------------------
 
-    sendOTPMail(otp, email); 
+    sendPasswordResetEmail(otp, email); 
 
     return res.status (200).json({
       success: true,

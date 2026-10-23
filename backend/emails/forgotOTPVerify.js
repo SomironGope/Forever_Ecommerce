@@ -1,21 +1,29 @@
-import nodeMailer from 'nodemailer';
 
 
-export const sendOTPMail = (otp,email) => {
-  const transporter = nodeMailer.createTransport ({
-    service : 'gmail',
-    auth : {
-      user : process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS
-    }
-  });
 
+export const sendPasswordResetEmail = async (otp, email) => {
+ 
+  try {
+    console.log("[OTP] Starting Brevo email send");
 
-  const mailConfig = {
-    from: process.env.MAIL_USER,
-    to: email,
-    subject: 'Password Reset',
-    html: `
+    const response = await fetch(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: {
+            name: "Forever E-Commerce",
+            email: process.env.BREVO_SENDER_EMAIL,
+          },
+          to: [{ email }],
+          subject: "Password Reset",
+          textContent: `Your password reset code is ${otp}. It expires in 5 minutes.`,
+          htmlContent:  `
    <div style="background:#f4f4f5;font-family:Arial,sans-serif;padding:40px 20px;margin-top:10px;border-radius:12px;">
 
   <div style="max-width:500px;margin:0 auto;background:#eff6ff;border:2px dashed #2563eb;border-radius:10px;padding:20px;">
@@ -56,16 +64,37 @@ export const sendOTPMail = (otp,email) => {
 
 </div>
 `
-  }
-  transporter.sendMail (mailConfig, function (error,info) {
-    if(error) {
-     console.log(error);
-     return;
-     
+        }),
+        signal: AbortSignal.timeout(20000),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("[OTP] Brevo API error:", {
+        status: response.status,
+        message: result.message,
+        code: result.code,
+      });
+
+      throw new Error(
+        result.message || "Brevo failed to send the email"
+      );
     }
-     console.log(`OTP email sent to ${email}`);
-      console.log(info)
-  });
+
+    console.log("[OTP] Brevo accepted email:", result.messageId);
+
+    return result;
+  } catch (error) {
+    console.error("[OTP] Email error:", {
+      message: error.message,
+      name: error.name,
+    });
+
+    throw error;
+  }
 };
+
 
 
