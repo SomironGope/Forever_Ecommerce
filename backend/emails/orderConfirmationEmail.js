@@ -1,25 +1,33 @@
-import nodeMailer from 'nodemailer';
-
-
-
 export const sendOrderConfirmationEmail = async (email, firstName, order) => {
+  try {
+    console.log("[OTP] Starting Brevo email send");
 
-  const transporter = nodeMailer.createTransport ({
-    service: "gmail",
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    }
-  });
-
-  const mailConfig = {
-    from: process.env.MAIL_USER,
-    to: email,
-    subject: `Order Confirmation - ${order._id}`,
-    html: `
-  <div style="margin:0;padding:30px 15px;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
-    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
-
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: {
+          name: "Forever E-Commerce",
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [{ email }],
+        subject: `Order Confirmation - Forever E-Commerce`,
+        textContent: `Hi ${firstName},
+                   Thank you for your order with Forever E-Commerce.
+                   Order ID: ${order._id} 
+                   Order Amount: ${order.amount} SAR
+                   Payment Method: ${order.paymentMethod}
+                   Payment Status: ${order.paymentStatus}
+                   We'll keep you updated as your order progresses.
+                  Thank you for shopping with Forever E-Commerce.`,
+        htmlContent: `
+        <div style="margin:0;padding:30px 15px;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+          <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+ 
       <!-- Header -->
       <div style="background:#2563eb;padding:25px 20px;text-align:center;">
         <h1 style="margin:0;color:#ffffff;font-size:25px;font-weight:700;">
@@ -90,17 +98,32 @@ export const sendOrderConfirmationEmail = async (email, firstName, order) => {
 
     </div>
   </div>
-`
-  }
-  
-  try {
-     const info = await transporter.sendMail (mailConfig);
-     
-     console.log(`Order Confirmation sent to  ${email}`);
+`,
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
 
-     console.log(info.messageId);
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("[OTP] Brevo API error:", {
+        status: response.status,
+        message: result.message,
+        code: result.code,
+      });
+
+      throw new Error(result.message || "Brevo failed to send the email");
+    }
+
+    console.log("[OTP] Brevo accepted email:", result.messageId);
+
+    return result;
   } catch (error) {
-    console.error ("Email Send Error:",error);
+    console.error("[OTP] Email error:", {
+      message: error.message,
+      name: error.name,
+    });
+
+    throw error;
   }
-    
-}
+};

@@ -2,7 +2,6 @@ import {Product} from '../models/productModels.js'
 import {Order} from '../models/orderModels.js';
 import {Cart} from '../models/cartModels.js';
 import {User} from '../models/userModels.js';
-import { sendOrderConfirmationEmail } from '../emails/orderConfirmationEmail.js';
 import { sendOrderStatusEmail } from '../emails/sendOrderStatusEmail.js';
 import mongoose from 'mongoose';
 
@@ -190,7 +189,7 @@ export const createOrder = async (req, res) => {
       const user = await User.findById (userId);
 
       if (user?.email) {
-        await sendOrderConfirmationEmail(
+        await orderConfirmationEmail(
           user.email,
           user.firstName,
           order[0],

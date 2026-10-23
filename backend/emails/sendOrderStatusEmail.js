@@ -1,22 +1,28 @@
-import nodeMailer from 'nodemailer';
-
 
 export const sendOrderStatusEmail = async (email, firstName, order) => {
+  try {
+    console.log("[OTP] Starting Brevo email send");
 
-
-  const transporter = nodeMailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    }
-  });
-
-  const mailConfig = {
-    from : process.env.MAIL_USER,
-    to: email,
-    subject: `Order status update - ${order._id}`,
-   html: `
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: {
+          name: "Forever E-Commerce",
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [{ email }],
+        subject:  `Order status update - ${order._id}`,
+        textContent: `Hello ${firstName},
+                     Your order status has been updated.
+                     Order Number: ${order._id}
+                    Current Status: ${order.orderStatus}
+                    Thank you for shopping with Forever E-Commerce.`,
+        htmlContent: `
   <div style="margin:0;padding:30px 12px;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;color:#171717;">
 
     <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
@@ -91,7 +97,33 @@ export const sendOrderStatusEmail = async (email, firstName, order) => {
       </div>
 
        `
-  }
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
 
-  await transporter.sendMail (mailConfig);
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("[OTP] Brevo API error:", {
+        status: response.status,
+        message: result.message,
+        code: result.code,
+      });
+
+      throw new Error(result.message || "Brevo failed to send the email");
+    }
+
+    console.log("[OTP] Brevo accepted email:", result.messageId);
+
+    return result;
+  } catch (error) {
+    console.error("[OTP] Email error:", {
+      message: error.message,
+      name: error.name,
+    });
+
+    throw error;
+  }
 };
+
+
