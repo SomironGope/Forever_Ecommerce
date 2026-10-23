@@ -106,8 +106,6 @@ function PlaceOrder() {
 
          toast.success ("Order placed successfully");
 
-         
-
          //--------------- Go to orders page ---------------------------
          navigate('/orders')
         }
@@ -115,14 +113,12 @@ function PlaceOrder() {
       // --------------------SSLCOMMERZ-----------------------------------
        else if (method === "ONLINE") {
 
-         // Redirect to SSLCOMMERZ checkout
+         // Redirect to Moyasar checkout
          const paymentResponse = await api.post (
             `/api/v1/payment/moyasar/create`,
             {
                orderId,
-            },
-
-           
+            }  
          );
 
          if(paymentResponse.data.success) {
@@ -134,9 +130,6 @@ function PlaceOrder() {
             );
          }
         }
-
-   
-      
 
       }
 

@@ -26,12 +26,6 @@ function PaymentSuccess() {
         const status = searchParams.get("status");
         const message = searchParams.get("message");
 
-
-
-        console.log("Moyasar Payment ID:", paymentId);
-        console.log("Payment Status:", status);
-        console.log("Moyasar Message:", message);
-
         //------------------ Payment Id is required--------------------
 
         if (!paymentId) {

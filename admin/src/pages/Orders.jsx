@@ -18,10 +18,6 @@ function Orders() {
 
   const navigate = useNavigate();
 
-  const url = import.meta.env.VITE_BACKEND_URL;
-
-  const token = localStorage.getItem("adminAccessToken");
-
   // ----------------------Fetch All Orders---------------------
 
   useEffect(() => {
@@ -29,11 +25,7 @@ function Orders() {
       try {
         setLoading(true);
 
-        const response = await adminAxios.get("/api/v1/order/all-orders", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await adminAxios.get("/api/v1/order/all-orders");
 
         if (response.data.success) {
           setOrders(response.data.orders);
@@ -47,7 +39,7 @@ function Orders() {
       }
     };
     fetchOrders();
-  }, [url, token]);
+  }, []);
 
   // -------------------------Update Order Status ----------------------
 
@@ -57,12 +49,6 @@ function Orders() {
         `/api/v1/order/update-status/${orderId}`,
         {
           orderStatus,
-        },
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -95,12 +81,6 @@ function Orders() {
         `/api/v1/order/${orderId}/payment-status`,
         {
           paymentStatus,
-        },
-
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -139,11 +119,6 @@ function Orders() {
       const response = await adminAxios.post(
         `/api/v1/payment/refund/${orderId}`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       if (response.data.success) {
@@ -206,6 +181,8 @@ function Orders() {
     return orderCopy;
   }, [orders, searchOrder, orderStatus, paymentStatus, sortType]);
 
+// -------------------------Loadingin-------------------------
+
   if (loading) {
     return (
       <div className="pt-5">
@@ -213,11 +190,14 @@ function Orders() {
       </div>
     );
   }
+
+
+
   return (
     <div className="pt-5">
       <h2 className="text-2xl font-medium"> Orders</h2>
 
-      <div className="w-full md:max-w-100  z-50 flex gap2 items-center mb-5 pt-3 ">
+      <div className="w-full md:max-w-100  z-50 flex gap-2 items-center mb-5 pt-3 ">
         <div className=" flex-1 relative ">
           <input
             type="text"
@@ -247,11 +227,13 @@ function Orders() {
         </select>
 
         <select
+          value={paymentStatus}
           onChange={(e) => setPaymentStatus(e.target.value)}
           className="w-full md:max-w-50 border border-sky-500 outline-none rounded px-2 py-1 mb-2"
         >
           <option value="">All Payment</option>
           <option value="Pending">Pending</option>
+          <option value= "Paid">Paid</option>
           <option value="Failed">Failed</option>
           <option value="Refunded">Refunded</option>
         </select>
@@ -266,6 +248,15 @@ function Orders() {
       </div>
 
       <div className="flex flex-col gap-5">
+
+        {
+          filterOrders.length === 0 && (
+            <p className="text-gray-500 py-6 text-center">
+               No orders found.
+            </p>
+          )
+        }
+        
         {filterOrders.map((order) => (
           <div key={order._id} className="border rounded-lg bg-white p-5">
             {/* ----------------------Order Header------------------------- */}
@@ -327,11 +318,11 @@ function Orders() {
                   <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
+
               {/* -----------------------Payment Status-------------------------- */}
 
               <div>
-                {/* <label className="block text-sm font-medium mb-2" >Payment Status</label> */}
-
+              
                 <p>
                   Payment Status:{" "}
                   <span

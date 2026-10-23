@@ -124,7 +124,7 @@ function Products() {
                disabled = {!size}
 
                onClick={() => addToCart(productData._id, size)} 
-              className= {`border  rounded-sm py-3 px-8  text-center ml-9 outline-none text-sm font-semibold text-white transition-all  duration-300
+               className= {`border  rounded-sm py-3 px-8  text-center ml-9 outline-none text-sm font-semibold text-white transition-all  duration-300
                   ${!size ? "bg-gray-400 cursor-not-allowed"
                      : "bg-black hover:bg-pink-700 cursor-pointer"}`}
                 >
