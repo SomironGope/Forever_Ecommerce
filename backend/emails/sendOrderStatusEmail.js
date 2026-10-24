@@ -95,6 +95,8 @@ export const sendOrderStatusEmail = async (email, firstName, order) => {
         </div>
 
       </div>
+    </div>
+  </div>
 
        `
       }),
