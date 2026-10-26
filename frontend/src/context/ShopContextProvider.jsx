@@ -88,9 +88,6 @@ const addToCart = async (itemId, size) => {
   }
 };
 
-    
-   // --------------Get User Cart Items from Backend -------------------------//
-
 // ---------------------------RefreshToken ----------------------------------   
 
 useEffect(() => {

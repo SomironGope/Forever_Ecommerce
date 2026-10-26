@@ -1,4 +1,3 @@
-
 import { useContext, useMemo } from "react";
 import BestSeller from "../components/BestSeller";
 import Hero from "../components/Hero";
@@ -9,7 +8,6 @@ import { ShopContext } from "../context/ShopContext";
 import ProductItem from "../components/ProductItem";
 
 function Home() {
-
   const { latestProduct, bestSellers, search } = useContext(ShopContext);
 
   const searchText = (search || "").trim().toLowerCase();
@@ -28,7 +26,7 @@ function Home() {
     if (!searchText) return [];
 
     return allProducts.filter((item) =>
-      (item.name || "").toLowerCase().includes(searchText)
+      (item.name || "").toLowerCase().includes(searchText),
     );
   }, [allProducts, searchText]);
 

@@ -7,8 +7,6 @@ import { FaEyeSlash } from "react-icons/fa";
 import { IoEyeSharp } from "react-icons/io5";
 import adminAxios from "../utils/AdminAxios";
 
-
-
 function Login() {
   const { setToken } = useContext(AdminContext);
   const [showPassword, setShowPassword] = useState(false);

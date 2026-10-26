@@ -7,13 +7,11 @@ import { FaEyeSlash } from "react-icons/fa";
 import { IoEyeSharp } from "react-icons/io5";
 import api from "../utils/axiosInstance";
 
-
 function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState (false);
-
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -31,33 +29,26 @@ function Signup() {
     }));
   };
 
-
   // -------------------Submit Handler--------------------
   const submitHandler = async (e) => {
     e.preventDefault();
-   
 
     try {
       setLoading(true);
 
-      const res = await api.post(
-        "/api/v1/user/register",
-        formData,);
+      const res = await api.post("/api/v1/user/register", formData);
 
       if (res.data.success) {
-        localStorage.setItem ("email", formData.email.trim().toLowerCase());
+        localStorage.setItem("email", formData.email.trim().toLowerCase());
         toast.success(res.data.message);
         navigate("/verify");
       }
     } catch (error) {
-     
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
-  
 
   return (
     <form
@@ -105,40 +96,30 @@ function Signup() {
       />
 
       <div className="w-full sm:w-100 relative">
+        <input
+          className="w-full px-3 pr-10 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
+          type={showPassword ? "text" : "password"}
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Enter your password"
+          autoComplete="new-password"
+          minLength={8}
+          required
+        />
 
-     
-      <input
-        className="w-full px-3 pr-10 py-2 sm:w-100 text-sm border-2 border-gray-600 rounded-sm outline-none focus:border-sky-500"
-        type= {showPassword ? "text" : "password" }
-        id="password" 
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Enter your password"
-        autoComplete="new-password"
-        minLength={8}
-        required
-      />
-
-       
-         <button 
-         type="button"
-         onClick={() => setShowPassword((prev) => !prev)}
-         className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-600 hover:text-sky-600
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded" 
-         aria-label= {showPassword ? "Hide password": "Show password"}
-         aria-pressed = {showPassword}
-             
-       >
-        {showPassword ?  <FaEyeSlash  />  : <IoEyeSharp /> }
-       </button>
-           
-    
-
-      
-
-       </div>
-
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-600 hover:text-sky-600
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+          aria-pressed={showPassword}
+        >
+          {showPassword ? <FaEyeSlash /> : <IoEyeSharp />}
+        </button>
+      </div>
 
       <div className="w-full flex justify-between text-[11px] sm:text-sm mt-2 sm:w-100">
         <div className="flex gap-3">
@@ -150,7 +131,7 @@ function Signup() {
       </div>
       <button
         type="submit"
-        disabled = {loading}
+        disabled={loading}
         className="text-sm px-8 py-2 mt-5 tracking-wider bg-black text-white rounded-sm cursor-pointer transition-all ease-in-out duration-300 hover:bg-pink-500 hover:text-gray-800"
       >
         {loading ? <p>Loading...</p> : <p>Signup</p>}

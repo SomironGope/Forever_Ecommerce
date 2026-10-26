@@ -1,77 +1,60 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 import api from "../utils/axiosInstance";
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-const ALLOWED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
-
-
-
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function Profile() {
-  
-   const {user, setUser} = useContext (ShopContext);
+  const { user, setUser } = useContext(ShopContext);
 
-   const fileInputRef = useRef (null);
+  const fileInputRef = useRef(null);
 
-   const submittingRef = useRef (false);
+  const submittingRef = useRef(false);
 
-   const token = localStorage.getItem("accessToken")
+  const token = localStorage.getItem("accessToken");
 
-   const [image, setImage] = useState (null)
+  const [image, setImage] = useState(null);
 
+  const [saving, setSaving] = useState(false);
 
-   const [saving, setSaving] = useState (false);
+  const [editing, setEditing] = useState(false);
 
-   const [editing, setEditing] = useState (false);
-   
-   const [errors, setErrors] = useState ({});
+  const [errors, setErrors] = useState({});
 
-   const [loading, setLoading]  = useState (true);
+  const [loading, setLoading] = useState(true);
 
-   const [formData, setFormData] = useState ({
-    firstName: '',
-    lastName: '',
-    email: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    phone: ''
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    phone: "",
+  });
 
-   });
-
-
-   useEffect (() => {
-    
+  useEffect(() => {
     let active = true;
-  
-    
-      const fetchProfile = async () => {
 
-        if (!token) {
-          if (active) {
-            setLoading (false);
-          }
-          return;
+    const fetchProfile = async () => {
+      if (!token) {
+        if (active) {
+          setLoading(false);
         }
-        try {
-          const response = await api.get ("/api/v1/user/profile", );
-           
+        return;
+      }
+      try {
+        const response = await api.get("/api/v1/user/profile");
 
-          if(response.data.success) {
+        if (response.data.success) {
+          const userData = response.data.user;
 
-           const userData = response.data.user;
+          setUser(userData);
 
-           setUser (userData);
-
-
-           setFormData ({
+          setFormData({
             firstName: userData.firstName || "",
             lastName: userData.lastName || "",
             email: userData.email || "",
@@ -79,78 +62,72 @@ function Profile() {
             city: userData.city || "",
             postalCode: userData.postalCode || "",
             phone: userData.phone || "",
-           });
-
-          }
-        } catch (error) {
-         if (!active) return;
-
-          if (error.response?.status === 401) {
-            toast.error ("Your session has expired. Please sign in again.");
-          } else {
-          toast.error (error.response?.data?.message || "Failed to load profile");
-
+          });
         }
-        }finally {
-          if (active) {
-             setLoading (false);
-          }
-         
+      } catch (error) {
+        if (!active) return;
+
+        if (error.response?.status === 401) {
+          toast.error("Your session has expired. Please sign in again.");
+        } else {
+          toast.error(
+            error.response?.data?.message || "Failed to load profile",
+          );
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
         }
       }
+    };
 
-      fetchProfile ()
+    fetchProfile();
 
-      return () => {
-        active = false;
-      }
-   },[token,setUser]);
+    return () => {
+      active = false;
+    };
+  }, [token, setUser]);
 
+  // ---------------------Image Preview-------------------------
 
+  const imagePreview = useMemo(() => {
+    if (!image) return "";
 
-// ---------------------Image Preview-------------------------
+    return URL.createObjectURL(image);
+  }, [image]);
 
-const imagePreview = useMemo(() => {
-  if (!image) return "";
+  useEffect(() => {
+    if (!imagePreview) return;
 
-  return URL.createObjectURL(image);
-}, [image]);
+    return () => {
+      URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
 
-useEffect(() => {
-  if (!imagePreview) return;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  return () => {
-    URL.revokeObjectURL(imagePreview);
-  };
-}, [imagePreview]);
-
-   const handleChange = (e) => {
-
-    const {name, value } = e.target;
-
-    setFormData ((prev) => (
-      {
-        ...prev,
-        [name] : value,
-      }
-    ));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     setErrors((prev) => ({
       ...prev,
       [name]: "",
-      form: '',
-    }))
-   };
+      form: "",
+    }));
+  };
 
-   // ------------------------Validate an image before seletecting it-----------------------
+  // ------------------------Validate an image before seletecting it-----------------------
 
-   const handleImageChange  = (e) => {
+  const handleImageChange = (e) => {
     const selectedFile = e.target.files?.[0];
 
     if (!selectedFile) return;
 
     if (!ALLOWED_IMAGE_TYPES.includes(selectedFile.type)) {
-      toast.error ("Choose a JPG, PNG, or WebP image.");
+      toast.error("Choose a JPG, PNG, or WebP image.");
       e.target.value = "";
       return;
     }
@@ -161,26 +138,24 @@ useEffect(() => {
       return;
     }
 
-    setImage (selectedFile);
-    setErrors ((prev) => ({
+    setImage(selectedFile);
+    setErrors((prev) => ({
       ...prev,
       form: "",
     }));
-   };
- 
+  };
 
-   const clearSelectedImage = () => {
-    setImage (null);
+  const clearSelectedImage = () => {
+    setImage(null);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-   };
+  };
 
+  // -------------------------Validate the form before sending the request-------------------
 
-   // -------------------------Validate the form before sending the request-------------------
-
-   const validateForm = () => {
+  const validateForm = () => {
     const nextErrors = {};
 
     if (!formData.firstName.trim()) {
@@ -191,8 +166,8 @@ useEffect(() => {
 
     if (!formData.lastName.trim()) {
       nextErrors.lastName = "Last name is required.";
-    }else if (formData.lastName.trim().length > 50) {
-       nextErrors.lastName = "Last name must be 50 characters or fewer."
+    } else if (formData.lastName.trim().length > 50) {
+      nextErrors.lastName = "Last name must be 50 characters or fewer.";
     }
 
     const phone = formData.phone.trim();
@@ -202,11 +177,9 @@ useEffect(() => {
 
       const digitCount = phone.replace(/\D/g, "").length;
 
-      if (!phonePattern.test(phone) ||
-       digitCount < 7 || digitCount > 15) {
+      if (!phonePattern.test(phone) || digitCount < 7 || digitCount > 15) {
         nextErrors.phone = "Enter a valid phone number with 7-15 digits.";
-       }
-    
+      }
     }
 
     if (image && !ALLOWED_IMAGE_TYPES.includes(image.type)) {
@@ -220,155 +193,134 @@ useEffect(() => {
     setErrors(nextErrors);
 
     return Object.keys(nextErrors).length === 0;
-   }
- 
+  };
 
   //  ----------------------------------UPDATE PROFILE-------------------------------------
- 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
 
-      //----------- Protect against repeated submissions---------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-     
-      if (submittingRef.current || saving) return;
+    //----------- Protect against repeated submissions---------------
 
-      if (!token) {
-        toast.error ("Please sign in to update your profile.");
-        return;
-      }
+    if (submittingRef.current || saving) return;
 
-      if (!validateForm()) {
-        toast.error ("Pleases correct the highlighted fields.");
-
-        return;
-      }
-
-      submittingRef.current = true;
-
-      setSaving(true);
-
-      const form = new FormData();
-
-      form.append ("firstName", formData.firstName.trim());
-      form.append ("lastName", formData.lastName.trim());
-      form.append ("address", formData.address.trim());
-      form.append ("city",formData.city.trim());
-      form.append ("postalCode", formData.postalCode.trim());
-      form.append ("phone", formData.phone.trim());
-      
-
-
-      if(image) {
-        form.append ("file",image);
-      }
-
-      try {
-        
-        const response = await api.put ("/api/v1/user/profile", form,);
-         
-
-    if(response.data.success) {
-
-      // Show success notification only once
-      toast.success (response.data.message || "Profile updated successfully.");
-
-      const updateUser = response.data.user;
-
-     
-      setUser (updateUser);
-
-      setFormData ({
-        firstName: updateUser.firstName || '',
-        lastName: updateUser.lastName || '',
-        email: updateUser.email || '',
-        address: updateUser.address || '',
-        city: updateUser.city || '',
-        postalCode: updateUser.postalCode || '',
-        phone: updateUser.phone || '',
-
-      });
-
-       setImage (null);
-
-      setEditing (false);
-
-      setErrors({});
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-
+    if (!token) {
+      toast.error("Please sign in to update your profile.");
+      return;
     }
 
+    if (!validateForm()) {
+      toast.error("Pleases correct the highlighted fields.");
 
-      
-      } catch (error) {
+      return;
+    }
 
-        if (error.response?.status === 401) {
-          toast.error ("Your sessison has expired. Please sign in again.");
+    submittingRef.current = true;
 
-        } else if ( error.response?.status === 422) {
-          toast.error (error.response?.data?.message || "Plesae check your profile information.") 
-        } else {
-           console.log("Update Profile Error:", error);
+    setSaving(true);
+
+    const form = new FormData();
+
+    form.append("firstName", formData.firstName.trim());
+    form.append("lastName", formData.lastName.trim());
+    form.append("address", formData.address.trim());
+    form.append("city", formData.city.trim());
+    form.append("postalCode", formData.postalCode.trim());
+    form.append("phone", formData.phone.trim());
+
+    if (image) {
+      form.append("file", image);
+    }
+
+    try {
+      const response = await api.put("/api/v1/user/profile", form);
+
+      if (response.data.success) {
+        // Show success notification only once
+        toast.success(response.data.message || "Profile updated successfully.");
+
+        const updateUser = response.data.user;
+
+        setUser(updateUser);
+
+        setFormData({
+          firstName: updateUser.firstName || "",
+          lastName: updateUser.lastName || "",
+          email: updateUser.email || "",
+          address: updateUser.address || "",
+          city: updateUser.city || "",
+          postalCode: updateUser.postalCode || "",
+          phone: updateUser.phone || "",
+        });
+
+        setImage(null);
+
+        setEditing(false);
+
+        setErrors({});
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
         }
-        
-
-        toast.error (error.response?.data?.message || "Failed to update profile")
-
-      }finally {
-
-        submittingRef.current = false;
-        setSaving (false)
       }
-    };
-
-    // Discard changes and restore the saved profile
-
-    const handleCancel = () => {
-      if (saving) return;
-
-      setFormData();
-      setImage(null);
-      setErrors({});
-      setEditing(false);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+    } catch (error) {
+      if (error.response?.status === 401) {
+        toast.error("Your sessison has expired. Please sign in again.");
+      } else if (error.response?.status === 422) {
+        toast.error(
+          error.response?.data?.message ||
+            "Plesae check your profile information.",
+        );
+      } else {
+        console.log("Update Profile Error:", error);
       }
+
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    } finally {
+      submittingRef.current = false;
+      setSaving(false);
     }
+  };
 
+  // Discard changes and restore the saved profile
 
+  const handleCancel = () => {
+    if (saving) return;
 
-//  -----------------------------------Loading------------------------------------
+    setFormData();
+    setImage(null);
+    setErrors({});
+    setEditing(false);
 
-if(loading) {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-        <p role = "status" aria-live="polite" className="text-gray-500">Loading your profile...</p>
-    </div>
-  )
-};
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
+  //  -----------------------------------Loading------------------------------------
 
-const profileImage = imagePreview || 
-      user?.profilePic ||
-     "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p role="status" aria-live="polite" className="text-gray-500">
+          Loading your profile...
+        </p>
+      </div>
+    );
+  }
 
-     const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+  const profileImage =
+    imagePreview ||
+    user?.profilePic ||
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
- 
-     const inputClass = (field) => `w-full min-w-0 rounded-lg border px-3 py-2.5 
+  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+
+  const inputClass = (field) => `w-full min-w-0 rounded-lg border px-3 py-2.5 
      text-sm outline-none transition-colors focus:border-gray-900 focus:ring-2 focus:ring-gray-200
      disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-600 
-     ${
-       errors [field] 
-       ? "border-red-500" : "border-gray-200"
-     }
-     `
-
+     ${errors[field] ? "border-red-500" : "border-gray-200"}
+     `;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
@@ -383,8 +335,8 @@ const profileImage = imagePreview ||
         </h1>
 
         <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">
-          Manage your personal information and keep your
-          account details up to date.
+          Manage your personal information and keep your account details up to
+          date.
         </p>
       </header>
 
@@ -395,11 +347,7 @@ const profileImage = imagePreview ||
             <div className="relative">
               <img
                 src={profileImage}
-                alt={
-                  fullName
-                    ? `${fullName}'s profile`
-                    : "Profile picture"
-                }
+                alt={fullName ? `${fullName}'s profile` : "Profile picture"}
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src =
@@ -480,14 +428,10 @@ const profileImage = imagePreview ||
               >
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
-                    user?.isVerified
-                      ? "bg-green-500"
-                      : "bg-amber-500"
+                    user?.isVerified ? "bg-green-500" : "bg-amber-500"
                   }`}
                 />
-                {user?.isVerified
-                  ? "Verified Account"
-                  : "Not Verified"}
+                {user?.isVerified ? "Verified Account" : "Not Verified"}
               </span>
             </div>
 
@@ -667,9 +611,7 @@ const profileImage = imagePreview ||
                   onChange={handleChange}
                   disabled={!editing || saving}
                   aria-invalid={Boolean(errors.phone)}
-                  aria-describedby={
-                    errors.phone ? "phone-error" : undefined
-                  }
+                  aria-describedby={errors.phone ? "phone-error" : undefined}
                   className={inputClass("phone")}
                 />
 
@@ -803,7 +745,4 @@ const profileImage = imagePreview ||
   );
 }
 
-
 export default Profile;
-
-

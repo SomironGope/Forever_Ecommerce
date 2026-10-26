@@ -38,7 +38,6 @@ function UpdateProduct() {
 
   const [isFeatured, setIsFeatured] = useState(false);
 
-  
   const [selectedImages, setSelectedImages] = useState([]);
 
   // ---------------------------------Get Product--------------------------
@@ -176,7 +175,6 @@ function UpdateProduct() {
       return prev.filter((_, i) => i !== index);
     });
   };
-
 
   const handleUpdateProduct = async (event) => {
     event.preventDefault();

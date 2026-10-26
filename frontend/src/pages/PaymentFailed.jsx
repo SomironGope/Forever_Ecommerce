@@ -6,7 +6,6 @@ function PaymentFailed() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="w-full max-w-md rounded-lg border border-gray-200 text-center bg-white p-8 shadow-sm">
-        
         {/* ------------------------Failuer Icon--------------------------- */}
         <div className="mx-auto m-2 flex h-16 w-16 itemc-center justify-center rounded-full bg-red-100 text-3xl">
           <p className="text-center mt-3">❌</p>
