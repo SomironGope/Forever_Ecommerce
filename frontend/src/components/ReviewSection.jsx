@@ -1,13 +1,10 @@
-
 import { useCallback, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import { ShopContext } from "../context/ShopContext";
 import api from "../utils/axiosInstance";
 
-
 const Stars = ({ value, interactive = false, onChange }) => {
-
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -27,7 +24,6 @@ const Stars = ({ value, interactive = false, onChange }) => {
 };
 
 const ReviewSection = ({ productId }) => {
-
   const { token, user } = useContext(ShopContext);
 
   const [reviews, setReviews] = useState([]);
@@ -50,9 +46,7 @@ const ReviewSection = ({ productId }) => {
     try {
       setLoading(true);
 
-      const response = await api.get(
-        `/api/v1/review/product/${productId}`,
-      );
+      const response = await api.get(`/api/v1/review/product/${productId}`);
 
       if (response.data.success) {
         setReviews(response.data.reviews);
@@ -77,9 +71,7 @@ const ReviewSection = ({ productId }) => {
       try {
         setLoading(true);
 
-        const response = await api.get(
-          `/api/v1/review/product/${productId}`,
-        );
+        const response = await api.get(`/api/v1/review/product/${productId}`);
 
         if (!cancelled && response.data.success) {
           setReviews(response.data.reviews);
@@ -123,14 +115,11 @@ const ReviewSection = ({ productId }) => {
     try {
       setSubmitting(true);
 
-      const response = await api.post(
-        "/api/v1/review/add",
-        {
-          productId,
-          rating,
-          comment,
-        },
-      );
+      const response = await api.post("/api/v1/review/add", {
+        productId,
+        rating,
+        comment,
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -159,9 +148,7 @@ const ReviewSection = ({ productId }) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await api.delete(
-        `/api/v1/review/${reviewId}`,
-      );
+      const response = await api.delete(`/api/v1/review/${reviewId}`);
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -198,13 +185,10 @@ const ReviewSection = ({ productId }) => {
     }
 
     try {
-      const response = await api.put(
-        `/api/v1/review/${reviewId}`,
-        {
-          rating: editRating,
-          comment: editComment,
-        },
-      );
+      const response = await api.put(`/api/v1/review/${reviewId}`, {
+        rating: editRating,
+        comment: editComment,
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -237,75 +221,66 @@ const ReviewSection = ({ productId }) => {
     <section className="mt-16 border-t pt-10">
       {/* ----------------Header--------------- */}
 
-     <div className="rounded-2xl border bg-white p-6 shadow-sm">
-  <div className="grid gap-8 md:grid-cols-2">
+      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Rating Summary */}
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Customer Reviews
+            </h2>
 
-    {/* Rating Summary */}
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-900">
-        Customer Reviews
-      </h2>
+            <div className="mt-5 flex items-center gap-5">
+              <div className="flex h-24 w-24 flex-col items-center justify-center rounded-full border bg-yellow-50">
+                <span className="text-3xl font-bold text-yellow-600">
+                  {Number(averageRating).toFixed(1)}
+                </span>
 
-      <div className="mt-5 flex items-center gap-5">
-        <div className="flex h-24 w-24 flex-col items-center justify-center rounded-full border bg-yellow-50">
-          <span className="text-3xl font-bold text-yellow-600">
-            {Number(averageRating).toFixed(1)}
-          </span>
+                <span className="text-xs text-gray-500">out of 5</span>
+              </div>
 
-          <span className="text-xs text-gray-500">
-            out of 5
-          </span>
-        </div>
+              <div>
+                <Stars value={Math.round(Number(averageRating))} />
 
-        <div>
-          <Stars value={Math.round(Number(averageRating))} />
+                <p className="mt-2 text-sm text-gray-500">
+                  Based on {totalReviews}{" "}
+                  {totalReviews === 1 ? "review" : "reviews"}
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <p className="mt-2 text-sm text-gray-500">
-            Based on {totalReviews}{" "}
-            {totalReviews === 1 ? "review" : "reviews"}
-          </p>
+          {/* Rating Distribution */}
+          <div className="space-y-3">
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = distribution[star];
+
+              const percentage =
+                totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+
+              return (
+                <div key={star} className="flex items-center gap-3">
+                  <span className="w-10 text-sm font-medium text-gray-700">
+                    {star} ★
+                  </span>
+
+                  <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      className="h-full rounded-full bg-linear-to-r from-yellow-400 to-orange-500 transition-all duration-700"
+                      style={{
+                        width: `${percentage}%`,
+                      }}
+                    />
+                  </div>
+
+                  <span className="w-8 text-right text-sm text-gray-500">
+                    {count}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
-
-    {/* Rating Distribution */}
-    <div className="space-y-3">
-      {[5, 4, 3, 2, 1].map((star) => {
-        const count = distribution[star];
-
-        const percentage =
-          totalReviews > 0
-            ? (count / totalReviews) * 100
-            : 0;
-
-        return (
-          <div
-            key={star}
-            className="flex items-center gap-3"
-          >
-            <span className="w-10 text-sm font-medium text-gray-700">
-              {star} ★
-            </span>
-
-            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-gray-200">
-              <div
-                className="h-full rounded-full bg-linear-to-r from-yellow-400 to-orange-500 transition-all duration-700"
-                style={{
-                  width: `${percentage}%`,
-                }}
-              />
-            </div>
-
-            <span className="w-8 text-right text-sm text-gray-500">
-              {count}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-
-  </div>
-</div>
 
       {/* ------------------Add Review----------------- */}
 

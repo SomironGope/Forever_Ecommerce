@@ -1,23 +1,21 @@
+import "./App.css";
+import { useContext } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import './App.css';
-import { useContext } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { AdminContext } from "./context/AdminContext";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import Login from "./components/Login";
 
-import { AdminContext } from './context/AdminContext';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
-import Login from './components/Login';
-
-import Add from './pages/Add';
-import Dashboard from './pages/Dashboard';
-import Products from './pages/Products';
-import Order from './pages/Orders';
-import Users from './pages/Users';
-import UpdateProduct from './pages/UpdateProduct';
-import OrderDetailsPage from './pages/OrderDetailsPage';
-
+import Add from "./pages/Add";
+import Dashboard from "./pages/Dashboard";
+import Products from "./pages/Products";
+import Order from "./pages/Orders";
+import Users from "./pages/Users";
+import UpdateProduct from "./pages/UpdateProduct";
+import OrderDetailsPage from "./pages/OrderDetailsPage";
 
 function App() {
   const { token, authLoading } = useContext(AdminContext);
@@ -40,10 +38,7 @@ function App() {
 
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route
-            path="*"
-            element={<Navigate to="/login" replace />}
-          />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     );
@@ -55,10 +50,7 @@ function App() {
       <ToastContainer />
 
       <Routes>
-        <Route
-          path="/login"
-          element={<Navigate to="/dashboard" replace />}
-        />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
 
         <Route
           path="/*"
@@ -83,10 +75,7 @@ function App() {
                       path="/order-details/:orderId"
                       element={<OrderDetailsPage />}
                     />
-                    <Route
-                      path="/dashboard"
-                      element={<Dashboard />}
-                    />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route
                       path="/update-product/:productId"
                       element={<UpdateProduct />}

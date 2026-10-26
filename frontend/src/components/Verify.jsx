@@ -1,31 +1,25 @@
-import api from '../utils/axiosInstance';
+import api from "../utils/axiosInstance";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-
 function Verify() {
-  
-
-
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
 
-  const  navigate = useNavigate();
-
+  const navigate = useNavigate();
 
   const handleChange = (value, index) => {
     // Only allow numbers
-    if(!/^\d*$/.test(value)) 
-      return;
-    
+    if (!/^\d*$/.test(value)) return;
+
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
 
     setOtp(newOtp);
 
     // Move to next input
-    if(value && index < 5) {
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -35,15 +29,15 @@ function Verify() {
     e.stopPropagation();
 
     const pastedData = e.clipboardData
-    .getData("text")
-    .replace (/\D/g, "")
-    .slice(0, 6);
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
 
-    if (pastedData.length === 0 ) return;
+    if (pastedData.length === 0) return;
 
     const newOtp = ["", "", "", "", "", ""];
 
-    pastedData.split ("").forEach((digit, index) => {
+    pastedData.split("").forEach((digit, index) => {
       newOtp[index] = digit;
     });
 
@@ -52,48 +46,45 @@ function Verify() {
     // ------------Focus the next empty input, or the last input-----------------
 
     const focusIndex = Math.min(pastedData.length, 5);
-    inputRefs.current [focusIndex]?.focus();
+    inputRefs.current[focusIndex]?.focus();
   };
 
   // -------------------Key Backspace--------------------
 
-  const handleKeyDown = (e,index) => {
+  const handleKeyDown = (e, index) => {
     //------- Move back when pressing Backspace------------
-    if(e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index -1]?.focus();
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
-  }
+  };
 
-// -----------------------Verify OTP--------------------------
+  // -----------------------Verify OTP--------------------------
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
 
     const otpCode = otp.join("");
-    
-    if(otpCode.length !== 6) {
+
+    if (otpCode.length !== 6) {
       toast.error("Please enter the complete OTP");
       return;
-    };
+    }
 
     try {
-      const response = await api.post(
-        "/api/v1/user/verify-otp", {
-          otp: otpCode,
-        }
-      );
+      const response = await api.post("/api/v1/user/verify-otp", {
+        otp: otpCode,
+      });
 
-      if(response.data.success) {
+      if (response.data.success) {
         toast.success(response.data.message);
         localStorage.removeItem("email");
-        navigate('/login',);
-
+        navigate("/login");
       }
     } catch (error) {
       console.error("OTP verification error:", error);
 
       toast.error(error.response?.data?.message);
     }
-  }
+  };
 
   // Resend Function//
 
@@ -101,37 +92,29 @@ function Verify() {
 
   const email = localStorage.getItem("email");
 
-  useEffect (() => {
-    if(timeLeft <= 0) 
-      return;
+  useEffect(() => {
+    if (timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
-    },1000);
+    }, 1000);
 
     return () => clearInterval(timer);
-
   }, [timeLeft]);
-
-
 
   // --------------------Resend OTP---------------------------
   const handleResendOTP = async () => {
-
     if (!email) {
-      toast.error ("Email not found. Please register again.");
-      navigate ("/register");
+      toast.error("Email not found. Please register again.");
+      navigate("/register");
       return;
     }
     try {
-      const {data} = await api.post(
-        "/api/v1/user/resend-otp",
-         {
-          email
-        }
-      );
+      const { data } = await api.post("/api/v1/user/resend-otp", {
+        email,
+      });
 
-      if(data.success) {
+      if (data.success) {
         toast.success(data.message);
 
         // ------------restart 2 minutes timer----------------
@@ -142,63 +125,72 @@ function Verify() {
 
         // Focus first OTP input
         inputRefs.current[0]?.focus();
-
       }
     } catch (error) {
-      console.error ("Resend OTP error:", error)
+      console.error("Resend OTP error:", error);
       toast.error(error.response?.data?.message || "Failed to resend OTP");
     }
   };
 
-
-  
   return (
-     
-    <form onSubmit={handleVerifyOTP} className="min-h-screen flex items-center justify-center flex-col">
-        <div className=" w-100 h-auto px-2 mb-5  flex items-center justify-center flex-col rounded-lg ">
-             <h1 className="pb-10 text-2xl font-extrabold text-black">Verify Your Email</h1>
-       <div className="flex flex-col text-center">
-
-        <div className="flex gap-2 items-center justify-center">
-            {otp.map((digit,index) => (
-              <input key={index}
-              ref= {(el) => inputRefs.current[index] = el}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(e.target.value, index)}
-              onKeyDown={(e)=> handleKeyDown(e, index)}
-              onPaste={handlePaste}
-              className="w-12 h-12 border rounded-lg text-center text-xl outline-none" />
+    <form
+      onSubmit={handleVerifyOTP}
+      className="min-h-screen flex items-center justify-center flex-col"
+    >
+      <div className=" w-100 h-auto px-2 mb-5  flex items-center justify-center flex-col rounded-lg ">
+        <h1 className="pb-10 text-2xl font-extrabold text-black">
+          Verify Your Email
+        </h1>
+        <div className="flex flex-col text-center">
+          <div className="flex gap-2 items-center justify-center">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(e.target.value, index)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                onPaste={handlePaste}
+                className="w-12 h-12 border rounded-lg text-center text-xl outline-none"
+              />
             ))}
-            
-      </div>
-             <p className="text-sm sm:text-sm py-5 text-center">Enter the 6-digit code sent to your email</p>
-        </div>
-          <button type="submit" className=" w-full px-5 py-2 mx-4 border my-7 rounded-2xl bg-linear-to-r from-sky-400 to-purple-600  cursor-pointer border-slate-800 text-sm font-semibold hover:bg-linear-to-r hover:from-orange-400 hover:to-pink-500 hover:text-white transition-all duration-300 ease-in-out">Verify OTP</button>
-          <p>Didn't receive the code?</p>
-
-           <div>
-              {timeLeft > 0 ? (
-                <p>Resend OTP in {Math.floor(timeLeft / 60 )} :
-                {String(timeLeft % 60).padStart(2, "0")}
-                </p>
-              ) : (
-                <button  type = "button" onClick={ (e) => { e.preventDefault();
-                  handleResendOTP();}}>Resend OTP</button>
-              )}
           </div>
-      
-         </div>
-      
-        
-      
+          <p className="text-sm sm:text-sm py-5 text-center">
+            Enter the 6-digit code sent to your email
+          </p>
+        </div>
+        <button
+          type="submit"
+          className=" w-full px-5 py-2 mx-4 border my-7 rounded-2xl bg-linear-to-r from-sky-400 to-purple-600  cursor-pointer border-slate-800 text-sm font-semibold hover:bg-linear-to-r hover:from-orange-400 hover:to-pink-500 hover:text-white transition-all duration-300 ease-in-out"
+        >
+          Verify OTP
+        </button>
+        <p>Didn't receive the code?</p>
+
+        <div>
+          {timeLeft > 0 ? (
+            <p>
+              Resend OTP in {Math.floor(timeLeft / 60)} :
+              {String(timeLeft % 60).padStart(2, "0")}
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                handleResendOTP();
+              }}
+            >
+              Resend OTP
+            </button>
+          )}
+        </div>
+      </div>
     </form>
-   
-          
-  
-  )
+  );
 }
 
 export default Verify;

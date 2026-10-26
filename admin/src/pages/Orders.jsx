@@ -181,7 +181,7 @@ function Orders() {
     return orderCopy;
   }, [orders, searchOrder, orderStatus, paymentStatus, sortType]);
 
-// -------------------------Loadingin-------------------------
+  // -------------------------Loadingin-------------------------
 
   if (loading) {
     return (
@@ -190,8 +190,6 @@ function Orders() {
       </div>
     );
   }
-
-
 
   return (
     <div className="pt-5">
@@ -233,7 +231,7 @@ function Orders() {
         >
           <option value="">All Payment</option>
           <option value="Pending">Pending</option>
-          <option value= "Paid">Paid</option>
+          <option value="Paid">Paid</option>
           <option value="Failed">Failed</option>
           <option value="Refunded">Refunded</option>
         </select>
@@ -248,15 +246,10 @@ function Orders() {
       </div>
 
       <div className="flex flex-col gap-5">
+        {filterOrders.length === 0 && (
+          <p className="text-gray-500 py-6 text-center">No orders found.</p>
+        )}
 
-        {
-          filterOrders.length === 0 && (
-            <p className="text-gray-500 py-6 text-center">
-               No orders found.
-            </p>
-          )
-        }
-        
         {filterOrders.map((order) => (
           <div key={order._id} className="border rounded-lg bg-white p-5">
             {/* ----------------------Order Header------------------------- */}
@@ -322,7 +315,6 @@ function Orders() {
               {/* -----------------------Payment Status-------------------------- */}
 
               <div>
-              
                 <p>
                   Payment Status:{" "}
                   <span

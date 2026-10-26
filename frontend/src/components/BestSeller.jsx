@@ -1,4 +1,3 @@
-
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 
@@ -9,8 +8,8 @@ function BestSeller({ products = [] }) {
         <Title text1="BEST" text2="SELLER" />
 
         <p className="w-3/4 m-auto text-sm sm:text-sm md:text-base text-gray-600">
-          Discover our most popular products, loved and chosen by our
-          customers. Shop the styles that everyone is talking about.
+          Discover our most popular products, loved and chosen by our customers.
+          Shop the styles that everyone is talking about.
         </p>
       </div>
 

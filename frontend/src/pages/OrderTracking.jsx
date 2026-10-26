@@ -1,270 +1,247 @@
-import { useContext, useEffect, useState } from 'react';
-import {ShopContext} from '../context/ShopContext';
-import {useParams} from 'react-router-dom'
-import Title from '../components/Title';
-import api from '../utils/axiosInstance';
+import { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import { useParams } from "react-router-dom";
+import Title from "../components/Title";
+import api from "../utils/axiosInstance";
 
 function OrderTracking() {
-  
   const { orderId } = useParams();
 
-  const { currency,token } = useContext (ShopContext)
+  const { currency, token } = useContext(ShopContext);
 
-  const [ order, setOrder ] = useState (null);
+  const [order, setOrder] = useState(null);
 
-  const [ loading, setLoading ] = useState (true);
+  const [loading, setLoading] = useState(true);
 
-  const [ errorMessage, setErrorMessage ] = useState ("");
+  const [errorMessage, setErrorMessage] = useState("");
 
+  //  ------------------------------Get Signle Order-------------------------------
 
- 
-
-
-//  ------------------------------Get Signle Order-------------------------------
-
-
-
-useEffect (() => {
-  const fetchOrder = async () => {
-    
-    if(!token || !orderId) {
-      setOrder (null);
-      setLoading (false);
-      return;
-    }
-      setLoading (true);
-      setOrder (null)
-      setErrorMessage ("");
-
-
-    try {
-      
-      const response = await api.get(`/api/v1/order/${orderId}`,); 
-     
-      
-    
-      if(response.data.success) {
-        setOrder (response.data.order);
+  useEffect(() => {
+    const fetchOrder = async () => {
+      if (!token || !orderId) {
+        setOrder(null);
+        setLoading(false);
+        return;
       }
+      setLoading(true);
+      setOrder(null);
+      setErrorMessage("");
 
-    } catch (error) {
-      const status = error.response?.status;
+      try {
+        const response = await api.get(`/api/v1/order/${orderId}`);
 
-      if (status === 401) {
-        setErrorMessage ("Your session has expired. Please log in again.");
-      } else if ( status === 403) {
-        setErrorMessage ("You are not allowed to view this order.");
-      } else if ( status === 404) {
-        setErrorMessage ("Order not found.");
-      } else {
-        setErrorMessage ("Unable to load your order. Please try again.");
+        if (response.data.success) {
+          setOrder(response.data.order);
+        }
+      } catch (error) {
+        const status = error.response?.status;
+
+        if (status === 401) {
+          setErrorMessage("Your session has expired. Please log in again.");
+        } else if (status === 403) {
+          setErrorMessage("You are not allowed to view this order.");
+        } else if (status === 404) {
+          setErrorMessage("Order not found.");
+        } else {
+          setErrorMessage("Unable to load your order. Please try again.");
+        }
+      } finally {
+        setLoading(false);
       }
-      
-    }finally {
-      setLoading(false)
-    }
+    };
+
+    fetchOrder();
+  }, [token, orderId]);
+
+  // --------------------------------Loading----------------------------
+
+  if (loading) {
+    return (
+      <div className="border-t pt-16">
+        <Title text1={"ORDER"} text2={"TRACKING"} />
+        <p className="mt-8 text-gray-500"> Loading...</p>
+      </div>
+    );
   }
 
-    fetchOrder()
-}, [token, orderId])
+  // -----------------------------ORDER NOT FOUND-----------------------
 
-
-// --------------------------------Loading----------------------------
-
-if(loading) {
-  return (
-    <div className='border-t pt-16'>
-         <Title text1={"ORDER"} text2={"TRACKING"} />
-         <p className = 'mt-8 text-gray-500'> Loading...</p>
-    </div>
-  )
-}
-
-// -----------------------------ORDER NOT FOUND-----------------------
-
-if(!order) {
-  return (
-    <div className='border-t pt-16'>
-       <Title text1={"ORDER"} text2={"TRACKING"} />
-       <p className='mt-8 text-red-500'>
+  if (!order) {
+    return (
+      <div className="border-t pt-16">
+        <Title text1={"ORDER"} text2={"TRACKING"} />
+        <p className="mt-8 text-red-500">
           {errorMessage || "Please log in to track your order."}
-       </p>
+        </p>
+      </div>
+    );
+  }
 
-    </div>
-  )
-}
+  //-------------------------------ORDER STATUS-------------------------
 
+  const statuses = ["Pending", "Processing", "Shipped", "Delivered"];
 
-//-------------------------------ORDER STATUS-------------------------
+  const currentStatus = statuses.indexOf(order.orderStatus);
 
-const statuses = [
-  "Pending",
-  "Processing",
-  "Shipped",
-  "Delivered",
-];
+  const isValidStatus = currentStatus !== -1;
 
-
-
-const currentStatus = statuses.indexOf(order.orderStatus);
-
-const isValidStatus = currentStatus !== -1;
-
-return (
-  <div className='pt-20'>
+  return (
+    <div className="pt-20">
       <Title text1={"ORDER"} text2={"TRACKING"} />
 
       {/* -----------------------ORDER INFORMATION------------------------ */}
 
-      <div className='mt-8 border rounded-md p-5'> 
-         <div className='flex flex-col sm:flex-row sm:justify-between gap-3'>
-            <div>
-               <p className='text-sm text-gray-500'>Order ID</p>
+      <div className="mt-8 border rounded-md p-5">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+          <div>
+            <p className="text-sm text-gray-500">Order ID</p>
 
-               <p className='font-medium break-all'>{order._id}</p>
-            </div>
+            <p className="font-medium break-all">{order._id}</p>
+          </div>
 
-            <div>
-                <p className='text-sm text-gray-500'>Order Date</p>
+          <div>
+            <p className="text-sm text-gray-500">Order Date</p>
 
-                <p className='font-medium'>
-                  {order.createdAt
-                   ? new Date(order.createdAt).toLocaleString() : "Date unavailable"
-                  }
-                </p>
-                
-          {
-              order.paidAt && (
-             <p>Paid At: {" "} <span className="font-medium text-black">{new Date(order.paidAt).toLocaleString()}</span></p>
-             )
-           }
-            </div>
+            <p className="font-medium">
+              {order.createdAt
+                ? new Date(order.createdAt).toLocaleString()
+                : "Date unavailable"}
+            </p>
 
-            <div>
-               <p className='text-sm text-gray-500'>Total</p>
+            {order.paidAt && (
+              <p>
+                Paid At:{" "}
+                <span className="font-medium text-black">
+                  {new Date(order.paidAt).toLocaleString()}
+                </span>
+              </p>
+            )}
+          </div>
 
-               <p className='font-medium'>{currency} {order.amount} </p>
-            </div>
-         </div>
+          <div>
+            <p className="text-sm text-gray-500">Total</p>
+
+            <p className="font-medium">
+              {currency} {order.amount}{" "}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* --------------------------------CANCELLED ORDER---------------------------- */}
 
       {order.orderStatus === "Cancelled" ? (
-         <div className='mt-8 border border-red-200 bg-red-100 rounded-md p-6'>
-            <p className='text-lg font-medium text-red-600'>Order Cancelled</p>
+        <div className="mt-8 border border-red-200 bg-red-100 rounded-md p-6">
+          <p className="text-lg font-medium text-red-600">Order Cancelled</p>
 
-            <p className='mt-2 text-sm text-gray-600'>This order has been cancelled.</p>
-          </div>
-      ): !isValidStatus ? (
-
-        <div className='mt-8 rounded-md border p-6'>
-            <p className='font-medium'>Order status unavailable</p>
-            <p className='mt-2 text-sm text-gray-600'>Please contact support for assistance.</p>
+          <p className="mt-2 text-sm text-gray-600">
+            This order has been cancelled.
+          </p>
         </div>
+      ) : !isValidStatus ? (
+        <div className="mt-8 rounded-md border p-6">
+          <p className="font-medium">Order status unavailable</p>
+          <p className="mt-2 text-sm text-gray-600">
+            Please contact support for assistance.
+          </p>
+        </div>
+      ) : (
+        // -------------------------------------TRACKING----------------------------------
 
-      ) :
-       (
-      // -------------------------------------TRACKING----------------------------------
+        <div className="mt-20">
+          <p className="text-lg font-medium mb-8">Order Status</p>
 
-       <div className='mt-20'>
-         
-           <p className='text-lg font-medium mb-8'>
-              Order Status
-           </p>
+          <div className="relative">
+            {/* ------------------------Progress Line------------------------------ */}
 
-            <div className='relative'>
-                
-                {/* ------------------------Progress Line------------------------------ */}
+            <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200">
+              <div
+                className="bg-black w-full transition-all duration-500"
+                style={{
+                  height: isValidStatus
+                    ? `${(currentStatus / (statuses.length - 1)) * 100}%`
+                    : "0%",
+                }}
+              />
+            </div>
 
-                 <div className='absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200'>
-                     <div className="bg-black w-full transition-all duration-500" 
-                     style={{ height: isValidStatus ? `${(currentStatus / (statuses.length - 1)) * 100}%` : "0%", }} />
-                  
-                  </div>
+            {/* -------------------------Status Items-------------------------- */}
 
+            <div>
+              {statuses.map((status, index) => {
+                const completed = index <= currentStatus;
 
+                return (
+                  <div
+                    key={status}
+                    className="relative flex items-center gap-5"
+                  >
+                    {/* -------------------------Circle------------------------- */}
 
-                  {/* -------------------------Status Items-------------------------- */}
+                    <div
+                      className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                        completed
+                          ? "bg-green-500 text-white border-black font-bold"
+                          : "bg-white text-gray-400 border-gray-300"
+                      }`}
+                    >
+                      {completed ? "✓" : index + 1}
+                    </div>
+
+                    {/* -----------------------Status Text---------------------- */}
 
                     <div>
-                        {statuses.map((status,index) => {
-                          const completed = index <= currentStatus;
+                      <p
+                        className={`font-medium ${completed ? "text-black" : "text-gray-400"}`}
+                      >
+                        {status}
+                      </p>
 
-                         return (
-                          <div key={status} className='relative flex items-center gap-5'>
-
-                             {/* -------------------------Circle------------------------- */}
-
-                               <div className= {`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                                completed ? "bg-green-500 text-white border-black font-bold" : "bg-white text-gray-400 border-gray-300"
-                               }`} > 
-                               {completed ? "✓" : index + 1}
-
-                               </div>
-
-                               {/* -----------------------Status Text---------------------- */}
-
-                               <div>
-                                  <p className= {`font-medium ${completed ? "text-black" : "text-gray-400"}`}>{status}</p>
-                                
-                                   <p className='text-sm text-gray-500'> {status === "Pending" && "Your order has been placed."}
-
-                                     {status === "Processing" && "Your order is being prepared."}
-
-                                     {status === "Shipped" && "Your order is on the way."} 
-
-                                     {status === "Delivered" && "Your order has been delivered successfully."}
-                                   </p>
-                                
-                                </div>
-
-                          </div>
-                           );
-
-                        })}
+                      <p className="text-sm text-gray-500">
+                        {" "}
+                        {status === "Pending" && "Your order has been placed."}
+                        {status === "Processing" &&
+                          "Your order is being prepared."}
+                        {status === "Shipped" && "Your order is on the way."}
+                        {status === "Delivered" &&
+                          "Your order has been delivered successfully."}
+                      </p>
                     </div>
-                  
                   </div>
+                );
+              })}
             </div>
-        )}
-
-        {/* // --------------------------PAYMENT INFORMATION---------------------------------------------- */}
-
-        <div className='mt-10 border-t pt-6'>
-           <p className='font-medium mb-3'>
-             Payment Information
-           </p>
-
-            <p className='text-sm text-gray-600'>
-             Payment Method: {" "} <span className='font-medium'>{order.paymentMethod}</span>
-           </p>
-
-            <p className='text-sm text-gray-600 mt-1'>
-             Payment Status: {" "} <span className='font-medium'> {order.paymentStatus}</span>
-           </p>
-
-          {
-              order.refundedAt && (
-              <p>Refunded At: {" "} <span className="font-medium text-black">{new Date(order.refundedAt).toLocaleString()}</span></p>
-             )
-           }
+          </div>
         </div>
-   
-   </div>
-)}
-      
- 
+      )}
 
+      {/* // --------------------------PAYMENT INFORMATION---------------------------------------------- */}
 
+      <div className="mt-10 border-t pt-6">
+        <p className="font-medium mb-3">Payment Information</p>
 
+        <p className="text-sm text-gray-600">
+          Payment Method:{" "}
+          <span className="font-medium">{order.paymentMethod}</span>
+        </p>
 
+        <p className="text-sm text-gray-600 mt-1">
+          Payment Status:{" "}
+          <span className="font-medium"> {order.paymentStatus}</span>
+        </p>
 
-
-
-
-
-
-
+        {order.refundedAt && (
+          <p>
+            Refunded At:{" "}
+            <span className="font-medium text-black">
+              {new Date(order.refundedAt).toLocaleString()}
+            </span>
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default OrderTracking;

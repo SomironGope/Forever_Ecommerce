@@ -1,4 +1,3 @@
-
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 

@@ -1,19 +1,17 @@
-import {useEffect, useCallback, useMemo, useState } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 
 import { toast } from "react-toastify";
 
 import adminAxios from "../utils/AdminAxios";
- 
 
 function Users() {
-  
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [error, setError] = useState ("")
+  const [error, setError] = useState("");
 
   const [confirmModel, setConfirmModel] = useState({
     open: false,
@@ -26,16 +24,13 @@ function Users() {
 
   //==================================Get All Users========================
 
-
   //==================================Get All Users========================
 
   const getUsers = useCallback(async () => {
     const response = await adminAxios.get("/api/v1/user/all-user");
 
     if (!response.data.success) {
-      throw new Error(
-        response.data.message || "Failed to fetch users"
-      );
+      throw new Error(response.data.message || "Failed to fetch users");
     }
 
     return response.data.users;
@@ -54,8 +49,8 @@ function Users() {
 
       setError(
         error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch users"
+          error.message ||
+          "Failed to fetch users",
       );
     } finally {
       setLoading(false);
@@ -80,8 +75,8 @@ function Users() {
 
         setError(
           error.response?.data?.message ||
-          error.message ||
-          "Failed to fetch users"
+            error.message ||
+            "Failed to fetch users",
         );
       } finally {
         if (!ignore) {
@@ -106,7 +101,6 @@ function Users() {
       const response = await adminAxios.put(
         `/api/v1/user/block-user/${userId}`,
         {},
-      
       );
 
       if (response.data.success) {
@@ -147,7 +141,7 @@ function Users() {
         `/api/v1/user/unblock-user/${userId}`,
         {},
       );
-    
+
       if (response.data.success) {
         toast.success(response.data.message || "User unblocked successfully");
 
@@ -247,16 +241,16 @@ function Users() {
   if (error) {
     return (
       <div className="min-h-125 flex flex-col items-center justify-center gap-3">
-         <p className="text-red-500 text-sm">{error}</p>
-         
-         <button 
-         onClick={fetchUsers} 
-         className="rounded-lg bg-black px-4 py-3 text-sm text-white hover:bg-gray-800"
-         >
-           Retry
-         </button>
+        <p className="text-red-500 text-sm">{error}</p>
+
+        <button
+          onClick={fetchUsers}
+          className="rounded-lg bg-black px-4 py-3 text-sm text-white hover:bg-gray-800"
+        >
+          Retry
+        </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -305,9 +299,7 @@ function Users() {
             {adminUser}
           </p>
         </div>
-
       </div>
-
 
       {/* ------------------------------------Filters ------------------------------------ */}
 
@@ -541,14 +533,12 @@ function Users() {
               ) : (
                 <tr>
                   <td
-                    colSpan= {6}
+                    colSpan={6}
                     className="px-5 py-12 text-center text-gray-500"
                   >
-                    {
-                      users.length === 0 
+                    {users.length === 0
                       ? "No registered users found."
-                      : "No users match your search or filters."
-                    }
+                      : "No users match your search or filters."}
                   </td>
                 </tr>
               )}

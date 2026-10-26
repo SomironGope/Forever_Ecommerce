@@ -4,18 +4,18 @@ import { useLocation } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 
 function SearchBar() {
-  
   const { search, setSearch, showSearch, setShowSearch } =
     useContext(ShopContext);
 
   const location = useLocation();
 
-  const visible = location.pathname === "/" || location.pathname.includes("collection");
+  const visible =
+    location.pathname === "/" || location.pathname.includes("collection");
 
-  useEffect (() => {
+  useEffect(() => {
     setSearch("");
     setShowSearch(false);
-  }, [location.pathname, setSearch, setShowSearch] );
+  }, [location.pathname, setSearch, setShowSearch]);
 
   if (!showSearch || !visible) {
     return null;
