@@ -140,7 +140,7 @@ function Orders() {
                      
                       <p className="mt-1">Payment Method: {" "} <span className="text-gray-400">{order.paymentMethod}</span></p>
                       
-                      <p className="mt-1">Total: {" "}<span className="font-medium"> {order.amount} {currency}</span></p>
+                      <p className="mt-1">Total: {" "}<span className="font-medium"> {currency} {order.amount} </span></p>
 
                       <p className="mt-1">Status: {" "}<span className="text-gray-600">{order.orderStatus}</span></p>
 
