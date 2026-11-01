@@ -30,7 +30,7 @@ function ProductItem({ _id, image, name, price, oldPrice }) {
 
       {/* -----Price----- */}
       <div className="flex items-center justify-between gap-2">
-        <p className="flex text-md text-gray-900 ">
+        <p className="flex text-md text-gray-900 gap-1 ">
           {currency} {price}{" "}
         </p>
 
