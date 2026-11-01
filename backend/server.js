@@ -10,6 +10,7 @@ import productRouter from './routers/productRouters.js';
 import orderRouter from './routers/orderRoutes.js';
 import cartRouter from './routers/cartRouter.js';
 import dashBoardRouter from './routers/dashboardRoute.js';
+import contactRouter from './routers/contactRoutes.js';
 
 import reviewRouter from './routers/reviewRoutes.js';
 
@@ -42,6 +43,7 @@ app.use(cookieParser());
 // api endpoints
 
 app.use('/api/v1/user',userRouter)  // http://localhost:5000/api/v1/user/register
+app.use('/api/v1/contact', contactRouter )
 app.use('/api/v1/product',productRouter);
 app.use('/api/v1/order',orderRouter);
 app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add

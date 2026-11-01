@@ -1,9 +1,14 @@
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { useState } from "react";
-import { toast } from "react-toast";
+import { toast } from "react-toastify";
 import Title from "../components/Title";
+import api from "../utils/axiosInstance";
+
 
 function Contact() {
+
+  const [sending, setSending] = useState (false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,12 +25,36 @@ function Contact() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    try{
+       setSending(true);
+       const response = await api.post ("/api/v1/contact/send",
+        formData);
 
-    toast.info(
-      "Contact form UI is ready. Email submission is not connected yet.",
-    );
+
+        if (response.data.success) {
+          toast.success(response.data.message || "Message sent successfully");
+
+          setFormData ({
+            name: "",
+            email: "",
+            subject: "",
+            message: ""
+          })
+        } else {
+          toast.error (response.data.message || "Failed to send message");
+        }
+    } catch (error) {
+     console.error ("Contact Form Error:", error);
+
+     toast.error(error.response?.data?.message || "Failed to send message. Please try again.")
+    } finally  {
+      setSending (false);
+    }
+  
+   
   };
 
   const contactInfo = [
@@ -119,6 +148,7 @@ function Contact() {
                 id="name"
                 name="name"
                 autoComplete="name"
+                required
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Enter your full name"
@@ -165,7 +195,7 @@ function Contact() {
                 type="text"
                 name="message"
                 id="message"
-                row="5"
+                row={5}
                 required
                 value={formData.message}
                 onChange={handleChange}
@@ -176,10 +206,11 @@ function Contact() {
 
             <button
               type="submit"
+              disabled = { sending }
               className="flex items-center justify-center gap-2 bg-black text-white px-6 py-3 mt-2 outline-none text-sm hover:bg-gray-800 transition-colors rounded-md"
             >
               <Send size={16} />
-              Send Messsage
+              { sending ? "Sending Message" : "Send Messsage" }
             </button>
           </form>
         </section>

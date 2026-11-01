@@ -1,452 +1,386 @@
-import { ShopContext } from "./ShopContext"
- import api,{setAccessTokenUpdater} from "../utils/axiosInstance";
- import { useEffect, useState } from "react";
+import { ShopContext } from "./ShopContext";
+import api, { setAccessTokenUpdater } from "../utils/axiosInstance";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-
- 
-
-  export const ShopContextProvider = (props) => {
-    const currency = '⃁'
-    const delivery_fee = '15'
-
-    const [user, setUser] = useState (null);
-    const [products, setProducts] = useState ([]);
-    const [latestProduct, setLatestProducts] = useState ([]);
-    const [bestSellers, setBestSellers] = useState ([]);
-
-    const [search, setSearch] = useState ('');
-    const [showSearch, setShowSearch] = useState(false);
-    const [cartItems,setCartItems] = useState ({});
-    const [token, setToken] = useState (localStorage.getItem('accessToken') || "");
-
-    const [authReady, setAuthReady] = useState (false);
-    const navigate = useNavigate();
+import SaudiRiyal from "../components/SaudiRiyal";
 
 
+export const ShopContextProvider = (props) => {
+  const currency = <SaudiRiyal />;
+  const delivery_fee = "15";
 
-   
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [user, setUser] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [latestProduct, setLatestProducts] = useState([]);
+  const [bestSellers, setBestSellers] = useState([]);
 
-    // ---------------Add to Cart Functionality ------------------//
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [cartItems, setCartItems] = useState({});
+  const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
 
-   
-const addToCart = async (itemId, size) => {
-  // Validate size
-  if (!size) {
-    toast.error("Select Product Size");
-    return;
-  }
+  const [authReady, setAuthReady] = useState(false);
+  const navigate = useNavigate();
 
-  // Check login
-  if (!token) {
-    toast.error("Please login first");
-    navigate("/login");
-    return;
-  }
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  try {
-    
+  // ---------------Add to Cart Functionality ------------------//
 
-    const response = await api.post(
-      "/api/v1/cart/add",
-      {
+  const addToCart = async (itemId, size) => {
+    // Validate size
+    if (!size) {
+      toast.error("Select Product Size");
+      return;
+    }
+
+    // Check login
+    if (!token) {
+      toast.error("Please login first");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await api.post("/api/v1/cart/add", {
         productId: itemId,
         size,
         quantity: 1,
-      },
-    
-    );
-
-    // Update cart only if backend confirms success
-    if (response.data.success) {
-      setCartItems((prevCart) => {
-        const cartData = structuredClone(prevCart);
-
-        if (!cartData[itemId]) {
-          cartData[itemId] = {};
-        }
-
-        cartData[itemId][size] =
-          (cartData[itemId][size] || 0) + 1;
-
-        return cartData;
       });
 
-      toast.success(
-        response.data.message ||
-        "Product added to cart successfully"
-      );
-    }
-  } catch (error) {
-    console.error("Add to cart error:", error);
+      // Update cart only if backend confirms success
+      if (response.data.success) {
+        setCartItems((prevCart) => {
+          const cartData = structuredClone(prevCart);
 
-    toast.error(
-      error.response?.data?.message ||
-      "Failed to add product to cart"
-    );
-  }
-};
+          if (!cartData[itemId]) {
+            cartData[itemId] = {};
+          }
 
-// ---------------------------RefreshToken ----------------------------------   
+          cartData[itemId][size] = (cartData[itemId][size] || 0) + 1;
 
-useEffect(() => {
-  let cancelled = false;
+          return cartData;
+        });
 
-  const restoreSession = async () => {
-    try {
-      const response = await api.post(
-        "/api/v1/user/refresh",
-        {},
-        { withCredentials: true }
-      );
-
-      if (cancelled) return;
-
-      if (response.data.success && response.data.accessToken) {
-        const newToken = response.data.accessToken;
-
-        localStorage.setItem("accessToken", newToken);
-        setToken(newToken);
-      } else {
-        localStorage.removeItem("accessToken");
-        setToken("");
-      }
-    } catch (error) {
-      if (cancelled) return;
-
-      // Refresh failed: don't reuse the expired access token.
-      localStorage.removeItem("accessToken");
-      setToken("");
-
-      if (error.response?.status !== 401) {
-        console.error(
-          "Session restoration failed:",
-          error.response?.data || error.message
+        toast.success(
+          response.data.message || "Product added to cart successfully",
         );
       }
-    } finally {
-      if (!cancelled) {
-        setAuthReady(true);
-      }
+    } catch (error) {
+      console.error("Add to cart error:", error);
+
+      toast.error(
+        error.response?.data?.message || "Failed to add product to cart",
+      );
     }
   };
 
-  restoreSession();
+  // ---------------------------RefreshToken ----------------------------------
 
-  return () => {
-    cancelled = true;
-  };
-}, []);
+  useEffect(() => {
+    let cancelled = false;
 
+    const restoreSession = async () => {
+      try {
+        const response = await api.post(
+          "/api/v1/user/refresh",
+          {},
+          { withCredentials: true },
+        );
 
-     // -------------------------Get My Cart------------------------------
-    useEffect (() => {
+        if (cancelled) return;
 
-      if (!authReady)  return;
+        if (response.data.success && response.data.accessToken) {
+          const newToken = response.data.accessToken;
 
-       const getUserCart = async () => {
+          localStorage.setItem("accessToken", newToken);
+          setToken(newToken);
+        } else {
+          localStorage.removeItem("accessToken");
+          setToken("");
+        }
+      } catch (error) {
+        if (cancelled) return;
+
+        // Refresh failed: don't reuse the expired access token.
+        localStorage.removeItem("accessToken");
+        setToken("");
+
+        if (error.response?.status !== 401) {
+          console.error(
+            "Session restoration failed:",
+            error.response?.data || error.message,
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setAuthReady(true);
+        }
+      }
+    };
+
+    restoreSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // -------------------------Get My Cart------------------------------
+  useEffect(() => {
+    if (!authReady) return;
+
+    const getUserCart = async () => {
       if (!token) {
         setCartItems({});
         return;
       }
 
-     try {
-      
-     
+      try {
+        const response = await api.get("/api/v1/cart/my-cart");
 
-      const response = await api.get ("/api/v1/cart/my-cart");
+        if (response.data.success && response.data.cart) {
+          const cartData = {};
 
-      if(response.data.success && response.data.cart) {
+          response.data.cart.items.forEach((item) => {
+            if (!item.productId) return;
 
-        const cartData = {};
+            const productId = item.productId._id;
 
-        response.data.cart.items.forEach ((item) => {
+            if (!cartData[productId]) {
+              cartData[productId] = {};
+            }
 
-          if (!item.productId) return;
-          
-          const productId = item.productId._id;
+            cartData[productId][item.size] = item.quantity;
+          });
 
-          if(!cartData[productId]) {
-            cartData[productId] = {};
-          }
-
-          cartData[productId][item.size] = item.quantity;
-        });
-
-        setCartItems (cartData);
-
-      
-      } else {
-        setCartItems ({});
+          setCartItems(cartData);
+        } else {
+          setCartItems({});
+        }
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message || "Failed to fetch cart items",
+        );
       }
-      
-     }catch (error) {
-    
-      toast.error (error.response?.data?.message || 'Failed to fetch cart items');
-     }
-    }
-      getUserCart();
-    }, [token, authReady]);
+    };
+    getUserCart();
+  }, [token, authReady]);
 
+  useEffect(() => {
+    setAccessTokenUpdater(setToken);
 
+    return () => {
+      setAccessTokenUpdater(() => {});
+    };
+  }, []);
 
-    useEffect (() => {
-  setAccessTokenUpdater(setToken);
+  // ---------------------Cart Items Count-------------------------------
 
-  return () => {
-    setAccessTokenUpdater (() => {});
-  };
-    }, []);
-
-
-
-    // ---------------------Cart Items Count-------------------------------
-
-   const getCartCount = () => {
-    
+  const getCartCount = () => {
     let totalCount = 0;
 
-    for(const items in cartItems) {
-      for(const item in cartItems[items]){
+    for (const items in cartItems) {
+      for (const item in cartItems[items]) {
         try {
-          if(cartItems[items][item] > 0 ){
-            totalCount += cartItems[items][item]
+          if (cartItems[items][item] > 0) {
+            totalCount += cartItems[items][item];
           }
         } catch (error) {
-          toast.error('something went wrong')
-          console.log(error)
+          toast.error("something went wrong");
+          console.log(error);
         }
       }
     }
     return totalCount;
-   }
+  };
 
-      //   --------------Updates Quantity and Modify  ---------------------//
-         
-        const updateQuantity = async (itemId, size, quantity) => {
-          try {
-          
+  //   --------------Updates Quantity and Modify  ---------------------//
 
-            const response = await api.put("/api/v1/cart/update", 
-              {
-                productId: itemId,
-                size,
-                quantity,
-              },
-              
-            );
+  const updateQuantity = async (itemId, size, quantity) => {
+    try {
+      const response = await api.put("/api/v1/cart/update", {
+        productId: itemId,
+        size,
+        quantity,
+      });
 
-            if(response.data.success) {
-              const cartData = structuredClone(cartItems);
+      if (response.data.success) {
+        const cartData = structuredClone(cartItems);
 
-              cartData[itemId][size] = quantity;
+        cartData[itemId][size] = quantity;
 
-              setCartItems(cartData);
+        setCartItems(cartData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-            }
-          } catch (error) {
-            console.log(error)
-          }
-        };
+  const getCartAmount = () => {
+    let totalAmount = 0;
 
-       const getCartAmount =  () => { 
+    for (const itemId in cartItems) {
+      let itemInfo = products.find((product) => product._id === itemId);
 
-        let totalAmount = 0;
+      if (!itemInfo) continue;
 
-        for(const itemId in cartItems){ 
-          let itemInfo = products.find((product) => product._id === itemId);
+      for (const size in cartItems[itemId]) {
+        const quantity = cartItems[itemId][size];
 
-         if(!itemInfo) continue;
-
-         for (const size in cartItems[itemId]) {
-          const quantity = cartItems[itemId][size];
-
-          if(quantity > 0) {
-            totalAmount += itemInfo.price * quantity;
-          }
-         }
+        if (quantity > 0) {
+          totalAmount += itemInfo.price * quantity;
         }
-        return totalAmount;
-       }
+      }
+    }
+    return totalAmount;
+  };
 
-     // -------------------Remove Item from Cart ---------------------------//
-        
-     const removeFromCart = async (itemId, size) => {
-      try {
-        
+  // -------------------Remove Item from Cart ---------------------------//
 
-        const  response = await api.delete (`/api/v1/cart/remove`, {
-          data: {
-            productId: itemId,
-            size,
-          },
-         
-        });
+  const removeFromCart = async (itemId, size) => {
+    try {
+      const response = await api.delete(`/api/v1/cart/remove`, {
+        data: {
+          productId: itemId,
+          size,
+        },
+      });
 
-        if(response.data.success) {
-          const cartData = structuredClone(cartItems);
+      if (response.data.success) {
+        const cartData = structuredClone(cartItems);
 
-          if(cartData[itemId]) {
-            delete cartData[itemId] [size];
+        if (cartData[itemId]) {
+          delete cartData[itemId][size];
 
-            if(Object.keys(cartData[itemId]).length === 0) {
-              delete cartData[itemId];
-            }
+          if (Object.keys(cartData[itemId]).length === 0) {
+            delete cartData[itemId];
           }
+        }
 
-          setCartItems(cartData)
+        setCartItems(cartData);
 
-          toast.success("Product removed from cart");
+        toast.success("Product removed from cart");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message);
+    }
+  };
+
+  // --------------------Get Product Data from Backend ---------------------//
+  useEffect(() => {
+    const getProductData = async () => {
+      try {
+        const [
+          allProductsResponse,
+          latestProductsResponse,
+          bestSellersResponse,
+        ] = await Promise.all([
+          api.get("/api/v1/product/all-product"),
+
+          api.get("/api/v1/product/latest"),
+
+          api.get("/api/v1/product/best-sellers"),
+        ]);
+
+        if (allProductsResponse.data.success) {
+          setProducts(allProductsResponse.data.products);
+        }
+
+        if (latestProductsResponse.data.success) {
+          setLatestProducts(latestProductsResponse.data.products);
+        }
+
+        if (bestSellersResponse.data.success) {
+          setBestSellers(bestSellersResponse.data.products);
         }
       } catch (error) {
         console.log(error);
-        toast.error(error.response?.data?.message)
+
+        toast.error(error.response?.data?.message || "Failed to load products");
       }
-     }
-        
+    };
+    getProductData();
+  }, []);
 
-      // --------------------Get Product Data from Backend ---------------------//
-    useEffect (() => {
+  // ----------------------------------Get User Profile------------------------------
 
-      const getProductData = async () => {
-
-       
-        try {
-
-          const [allProductsResponse,
-                latestProductsResponse,
-                bestSellersResponse
-          ] =  await Promise.all ([
-             api.get("/api/v1/product/all-product"),
-
-             api.get ("/api/v1/product/latest"),
-
-             api.get ("/api/v1/product/best-sellers"),
-            
-          ]);
-
-
-          if(allProductsResponse.data.success) {
-            setProducts(allProductsResponse.data.products);
-          }
-          
-          if(latestProductsResponse.data.success) {
-            setLatestProducts (latestProductsResponse.data.products);
-          }
-
-
-          if(bestSellersResponse.data.success) {
-            setBestSellers(bestSellersResponse.data.products);
-          }
-
-
-
-        } catch (error) {
-          console.log(error);
-
-          toast.error(error.response?.data?.message || "Failed to load products")
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        if (!token) {
+          setUser(null);
+          return;
         }
-       }
-      getProductData()
-    },[])
 
-// ----------------------------------Get User Profile------------------------------
+        const response = await api.get("/api/v1/user/profile");
 
-   useEffect (() => {
-   
-       const getUserProfile = async () => {
-     try {
-      if(!token) {
-        setUser (null);
-        return;
+        if (response.data.success) {
+          setUser(response.data.user);
+        }
+      } catch (error) {
+        console.log("Profile Error:", error);
       }
+    };
 
-      const response = await api.get("/api/v1/user/profile",);
+    getUserProfile();
+  }, [token]);
 
+  // ---------------------------------------Log out --------------------------------
 
-    if(response.data.success) {
-      setUser (response.data.user);
-
-    }
-     } catch (error) {
-      
-      console.log("Profile Error:", error);
-     }
-     }
-
-     getUserProfile();
-     
-   },[token])
-   
-
-   // ---------------------------------------Log out --------------------------------
-
-   const logout = async () => {
-
+  const logout = async () => {
     try {
-      
-      const response = await api.post ("/api/v1/user/logout",
+      const response = await api.post(
+        "/api/v1/user/logout",
         {},
-        {withCredentials: true}
+        { withCredentials: true },
       );
 
       if (response.data.success) {
-        
         // Clear the frontend authentication state
-         
-         localStorage.removeItem("accessToken");
-         setToken ("");
-         setUser(null);
-         setCartItems({});
-         toast.success ("Logged out successfully");
-         
-         return false;
-      }
 
+        localStorage.removeItem("accessToken");
+        setToken("");
+        setUser(null);
+        setCartItems({});
+        toast.success("Logged out successfully");
+
+        return false;
+      }
     } catch (error) {
       console.error("Logout API error:", error.response?.data || error.message);
-      
-    }   
-   }
-
-
-    const value = {
-      token,
-      setToken,
-      user,
-      setUser,
-       products,
-       currency,
-       delivery_fee,
-       search,
-       setSearch,
-       showSearch,
-       setShowSearch,
-       cartItems,
-       setCartItems,
-       addToCart,
-       getCartCount,
-       removeFromCart,
-       updateQuantity,
-       getCartAmount,
-       navigate,
-       latestProduct,
-       bestSellers,
-       backendUrl,
-       logout
-      
-       
     }
-    return (
-      <ShopContext.Provider value={value}>
-        {props.children}
-      </ShopContext.Provider>
-    )
-    
-  }
+  };
 
-
-
+  const value = {
+    token,
+    setToken,
+    user,
+    setUser,
+    products,
+    currency,
+    delivery_fee,
+    search,
+    setSearch,
+    showSearch,
+    setShowSearch,
+    cartItems,
+    setCartItems,
+    addToCart,
+    getCartCount,
+    removeFromCart,
+    updateQuantity,
+    getCartAmount,
+    navigate,
+    latestProduct,
+    bestSellers,
+    backendUrl,
+    logout,
+  };
+  return (
+    <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
+  );
+};
 
 export default ShopContextProvider;
