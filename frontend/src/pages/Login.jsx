@@ -30,43 +30,96 @@ function Login() {
     }));
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
 
-    if (loading) return;
+const submitHandler = async (e) => {
+  e.preventDefault();
 
-    setLoading(true);
+  if (loading) return;
 
-    try {
-      const response = await api.post("/api/v1/user/login", formData, {
-        withCredentials: true,
-      });
+  setLoading(true);
 
-      const data = response.data;
+  try {
+    const response = await api.post(
+      "/api/v1/user/login",
+      formData,
+      { withCredentials: true },
+    );
 
-      // Valide the login respose
+    const data = response.data;
 
-      if (!data.success && !data.accessToken) {
-        toast.error(data.message || "Login failed.");
-        return;
-      }
-      // Store access - token
-      localStorage.setItem("accessToken", response.data.accessToken);
-
-      // Update global authentication state
-      setToken(response.data.accessToken);
-      toast.success(response.data.message);
-      navigate("/");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Login failed. Please try again.",
-      );
-    } finally {
-      setLoading(false);
+    // Validate login response
+    if (!data.success || !data.accessToken) {
+      toast.error(data.message || "Login failed.");
+      return;
     }
-  };
+
+    // 1. Store access token first.
+    // Axios can now read it from localStorage for the merge request.
+    localStorage.setItem("accessToken", data.accessToken);
+
+    // 2. Read guest cart
+    try {
+      const savedCart = localStorage.getItem("guestCart");
+      const guestCart = savedCart ? JSON.parse(savedCart) : {};
+
+      // 3. Convert guest cart object into the array
+      // expected by the backend mergeGuestCart controller.
+      const guestItems = Object.entries(guestCart).flatMap(
+        ([productId, sizes]) =>
+          Object.entries(sizes).map(([size, quantity]) => ({
+            productId,
+            size,
+            quantity,
+          })),
+      );
+
+      // 4. Merge only when guest cart has items.
+      if (guestItems.length > 0) {
+        try {
+          const mergeResponse = await api.post(
+            "/api/v1/cart/merge",
+            { items: guestItems },
+          );
+
+          if (mergeResponse.data.success) {
+            // Delete guest cart only after successful backend merge.
+            localStorage.removeItem("guestCart");
+            
+          }
+        } catch (mergeError) {
+          console.error(
+            "Guest cart merge error:",
+            mergeError.response?.data || mergeError.message,
+          );
+
+          // Keep guestCart in localStorage if merge fails.
+          toast.warning(
+            mergeError.response?.data?.message ||
+              "Login successful, but cart merge failed. Your guest cart is saved.",
+          );
+        }
+      }
+    } catch (cartError) {
+      console.error("Guest cart processing error:", cartError);
+      toast.warning("Login successful, but guest cart could not be processed.");
+    }
+
+    // 5. Update global authentication state AFTER merge attempt.
+    setToken(data.accessToken);
+
+    toast.success(data.message || "Login successful.");
+    navigate("/");
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please try again.",
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <form

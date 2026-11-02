@@ -1,5 +1,5 @@
 import express from 'express';
-import {addToCart, clearCart, getUserCart,removeFromCart, updateQuantity} from '../controllers/cartContronller.js';
+import {addToCart, clearCart, getUserCart,mergeGuestCart,removeFromCart, updateQuantity} from '../controllers/cartContronller.js';
 import {isAuthenticate} from '../middleware/isAuthenticate.js';
 
 
@@ -26,6 +26,10 @@ cartRouter.delete ('/remove', isAuthenticate, removeFromCart);
 
 // ------------------------------Clear Cart------------------------------
 cartRouter.delete ('/clear', isAuthenticate, clearCart);
+
+//------------------------------ Merge Guest Cart -----------------------
+
+cartRouter.post ('/merge', isAuthenticate, mergeGuestCart);
 
 
 

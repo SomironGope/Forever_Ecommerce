@@ -17,63 +17,146 @@ export const ShopContextProvider = (props) => {
 
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [cartItems, setCartItems] = useState({});
-  const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
+
+   const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
 
   const [authReady, setAuthReady] = useState(false);
   const navigate = useNavigate();
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+
+
+  const [cartItems, setCartItems] = useState(() => {
+    try{
+      const savedCart = localStorage.getItem("guestCart");
+      return savedCart ? JSON.parse(savedCart) : {};
+
+    } catch (error ) {
+      console.error ("Error parsing guest cart from localStorage:", error);
+      return {};
+    }
+  });
+
+ useEffect (() => {
+  if (!token) {
+    localStorage.setItem("guestCart", JSON.stringify(cartItems));
+  }
+ })
+
   // ---------------Add to Cart Functionality ------------------//
 
-  const addToCart = async (itemId, size) => {
-    // Validate size
-    if (!size) {
-      toast.error("Select Product Size");
-      return;
-    }
+  // const addToCart = async (itemId, size) => {
+  //   // Validate size
+  //   if (!size) {
+  //     toast.error("Select Product Size");
+  //     return;
+  //   }
 
-    // Check login
-    if (!token) {
-      toast.error("Please login first");
-      navigate("/login");
-      return;
-    }
+  //   // Check login
+  //   if (!token) {
+  //     toast.error("Please login first");
+  //     navigate("/login");
+  //     return;
+  //   }
 
-    try {
-      const response = await api.post("/api/v1/cart/add", {
-        productId: itemId,
-        size,
-        quantity: 1,
+  //   try {
+  //     const response = await api.post("/api/v1/cart/add", {
+  //       productId: itemId,
+  //       size,
+  //       quantity: 1,
+  //     });
+
+  //     // Update cart only if backend confirms success
+  //     if (response.data.success) {
+  //       setCartItems((prevCart) => {
+  //         const cartData = structuredClone(prevCart);
+
+  //         if (!cartData[itemId]) {
+  //           cartData[itemId] = {};
+  //         }
+
+  //         cartData[itemId][size] = (cartData[itemId][size] || 0) + 1;
+
+  //         return cartData;
+  //       });
+
+  //       toast.success(
+  //         response.data.message || "Product added to cart successfully",
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Add to cart error:", error);
+
+  //     toast.error(
+  //       error.response?.data?.message || "Failed to add product to cart",
+  //     );
+  //   }
+  // };
+
+ 
+const addToCart = async (itemId, size) => {
+  if (!size) {
+    toast.error("Select Product Size");
+    return;
+  }
+
+  // Guest customer
+  if (!token) {
+    setCartItems((prevCart) => {
+      const cartData = structuredClone(prevCart);
+
+      if (!cartData[itemId]) {
+        cartData[itemId] = {};
+      }
+
+      cartData[itemId][size] =
+        (cartData[itemId][size] || 0) + 1;
+
+      return cartData;
+    });
+
+    toast.success("Product added to cart successfully");
+    return;
+  }
+
+  // Logged-in customer
+  try {
+    const response = await api.post("/api/v1/cart/add", {
+      productId: itemId,
+      size,
+      quantity: 1,
+    });
+
+    if (response.data.success) {
+      setCartItems((prevCart) => {
+        const cartData = structuredClone(prevCart);
+
+        if (!cartData[itemId]) {
+          cartData[itemId] = {};
+        }
+
+        cartData[itemId][size] =
+          (cartData[itemId][size] || 0) + 1;
+
+        return cartData;
       });
 
-      // Update cart only if backend confirms success
-      if (response.data.success) {
-        setCartItems((prevCart) => {
-          const cartData = structuredClone(prevCart);
-
-          if (!cartData[itemId]) {
-            cartData[itemId] = {};
-          }
-
-          cartData[itemId][size] = (cartData[itemId][size] || 0) + 1;
-
-          return cartData;
-        });
-
-        toast.success(
-          response.data.message || "Product added to cart successfully",
-        );
-      }
-    } catch (error) {
-      console.error("Add to cart error:", error);
-
-      toast.error(
-        error.response?.data?.message || "Failed to add product to cart",
+      toast.success(
+        response.data.message ||
+        "Product added to cart successfully"
       );
     }
-  };
+  } catch (error) {
+    console.error("Add to cart error:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to add product to cart"
+    );
+  }
+};
+
 
   // ---------------------------RefreshToken ----------------------------------
 
@@ -127,45 +210,46 @@ export const ShopContextProvider = (props) => {
   }, []);
 
   // -------------------------Get My Cart------------------------------
-  useEffect(() => {
-    if (!authReady) return;
 
-    const getUserCart = async () => {
-      if (!token) {
-        setCartItems({});
-        return;
+useEffect(() => {
+  if (!authReady || !token) return;
+
+  const getUserCart = async () => {
+    try {
+      const response = await api.get("/api/v1/cart/my-cart");
+
+      if (response.data.success && response.data.cart) {
+        const cartData = {};
+
+        response.data.cart.items.forEach((item) => {
+          if (!item.productId) return;
+
+          const productId = item.productId._id;
+
+          if (!cartData[productId]) {
+            cartData[productId] = {};
+          }
+
+          cartData[productId][item.size] = item.quantity;
+        });
+
+        setCartItems(cartData);
       }
+    } catch (error) {
+      console.error(
+        "Get cart error:",
+        error.response?.data || error.message
+      );
 
-      try {
-        const response = await api.get("/api/v1/cart/my-cart");
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to fetch cart items"
+      );
+    }
+  };
 
-        if (response.data.success && response.data.cart) {
-          const cartData = {};
-
-          response.data.cart.items.forEach((item) => {
-            if (!item.productId) return;
-
-            const productId = item.productId._id;
-
-            if (!cartData[productId]) {
-              cartData[productId] = {};
-            }
-
-            cartData[productId][item.size] = item.quantity;
-          });
-
-          setCartItems(cartData);
-        } else {
-          setCartItems({});
-        }
-      } catch (error) {
-        toast.error(
-          error.response?.data?.message || "Failed to fetch cart items",
-        );
-      }
-    };
-    getUserCart();
-  }, [token, authReady]);
+  getUserCart();
+}, [token, authReady]);
 
   useEffect(() => {
     setAccessTokenUpdater(setToken);
@@ -198,6 +282,27 @@ export const ShopContextProvider = (props) => {
   //   --------------Updates Quantity and Modify  ---------------------//
 
   const updateQuantity = async (itemId, size, quantity) => {
+
+    if (quantity < 1) return;
+
+    // Guest user: update local cart only
+
+    if (!token) {
+      setCartItems((prevCart) => {
+        const cartData = structuredClone(prevCart);
+
+        if (!cartData[itemId]?.[size]) 
+          return prevCart;
+
+        cartData[itemId][size] = quantity;
+        return cartData;
+      });
+
+      return;
+    }
+
+    // Logged-in user: update MongoDB
+
     try {
       const response = await api.put("/api/v1/cart/update", {
         productId: itemId,
@@ -238,7 +343,33 @@ export const ShopContextProvider = (props) => {
 
   // -------------------Remove Item from Cart ---------------------------//
 
-  const removeFromCart = async (itemId, size) => {
+  const removeFromCart = async (itemId, size) => {;
+
+    // Guest user: remove from local cart only
+
+    if (!token) {
+      setCartItems((prevCart) => {
+        const cartData = structuredClone(prevCart);
+
+        if (!cartData[itemId]) return prevCart;
+
+        delete cartData[itemId][size];
+
+        // Remove product if no sizes remain
+
+        if (Object.keys (cartData[itemId]).length === 0) {
+          delete cartData[itemId];
+        }
+
+        return cartData;
+      });
+
+       toast.success("Product removed from cart");
+        return;
+    }
+
+    // Logged-in user: remove from MongoDB
+
     try {
       const response = await api.delete(`/api/v1/cart/remove`, {
         data: {

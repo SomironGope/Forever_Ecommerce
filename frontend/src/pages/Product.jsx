@@ -68,7 +68,7 @@ function Products() {
           </div>
 
           <div className="">
-            <span className="text-md text-gray-800 font-bold gap-1">
+            <span className="text-md text-gray-800 font-bold">
               {" "}
               {currency} {productData.price}{" "}
             </span>
