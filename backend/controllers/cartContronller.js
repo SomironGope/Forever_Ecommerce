@@ -153,11 +153,6 @@ export const addToCart = async (req, res) => {
   }
   }
 
-
-
-
-
-
 export const getUserCart = async  (req, res) => {
   try {
 
@@ -177,9 +172,6 @@ export const getUserCart = async  (req, res) => {
     });
   }  
 }
-
-
-
 
 export const removeFromCart = async (req, res) => {
   try {
@@ -217,7 +209,6 @@ export const removeFromCart = async (req, res) => {
     });
   }
 }
-
 
 export const updateQuantity = async (req, res) => {
   try {
@@ -302,9 +293,7 @@ export const updateQuantity = async (req, res) => {
     })
   }
 }
-
-
-
+ 
 // This removes all items from the logged in user's cart
 
 export const clearCart = async (req, res) => {
@@ -336,3 +325,163 @@ export const clearCart = async (req, res) => {
     });
   }
 }
+
+
+export const mergeGuestCart = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { items } = req.body;
+
+    // 1. Validate guest cart
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Guest cart is empty or invalid",
+      });
+    }
+
+    if (items.length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Too many cart items",
+      });
+    }
+
+    // 2. Validate and combine duplicate product/size entries
+    const mergedItems = new Map();
+
+    for (const item of items) {
+      const { productId, size, quantity } = item;
+
+      if (
+        !mongoose.isValidObjectId(productId) ||
+        typeof size !== "string" ||
+        !size.trim() ||
+        !Number.isSafeInteger(quantity) ||
+        quantity < 1
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid guest cart item",
+        });
+      }
+
+      const key = `${productId}_${size.trim()}`;
+
+      const previousQuantity = mergedItems.get(key)?.quantity || 0;
+      const newQuantity = previousQuantity + quantity;
+
+      if (!Number.isSafeInteger(newQuantity)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid cart quantity",
+        });
+      }
+
+      mergedItems.set(key, {
+        productId,
+        size: size.trim(),
+        quantity: newQuantity,
+      });
+    }
+
+    // 3. Find all requested products
+    const productIds = [
+      ...new Set(
+        [...mergedItems.values()].map((item) => item.productId)
+      ),
+    ];
+
+    const products = await Product.find({
+      _id: { $in: productIds },
+    });
+
+    const productMap = new Map(
+      products.map((product) => [product._id.toString(), product])
+    );
+
+    // 4. Get the user's existing database cart
+    let cart = await Cart.findOne({ userId });
+
+    // 5. Validate every guest item before changing the cart
+    for (const guestItem of mergedItems.values()) {
+      const product = productMap.get(guestItem.productId);
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "A product in your guest cart is no longer available",
+        });
+      }
+
+      const selectedSize = product.sizes.find(
+        (item) => item.size === guestItem.size
+      );
+
+      if (!selectedSize || selectedSize.stock < 1) {
+        return res.status(400).json({
+          success: false,
+          message: `${product.name} in size ${guestItem.size} is unavailable`,
+        });
+      }
+
+      const existingItem = cart?.items.find(
+        (item) =>
+          item.productId.toString() === guestItem.productId &&
+          item.size === guestItem.size
+      );
+
+      const existingQuantity = existingItem?.quantity || 0;
+      const totalQuantity = existingQuantity + guestItem.quantity;
+
+      if (totalQuantity > selectedSize.stock) {
+        return res.status(400).json({
+          success: false,
+          message: `Only ${selectedSize.stock} units of ${product.name} in size ${guestItem.size} are available`,
+        });
+      }
+    }
+
+    // 6. Create a cart if the user does not already have one
+    if (!cart) {
+      cart = new Cart({ userId, items: [] });
+    }
+
+    // 7. Merge guest items into the database cart
+    for (const guestItem of mergedItems.values()) {
+      const existingItem = cart.items.find(
+        (item) =>
+          item.productId.toString() === guestItem.productId &&
+          item.size === guestItem.size
+      );
+
+      if (existingItem) {
+        existingItem.quantity += guestItem.quantity;
+      } else {
+        cart.items.push(guestItem);
+      }
+    }
+
+    // 8. Save the updated cart
+    await cart.save();
+
+    // 9. Return the updated cart with product details
+    const updatedCart = await Cart.findById(cart._id).populate(
+      "items.productId"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Guest cart merged successfully",
+      cart: updatedCart,
+    });
+
+  } catch (error) {
+    console.error("Merge Cart Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to merge cart",
+    });
+  }
+};
