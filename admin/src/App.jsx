@@ -16,6 +16,8 @@ import Order from "./pages/Orders";
 import Users from "./pages/Users";
 import UpdateProduct from "./pages/UpdateProduct";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
+import Banner from "./pages/Banner";
+import UpdateBanner from "./pages/updateBanner";
 
 function App() {
   const { token, authLoading } = useContext(AdminContext);
@@ -71,6 +73,7 @@ function App() {
                     <Route path="/products" element={<Products />} />
                     <Route path="/orders" element={<Order />} />
                     <Route path="/users" element={<Users />} />
+                    <Route path="/add-banner" element = {<Banner />} />
                     <Route
                       path="/order-details/:orderId"
                       element={<OrderDetailsPage />}
@@ -80,6 +83,7 @@ function App() {
                       path="/update-product/:productId"
                       element={<UpdateProduct />}
                     />
+                    <Route  path="/update-banner/:id" element = {<UpdateBanner />} />
                     <Route
                       path="*"
                       element={<Navigate to="/dashboard" replace />}
