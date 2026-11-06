@@ -4,19 +4,21 @@ import connectDB from './db.js';
 import cors from 'cors';
 
 
-import adminRouter from './routers/adminRouter.js';
-import userRouter from './routers/userRoutes.js';
-import productRouter from './routers/productRouters.js';
-import orderRouter from './routers/orderRoutes.js';
-import cartRouter from './routers/cartRouter.js';
+import adminRouter from './routers/adminRoute.js';
+import userRouter from './routers/userRoute.js';
+import productRouter from './routers/productRoute.js';
+import orderRouter from './routers/orderRoute.js';
+import bannerRouter from './routers/bannerRoute.js';
+import cartRouter from './routers/cartRoute.js';
 import dashBoardRouter from './routers/dashboardRoute.js';
-import contactRouter from './routers/contactRoutes.js';
+import contactRouter from './routers/contactRoute.js';
 
-import reviewRouter from './routers/reviewRoutes.js';
+import reviewRouter from './routers/reviewRoute.js';
+import moyasarRouter from './routers/moyasarPaymentRoute.js';
 
 import cookieParser from 'cookie-parser';
 
-import moyasarRouter from './routers/moyasarPaymentRoute.js';
+
 
 
 
@@ -45,6 +47,7 @@ app.use(cookieParser());
 app.use('/api/v1/user',userRouter)  // http://localhost:5000/api/v1/user/register
 app.use('/api/v1/contact', contactRouter )
 app.use('/api/v1/product',productRouter);
+app.use ('/api/v1/banner', bannerRouter);
 app.use('/api/v1/order',orderRouter);
 app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add
 

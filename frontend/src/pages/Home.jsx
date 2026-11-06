@@ -1,11 +1,11 @@
 import { useContext, useMemo } from "react";
 import BestSeller from "../components/BestSeller";
-import Hero from "../components/Hero";
 import LatestCollection from "../components/LatestCollection";
 import NewLetterBox from "../components/NewLetterBox";
 import OurPolicy from "../components/OurPolicy";
 import { ShopContext } from "../context/ShopContext";
 import ProductItem from "../components/ProductItem";
+import Banner from "../components/Banner";
 
 function Home() {
   const { latestProduct, bestSellers, search } = useContext(ShopContext);
@@ -66,7 +66,7 @@ function Home() {
         </div>
       ) : (
         <>
-          <Hero />
+          <Banner />
           <LatestCollection products={latestProduct || []} />
           <BestSeller products={bestSellers || []} />
           <OurPolicy />
