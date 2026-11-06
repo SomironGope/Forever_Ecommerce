@@ -17,7 +17,7 @@ import Users from "./pages/Users";
 import UpdateProduct from "./pages/UpdateProduct";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
 import Banner from "./pages/Banner";
-import UpdateBanner from "./pages/updateBanner";
+import UpdateBanner from "./pages/UpdateBanner";
 
 function App() {
   const { token, authLoading } = useContext(AdminContext);
