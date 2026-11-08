@@ -16,7 +16,7 @@ function ProductItem({ _id, image, name, price, oldPrice }) {
     <Link to={`/product/${_id}`} className="text-center ">
       {/* -----Product Image----- */}
 
-      <div className="overflow-hidden rounded-md">
+      <div className="overflow-hidden rounded-md ">
         <img
           className="w-full  aspect-3/4 rounded-md object-cover  transition-transform hover:scale-105"
           src={image}

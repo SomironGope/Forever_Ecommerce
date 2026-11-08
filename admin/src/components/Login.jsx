@@ -65,8 +65,8 @@ function Login() {
   };
 
   return (
-    <div className="w-full min-h-screen  flex items-center justify-center">
-      <div className=" w-full h-100 rounded-md pt-8 max-w-md px-4 bg-gray-300">
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-300">
+      <div className=" w-110 h-100 rounded-md pt-8 max-w-md px-4">
         <h1 className="text-center text-2xl  md:text-3xl  font-semibold leading-none tracking-wider">
           Admin Panel
         </h1>
@@ -113,7 +113,7 @@ function Login() {
           </div>
 
           <button
-            className="self-center bg-pink-500 text-white text-sm sm:text-base font-semibold tracking-wider mt-8  px-6 py-2 md:px-10  rounded-md cursor-pointer border hover:bg-sky-500 transition disabled:bg-gray-100"
+            className="self-center bg-pink-500 text-white text-sm sm:text-base font-semibold tracking-wider mt-8  px-6 py-2 md:px-10  rounded-md cursor-pointer outline-none border hover:bg-sky-500 transition disabled:bg-gray-500"
             type="submit"
             disabled={loading}
           >
