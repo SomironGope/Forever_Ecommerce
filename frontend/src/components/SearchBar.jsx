@@ -22,7 +22,7 @@ function SearchBar() {
   }
 
   return showSearch && visible ? (
-    <div className="text-center mt-0 outline-none border-none ">
+    <div className="text-center mt-0 outline-none border-none mb-3">
       <div className="inline-flex bg-white border border-sky-500  items-center justify-center px-5 py-2 my-1 mx-3 rounded-full w-3/4 sm:w-1/2">
         <input
           value={search}

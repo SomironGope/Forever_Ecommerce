@@ -4,6 +4,14 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import adminAxios from "../utils/AdminAxios";
 
+const getProductImage = (item) => {
+  return (
+    item.variants?.find((variant) => variant.images?.length > 0 ) 
+    ?.images?.[0].url || 
+    item.productImg?.[0]?.url || "/placeholder.png"
+  );
+};
+
 function Products() {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +44,7 @@ function Products() {
   }, []);
 
   // -------------------------Remove Product-----------------------------
-  const removeProduct = async (id) => {
+  const removeProduct = (id) => {
     if (deletingId !== null) return;
 
     setSelectedProductId(id);
@@ -54,8 +62,13 @@ function Products() {
       const response = await adminAxios.delete(`/api/v1/product/${id}`);
 
       if (response.data.success) {
-        setProduct((prev) => prev.filter((item) => item._id !== id));
-        toast.success(response.data.message || "Product deleted successfully.");
+
+         setProduct((prev) => prev.filter((item) => item._id !== id));
+         toast.success(response.data.message || "Product deleted successfully.");
+         // Close modal only after successful deletion
+         setShowDeleteModal(false);
+         setSelectedProductId(null);
+
       } else {
         toast.error(response.data.message || "Failed to delete product.");
       }
@@ -63,9 +76,9 @@ function Products() {
       console.log(error);
       toast.error(error.response?.data?.message || "Failed to delete product.");
     } finally {
+
+      // Always reset loading state
       setDeletingId(null);
-      setShowDeleteModal(false);
-      setSelectedProductId(null);
     }
   };
 
@@ -134,7 +147,7 @@ function Products() {
               <div className="md:hidden border border-gray-200 rounded-lg p-3 flex flex-col gap-3 bg-white shadow-sm">
                 <div className="flex items-center justify-center gap-3 min-w-0">
                   <img
-                    src={item.productImg?.[0]?.url || "/placeholder.png"}
+                    src={getProductImage(item)}
                     alt={item.name || "Product"}
                     onError={(e) => {
                       e.currentTarget.onerror = null;
@@ -189,13 +202,13 @@ function Products() {
 
               <div className="hidden md:grid grid-cols-[0.8fr_2fr_1fr_1fr_1.3fr] items-center gap-3 py-2 px-3 border border-gray-200 rounded-md text-sm">
                 <img
-                  src={item.productImg?.[0].url || "/placeholder.png"}
+                  src={getProductImage(item)}
                   alt={item.name || "Product"}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = "/placeholder.png";
                   }}
-                  className="w-16 h-16 object-contain rounded-md bg-gray-5"
+                  className="w-16 h-16 object-contain rounded-md bg-gray-50"
                 />
                 <p className="wrap-break-word">
                   {item.name || "Unnamed product"}
@@ -214,10 +227,11 @@ function Products() {
                   <Link
                     to={`/update-product/${item._id}`}
                     onClick={(e) => {
-                      if (deletingId !== null) e.preventDefault();
+                      if (deletingId !== null || showDeleteModal)
+                       e.preventDefault();
                     }}
                     className={`text-white px-5 py-1.5 rounded ${
-                      deletingId !== null
+                      deletingId !== null || showDeleteModal
                         ? "bg-sky-300 pointer-events-none"
                         : "bg-sky-500 hover:bg-sky-600"
                     }`}

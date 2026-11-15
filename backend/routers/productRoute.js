@@ -1,13 +1,13 @@
 import express from 'express';
 import {isAuthenticate,isAdmin} from '../middleware/isAuthenticate.js'
 import {addProduct, deleteProduct, getAlProducts, getBestSellers, getLatestProducts, getRecommendedProducts, getRelativeProducts, getSignleProduct, updateProduct, updateProductImage} from '../controllers/productControllers.js';
-import { multipleUploadImg } from '../multer/Multer.js';
+import { multipleUploadImg,addProductUpload } from '../multer/Multer.js';
 
 const router = express.Router();
 
 
 // Add Products
-router.post('/add-product',isAuthenticate,isAdmin,multipleUploadImg,addProduct);
+router.post('/add-product',isAuthenticate,isAdmin,addProductUpload,addProduct);
 
 // Get All Product List
 router.get ('/all-product', getAlProducts);
@@ -31,7 +31,7 @@ router.get ('/:productId', getSignleProduct);
 router.put ('/:productId', isAuthenticate, isAdmin, updateProduct);
 
 // Update Product Images
-router.put ('/:productId/images',isAuthenticate,isAdmin,multipleUploadImg,updateProductImage);
+router.put ('/:productId/variants/:variantId/images',isAuthenticate,isAdmin,multipleUploadImg,updateProductImage);
 
 // Delete Product
 router.delete ('/:productId', isAuthenticate, isAdmin, deleteProduct);
