@@ -1,3 +1,4 @@
+
 import { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { useNavigate } from "react-router-dom";
@@ -5,11 +6,9 @@ import Title from "../components/Title";
 import api from "../utils/axiosInstance";
 
 function Orders() {
-  
   const { currency } = useContext(ShopContext);
 
   const [orders, setOrders] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -38,6 +37,7 @@ function Orders() {
         <div className="text-2xl">
           <Title text1={"MY"} text2={"ORDERS"} />
         </div>
+
         <p className="mt-8 text-gray-500">Loading orders...</p>
       </div>
     );
@@ -50,7 +50,9 @@ function Orders() {
       </div>
 
       {orders.length === 0 ? (
-        <p className="mt-8 text-gray-500">You haven't placed any orders yet.</p>
+        <p className="mt-8 text-gray-500">
+          You haven't placed any orders yet.
+        </p>
       ) : (
         <div className="mt-6">
           {orders.map((order) => (
@@ -58,7 +60,7 @@ function Orders() {
               key={order._id}
               className="py-6 border-t border-b text-gray-700"
             >
-              {/* ----------------ORDERS ITEMS--------------------- */}
+              {/* ORDER ITEMS */}
               {order.items.map((item, index) => (
                 <div
                   key={`${order._id}-${index}`}
@@ -66,55 +68,82 @@ function Orders() {
                 >
                   <div className="flex items-start gap-6 text-sm">
                     <img
-                      className="w-16 sm:w-20 rounded-sm "
+                      className="w-16 sm:w-20 rounded-sm object-cover"
                       src={item.image}
                       alt={item.name}
                     />
 
                     <div>
-                      <p className="sm:text-base font-medium">{item.name}</p>
+                      <p className="sm:text-base font-medium">
+                        {item.name}
+                      </p>
 
-                      <div className="flex items-center gap-3 mt-2 text-base text-gray-700">
+                      <div className="flex flex-wrap items-center gap-3 mt-2 text-base text-gray-700">
                         <p>
-                          {" "}
-                          {currency} {item.price}{" "}
+                          {currency} {item.price}
                         </p>
 
                         <p>Quantity: {item.quantity}</p>
 
-                        <p>Size: {item.size} </p>
+                        <p>Size: {item.size}</p>
                       </div>
+
+                      {/* SELECTED COLOR */}
+                      {item.colorName && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-sm text-gray-600">
+                            Color:
+                          </span>
+
+                          {item.colorHex && (
+                            <span
+                              className="w-4 h-4 rounded-full border border-gray-300"
+                              style={{
+                                backgroundColor: item.colorHex,
+                              }}
+                              aria-label={item.colorName}
+                            />
+                          )}
+
+                          <span className="text-sm text-gray-700">
+                            {item.colorName}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
 
-              {/* -----------------------------ORDER INFORMANTION---------------------------- */}
-
+              {/* ORDER INFORMATION */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 border-t pt-5">
-                {/* ----------------------Delivery Address----------------------- */}
+
+                {/* DELIVERY ADDRESS */}
                 <div>
                   <p className="font-medium text-gray-800 mb-2">
                     Delivery Address
                   </p>
 
                   <p>
-                    {order.address?.firstName} {order.address?.lastName}
+                    {order.address?.firstName}{" "}
+                    {order.address?.lastName}
                   </p>
 
                   <p>{order.address?.street}</p>
 
                   <p>
-                    {order.address?.city} {order.address?.postalCode}
+                    {order.address?.city}{" "}
+                    {order.address?.postalCode}
                   </p>
 
                   <p>{order.address?.country}</p>
 
-                  <p className="mt-1">phone: {order.address?.phone}</p>
+                  <p className="mt-1">
+                    Phone: {order.address?.phone}
+                  </p>
                 </div>
 
-                {/* ----------------ORDER DETAILS------------------------------- */}
-
+                {/* ORDER DETAILS */}
                 <div>
                   {order.paidAt && (
                     <p>
@@ -127,27 +156,29 @@ function Orders() {
 
                   <p className="mt-1">
                     Payment Method:{" "}
-                    <span className="text-gray-400">{order.paymentMethod}</span>
+                    <span className="text-gray-400">
+                      {order.paymentMethod}
+                    </span>
                   </p>
 
                   <p className="mt-1">
                     Total:{" "}
                     <span className="font-medium">
-                      {" "}
-                      {currency} {order.amount}{" "}
+                      {currency} {order.amount}
                     </span>
                   </p>
 
                   <p className="mt-1">
                     Status:{" "}
-                    <span className="text-gray-600">{order.orderStatus}</span>
+                    <span className="text-gray-600">
+                      {order.orderStatus}
+                    </span>
                   </p>
 
                   <p className="mt-1">
                     Payment Status:{" "}
                     <span className="text-gray-600">
-                      {" "}
-                      {order.paymentStatus}{" "}
+                      {order.paymentStatus}
                     </span>
                   </p>
 
@@ -162,8 +193,7 @@ function Orders() {
                 </div>
               </div>
 
-              {/* -------------------------------TRACK ORDER-------------------------- */}
-
+              {/* TRACK ORDER */}
               <div className="flex justify-end mt-5">
                 <button
                   onClick={() => navigate(`/order/${order._id}`)}

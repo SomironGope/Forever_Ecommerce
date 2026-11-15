@@ -64,14 +64,18 @@ const submitHandler = async (e) => {
 
       // 3. Convert guest cart object into the array
       // expected by the backend mergeGuestCart controller.
-      const guestItems = Object.entries(guestCart).flatMap(
-        ([productId, sizes]) =>
-          Object.entries(sizes).map(([size, quantity]) => ({
-            productId,
-            size,
-            quantity,
-          })),
-      );
+     const guestItems = Object.entries(guestCart).flatMap(
+  ([productId, variants]) =>
+    Object.entries(variants).flatMap(
+      ([variantId, sizes]) =>
+        Object.entries(sizes).map(([size, quantity]) => ({
+          productId,
+          variantId,
+          size,
+          quantity,
+        }))
+    )
+);
 
       // 4. Merge only when guest cart has items.
       if (guestItems.length > 0) {

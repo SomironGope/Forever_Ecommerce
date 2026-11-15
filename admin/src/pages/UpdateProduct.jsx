@@ -4,8 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import adminAxios from "../utils/AdminAxios";
 
+
 function UpdateProduct() {
-  const { productId } = useParams();
+  const { productId, variantId } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,10 @@ function UpdateProduct() {
   const [product, setProduct] = useState(null);
 
   const [name, setName] = useState("");
+  
+  const [shortDescription, setShortDescription] = useState("");
+
+  const [mediumDescription, setMediumDescription] = useState("");
 
   const [description, setDescription] = useState("");
 
@@ -47,7 +52,7 @@ function UpdateProduct() {
       try {
         setLoading(true);
 
-        const response = await adminAxios.get(`/api/v1/product/${productId}`);
+        const response = await adminAxios.get(`/api/v1/product/${productId}`,);
 
         if (response.data.success) {
           const data = response.data.product;
@@ -55,6 +60,11 @@ function UpdateProduct() {
           setProduct(data);
 
           setName(data.name || "");
+
+          setShortDescription(data.shortDescription || "");
+
+          setMediumDescription (data.mediumDescription || "");
+
           setDescription(data.description || "");
 
           setCategory(data.category || "Men");
@@ -181,8 +191,10 @@ function UpdateProduct() {
     try {
       setUpdating(true);
 
-      const response = await adminAxios.put(`/api/v1/product/${productId}`, {
+      const response = await adminAxios.put(`/api/v1/product/${productId}/variants/${variantId}/images`, {
         name,
+        shortDescription,
+        mediumDescription,
         description,
         category,
         subCategory,
@@ -277,7 +289,7 @@ function UpdateProduct() {
 
       <form
         onSubmit={handleUpdateProduct}
-        className="bg-white borderr rounded-lg p-6 mb-8"
+        className="bg-white border rounded-lg p-6 mb-8"
       >
         <h2 className="text-xl font-medium mb-5">Product Information</h2>
 
@@ -293,16 +305,46 @@ function UpdateProduct() {
             required
           />
         </div>
+         
+            {/* -----------Short Description---------- */}
+
+        <div className="mb-4">
+          <label className="block mb-2">Short Description</label>
+
+          <input
+            type="text"
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
+            className="w-full border rounded px-3 py-2 outline-none focus:border-sky-500"
+            required
+          />
+        </div>
+
+           {/* -----------Medium Description---------- */}
+
+        <div className="mb-4">
+          <label className="block mb-2">Medium Description</label>
+
+          <textarea
+            type="text"
+            value={mediumDescription}
+            onChange={(e) => setMediumDescription(e.target.value)}
+            rows={3}
+            className="w-full border rounded px-3 py-2 outline-none focus:border-sky-500"
+            required
+          />
+        </div>
 
         {/* -----------Description---------- */}
 
         <div className="mb-4">
-          <label className="block mb-2">Description</label>
+          <label className="block mb-2">Full Description</label>
 
-          <input
+          <textarea
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            rows={6}
             className="w-full border rounded px-3 py-2 outline-none focus:border-sky-500"
             required
           />
@@ -336,7 +378,7 @@ function UpdateProduct() {
               className="w-full border rounded px-3 py-2 outline-none focus:border-sky-500"
               required
             >
-              <option value="Topwear">Towear</option>
+              <option value="Topwear">Topwear</option>
               <option value="Bottomwear">Bottomwear</option>
               <option value="Winter">Winter</option>
             </select>

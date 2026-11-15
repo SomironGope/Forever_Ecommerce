@@ -254,6 +254,27 @@ function OrderDetailsPage() {
                     </p>
                   )}
 
+                  {/* -------------Selected Color----------------- */}
+
+                  {
+                    item.colorName && (
+                      <div className="flex items-center gap-2 mt-2">
+                          <span className="text-sm text-gray-600">Color:</span>
+
+                          {
+                            item.colorHex && (
+                              <span className="w-4 h-4 rounded-full border border-gray-300"
+                              style={{backgroundColor: item.colorHex}} 
+                              aria-label= {item.colorName}
+                              />
+                            )
+                          }
+                           
+                           <span className="text-sm text-gray-700">{item.colorName}</span>
+                        </div>
+                    )
+                  }
+
                   <p className="text-sm text-gray-500 mt-1">
                     {" "}
                     Quantity: {item.quantity}

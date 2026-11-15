@@ -1,4 +1,9 @@
 import { Link } from "react-router-dom";
+// -------------------Socials Icons---------------
+import { FaFacebook } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
+import { FaSquareInstagram } from "react-icons/fa6";
+
 
 function Footer() {
   return (
@@ -37,6 +42,12 @@ function Footer() {
           <ul className="flex flex-col gap-1 text-gray-600">
             <li>+996546-972-819</li>
             <li>somirongope466@gmail.com</li>
+            <div className="flex items-start justify-start gap-2 mt-2">
+                <a href="https://www.facebook.com/share/1JsiE46bZz/?mibextid=wwXIfr"><FaFacebook className="w-5 h-5 hover:bg-blue-600 hover:rounded-full transition-all"/></a>
+                <a href="https://wa.me/message/WDWEWNIUDPXOG1"><FaWhatsapp className="w-5 h-5 hover:bg-blue-600 hover:rounded-full transition-all " /></a>
+                <a href="https://www.instagram.com/somiron.webdev?vrfl=MTY4ZGhkNDd5OGJ5cg%3D%3D&utm_source=qr"><FaSquareInstagram className="w-5 h-5 hover:bg-blue-600 hover:rounded-full transition-all " /></a>
+            </div>
+            
           </ul>
         </div>
       </div>

@@ -42,62 +42,15 @@ export const ShopContextProvider = (props) => {
   if (!token) {
     localStorage.setItem("guestCart", JSON.stringify(cartItems));
   }
- })
+ },[cartItems,token]);
 
   // ---------------Add to Cart Functionality ------------------//
 
-  // const addToCart = async (itemId, size) => {
-  //   // Validate size
-  //   if (!size) {
-  //     toast.error("Select Product Size");
-  //     return;
-  //   }
-
-  //   // Check login
-  //   if (!token) {
-  //     toast.error("Please login first");
-  //     navigate("/login");
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await api.post("/api/v1/cart/add", {
-  //       productId: itemId,
-  //       size,
-  //       quantity: 1,
-  //     });
-
-  //     // Update cart only if backend confirms success
-  //     if (response.data.success) {
-  //       setCartItems((prevCart) => {
-  //         const cartData = structuredClone(prevCart);
-
-  //         if (!cartData[itemId]) {
-  //           cartData[itemId] = {};
-  //         }
-
-  //         cartData[itemId][size] = (cartData[itemId][size] || 0) + 1;
-
-  //         return cartData;
-  //       });
-
-  //       toast.success(
-  //         response.data.message || "Product added to cart successfully",
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Add to cart error:", error);
-
-  //     toast.error(
-  //       error.response?.data?.message || "Failed to add product to cart",
-  //     );
-  //   }
-  // };
-
  
-const addToCart = async (itemId, size) => {
-  if (!size) {
-    toast.error("Select Product Size");
+ 
+const addToCart = async (itemId, variantId, size) => {
+  if (!variantId || !size) {
+    toast.error("Please select a color and size.");
     return;
   }
 
@@ -110,8 +63,12 @@ const addToCart = async (itemId, size) => {
         cartData[itemId] = {};
       }
 
-      cartData[itemId][size] =
-        (cartData[itemId][size] || 0) + 1;
+      if (!cartData[itemId][variantId]) {
+        cartData[itemId][variantId] = {};
+      }
+
+      cartData[itemId][variantId][size] =
+        (cartData[itemId][variantId][size] || 0) + 1;
 
       return cartData;
     });
@@ -124,6 +81,7 @@ const addToCart = async (itemId, size) => {
   try {
     const response = await api.post("/api/v1/cart/add", {
       productId: itemId,
+      variantId,
       size,
       quantity: 1,
     });
@@ -136,15 +94,19 @@ const addToCart = async (itemId, size) => {
           cartData[itemId] = {};
         }
 
-        cartData[itemId][size] =
-          (cartData[itemId][size] || 0) + 1;
+        if (!cartData[itemId][variantId]) {
+          cartData[itemId][variantId] = {};
+        }
+
+        cartData[itemId][variantId][size] =
+          (cartData[itemId][variantId][size] || 0) + 1;
 
         return cartData;
       });
 
       toast.success(
         response.data.message ||
-        "Product added to cart successfully"
+          "Product added to cart successfully"
       );
     }
   } catch (error) {
@@ -152,7 +114,7 @@ const addToCart = async (itemId, size) => {
 
     toast.error(
       error.response?.data?.message ||
-      "Failed to add product to cart"
+        "Failed to add product to cart"
     );
   }
 };
@@ -222,15 +184,20 @@ useEffect(() => {
         const cartData = {};
 
         response.data.cart.items.forEach((item) => {
-          if (!item.productId) return;
+          if (!item.productId || !item.variantId) return;
 
           const productId = item.productId._id;
+          const variantId = item.variantId.toString();
 
           if (!cartData[productId]) {
             cartData[productId] = {};
           }
 
-          cartData[productId][item.size] = item.quantity;
+          if (!cartData[productId][variantId]) {
+            cartData[productId][variantId] = {};
+          }
+
+          cartData[productId][variantId][item.size] = item.quantity;
         });
 
         setCartItems(cartData);
@@ -261,143 +228,177 @@ useEffect(() => {
 
   // ---------------------Cart Items Count-------------------------------
 
-  const getCartCount = () => {
-    let totalCount = 0;
+const getCartCount = () => {
+  let totalCount = 0;
 
-    for (const items in cartItems) {
-      for (const item in cartItems[items]) {
-        try {
-          if (cartItems[items][item] > 0) {
-            totalCount += cartItems[items][item];
-          }
-        } catch (error) {
-          toast.error("something went wrong");
-          console.log(error);
+  for (const productId in cartItems) {
+    for (const variantId in cartItems[productId]) {
+      for (const size in cartItems[productId][variantId]) {
+        const quantity = cartItems[productId][variantId][size];
+
+        if (quantity > 0) {
+          totalCount += quantity;
         }
       }
     }
-    return totalCount;
-  };
+  }
+
+  return totalCount;
+};
 
   //   --------------Updates Quantity and Modify  ---------------------//
 
-  const updateQuantity = async (itemId, size, quantity) => {
 
-    if (quantity < 1) return;
+const updateQuantity = async (itemId, variantId, size, quantity) => {
+  if (!Number.isSafeInteger(quantity) || quantity < 1) return;
 
-    // Guest user: update local cart only
+  // Guest customer
+  if (!token) {
+    setCartItems((prevCart) => {
+      const cartData = structuredClone(prevCart);
 
-    if (!token) {
+      if (
+        cartData[itemId]?.[variantId]?.[size] === undefined
+      ) {
+        return prevCart;
+      }
+
+      cartData[itemId][variantId][size] = quantity;
+
+      return cartData;
+    });
+
+    return;
+  }
+
+  // Logged-in customer
+  try {
+    const response = await api.put("/api/v1/cart/update", {
+      productId: itemId,
+      variantId,
+      size,
+      quantity,
+    });
+
+    if (response.data.success) {
       setCartItems((prevCart) => {
         const cartData = structuredClone(prevCart);
 
-        if (!cartData[itemId]?.[size]) 
+        if (
+          cartData[itemId]?.[variantId]?.[size] === undefined
+        ) {
           return prevCart;
+        }
 
-        cartData[itemId][size] = quantity;
+        cartData[itemId][variantId][size] = quantity;
+
         return cartData;
       });
-
-      return;
     }
+  } catch (error) {
+    console.error("Update cart error:", error);
 
-    // Logged-in user: update MongoDB
+    toast.error(
+      error.response?.data?.message || "Failed to update cart"
+    );
+  }
+};
 
-    try {
-      const response = await api.put("/api/v1/cart/update", {
-        productId: itemId,
-        size,
-        quantity,
-      });
 
-      if (response.data.success) {
-        const cartData = structuredClone(cartItems);
+ const getCartAmount = () => {
+  let totalAmount = 0;
 
-        cartData[itemId][size] = quantity;
+  for (const itemId in cartItems) {
+    const itemInfo = products.find(
+      (product) => product._id?.toString() === itemId.toString()
+    );
 
-        setCartItems(cartData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    if (!itemInfo) continue;
 
-  const getCartAmount = () => {
-    let totalAmount = 0;
-
-    for (const itemId in cartItems) {
-      let itemInfo = products.find((product) => product._id === itemId);
-
-      if (!itemInfo) continue;
-
-      for (const size in cartItems[itemId]) {
-        const quantity = cartItems[itemId][size];
+    for (const variantId in cartItems[itemId]) {
+      for (const size in cartItems[itemId][variantId]) {
+        const quantity = cartItems[itemId][variantId][size];
 
         if (quantity > 0) {
           totalAmount += itemInfo.price * quantity;
         }
       }
     }
-    return totalAmount;
-  };
+  }
+
+  return totalAmount;
+};
 
   // -------------------Remove Item from Cart ---------------------------//
 
-  const removeFromCart = async (itemId, size) => {;
+ const removeFromCart = async (itemId, variantId, size) => {
+  // Guest customer
+  if (!token) {
+    setCartItems((prevCart) => {
+      const cartData = structuredClone(prevCart);
 
-    // Guest user: remove from local cart only
+      if (!cartData[itemId]?.[variantId]) {
+        return prevCart;
+      }
 
-    if (!token) {
+      delete cartData[itemId][variantId][size];
+
+      // Remove variant if it has no remaining sizes
+      if (Object.keys(cartData[itemId][variantId]).length === 0) {
+        delete cartData[itemId][variantId];
+      }
+
+      // Remove product if it has no remaining variants
+      if (Object.keys(cartData[itemId]).length === 0) {
+        delete cartData[itemId];
+      }
+
+      return cartData;
+    });
+
+    toast.success("Product removed from cart");
+    return;
+  }
+
+  // Logged-in customer
+  try {
+    const response = await api.delete("/api/v1/cart/remove", {
+      data: {
+        productId: itemId,
+        variantId,
+        size,
+      },
+    });
+
+    if (response.data.success) {
       setCartItems((prevCart) => {
         const cartData = structuredClone(prevCart);
 
-        if (!cartData[itemId]) return prevCart;
+        if (cartData[itemId]?.[variantId]) {
+          delete cartData[itemId][variantId][size];
 
-        delete cartData[itemId][size];
-
-        // Remove product if no sizes remain
-
-        if (Object.keys (cartData[itemId]).length === 0) {
-          delete cartData[itemId];
-        }
-
-        return cartData;
-      });
-
-       toast.success("Product removed from cart");
-        return;
-    }
-
-    // Logged-in user: remove from MongoDB
-
-    try {
-      const response = await api.delete(`/api/v1/cart/remove`, {
-        data: {
-          productId: itemId,
-          size,
-        },
-      });
-
-      if (response.data.success) {
-        const cartData = structuredClone(cartItems);
-
-        if (cartData[itemId]) {
-          delete cartData[itemId][size];
+          if (Object.keys(cartData[itemId][variantId]).length === 0) {
+            delete cartData[itemId][variantId];
+          }
 
           if (Object.keys(cartData[itemId]).length === 0) {
             delete cartData[itemId];
           }
         }
 
-        setCartItems(cartData);
+        return cartData;
+      });
 
-        toast.success("Product removed from cart");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message);
+      toast.success("Product removed from cart");
     }
-  };
+  } catch (error) {
+    console.error("Remove cart error:", error);
+
+    toast.error(
+      error.response?.data?.message || "Failed to remove cart item"
+    );
+  }
+};
 
   // --------------------Get Product Data from Backend ---------------------//
   useEffect(() => {

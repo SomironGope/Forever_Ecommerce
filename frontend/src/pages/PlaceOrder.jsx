@@ -41,22 +41,24 @@ function PlaceOrder() {
     try {
       setLoading(true);
       // ------------------Convert cartItems object into order items array-------------------
+const orderItems = [];
 
-      const orderItems = [];
+for (const productId in cartItems) {
+  for (const variantId in cartItems[productId]) {
+    for (const size in cartItems[productId][variantId]) {
+      const quantity = cartItems[productId][variantId][size];
 
-      for (const productId in cartItems) {
-        for (const size in cartItems[productId]) {
-          const quantity = cartItems[productId][size];
-
-          if (quantity > 0) {
-            orderItems.push({
-              productId,
-              quantity,
-              size,
-            });
-          }
-        }
+      if (quantity > 0) {
+        orderItems.push({
+          productId,
+          variantId,
+          size,
+          quantity,
+        });
       }
+    }
+  }
+}
 
       // ----------------------Check cart-----------------------
 
