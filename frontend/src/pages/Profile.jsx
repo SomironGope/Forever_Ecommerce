@@ -160,7 +160,7 @@ function Profile() {
 
     if (!formData.firstName.trim()) {
       nextErrors.firstName = "First name is required.";
-    } else if (formData.firstName.trim.length > 50) {
+    } else if (formData.firstName.trim().length > 50) {
       nextErrors.firstName = "First name must be 50 characters or fewer.";
     }
 
@@ -287,7 +287,17 @@ function Profile() {
   const handleCancel = () => {
     if (saving) return;
 
-    setFormData();
+    setFormData({
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
+      address: user?.address || "",
+      city: user?.city || "",
+      postalCode: user?.postalCode || "",
+      phone: user?.phone || "",
+
+    });
+
     setImage(null);
     setErrors({});
     setEditing(false);

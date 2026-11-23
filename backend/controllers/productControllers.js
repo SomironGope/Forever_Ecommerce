@@ -656,6 +656,118 @@ export const updateProduct = async (req, res) => {
   }
 };
 
+// --------------------------Add Image and Select Color---------------------
+
+export const addProductVariantImages = async (req, res) => {
+
+  const uploadImages = [];
+  let saved = false;
+try {
+  
+  const {productId, variantId} = req.params;
+  // Validate IDs
+
+  if (!mongoose.isValidObjectId(productId) || !mongoose.isValidObjectId(variantId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid product or variant ID"
+    });
+  }
+  
+
+  // Find Product
+
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  // Find selected color variants
+  const variant = product.variants.id(variantId);
+
+  if (!variant) {
+    return res.status(404).json({
+      success: false,
+      message: "Product color variant not found",
+    });
+  }
+
+  // Check uploaded files
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Please select at least one image",
+    });
+  }
+
+  // Check maximum 5 images per color
+
+  if (variant.images.length + req.files.length > 5) {
+    return res.status(400).json({
+      success: false,
+      message: `You can add only ${5 - variant.images.length} more images`,
+    });
+  }
+
+  // Upload new images
+
+  for (const file of req.files) {
+    const fileUri = getDataUri(file);
+
+    const result = await cloudinary.uploader.upload(
+      fileUri.content, 
+      {
+        folder: "mern_products",
+        resource_type: "image"
+      }
+    );
+
+    uploadImages.push ({
+      url: result.secure_url,
+      public_id: result.public_id,
+    });
+  }
+
+
+
+  // Append images to seleted variant
+
+  variant.images.push(...uploadImages);
+
+  await product.save();
+  saved = true;
+
+  return res.status(200).json({
+    success: true,
+    message: "Images added successfully",
+    product,
+    images: variant.images,
+  });
+
+} catch (error) {
+  console.error("Add variant images error:", error);
+
+  // Clean up newly uploaded images if database save failed
+
+  if (!saved) {
+   await Promise.allSettled(
+    uploadImages.map((image) => cloudinary.uploader.destroy(image.public_id))
+
+   );
+  }
+
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+}
+}
+
 export const updateProductImage = async (req, res) => {
   try {
     const { productId, variantId } = req.params;
@@ -751,6 +863,7 @@ export const updateProductImage = async (req, res) => {
   }
 };
 
+
 export const deleteProduct = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -835,6 +948,111 @@ export const deleteProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Delete product error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ----------------------- Delete Image and Select Color----------------
+export const deleteProductVariantImage = async (req, res) => {
+  try {
+    const {productId, variantId} = req.params;
+    const {public_id} = req.body;
+
+    // -----------Validates IDs----------------
+
+    if (!mongoose.isValidObjectId(productId) || 
+        !mongoose.isValidObjectId(variantId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid product or variant ID",
+          });
+        }
+
+        if (!public_id) {
+          return res.status(400).json({
+            success: false,
+            message: "Image public ID is required",
+          });
+        }
+
+        // -----------Find Product-----------------
+
+        const product = await Product.findById(productId);
+
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: "Product not found"
+          });
+        }
+      
+        // ------------------Find Selected color variant--------------
+
+        const variant = product.variants.id(variantId);
+
+        if (!variant) {
+          return res.status(404).json({
+            success: false,
+            message: "Product color variant not found"
+          });
+        }
+
+        // ---------------Find selected image-------------------
+
+        const imageIndex = variant.images.findIndex(
+          (image) => image.public_id === public_id
+        );
+
+        if (imageIndex === -1) {
+          return res.status(404).json({
+            success: false,
+            message: "Image not found in this color variant",
+          });
+        }
+
+        // Keep image information before removing it
+
+        const imageToDelete = variant.images[imageIndex];
+
+        // Remove only the selected image 
+        variant.images.splice(imageIndex, 1);
+
+        // Save database first
+        await product.save();
+
+        // Delete image from Cloudinary after successful save
+
+        let cloudinaryDeleted = true;
+
+        try {
+          const result = await cloudinary.uploader.destroy(
+            imageToDelete.public_id
+          );
+          
+          cloudinaryDeleted = result.result === "ok" || result.result === "not found";
+
+          if ( !cloudinaryDeleted) {
+            console.error("Cloudinary image deletion was not confirm:", result);
+          }
+        } catch (cloudinaryError) {
+          cloudinaryDeleted = false;
+          console.error ("Cloudinary deletion error:", cloudinaryError);
+        }
+     
+        return res.status(200).json({
+          success: true,
+          message: cloudinaryDeleted
+           ? "Image deleted successfully" 
+           : "Image removed from product, but Cloudinary cleanup failed",
+           product,
+           })
+
+  } catch (error) {
+    console.error("Delete variant image error:", error);
+
     return res.status(500).json({
       success: false,
       message: error.message,

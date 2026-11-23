@@ -28,6 +28,8 @@ import PaymentFailed from './pages/PaymentFailed';
 import PaymentCancel from './pages/PaymentCancel';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import WishList from './pages/WishList';
+
 
 
 
@@ -56,6 +58,8 @@ function App() {
            <Route path = '/product/:productId' element = {<Product/>} />
 
            <Route path = '/cart' element = {<Cart/>} />
+
+           <Route path='/wishlist' element = { <WishList />} />
 
            <Route path='/payment/success' element = { <PaymentSuccess />} />
            

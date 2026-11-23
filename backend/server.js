@@ -10,6 +10,7 @@ import productRouter from './routers/productRoute.js';
 import orderRouter from './routers/orderRoute.js';
 import bannerRouter from './routers/bannerRoute.js';
 import cartRouter from './routers/cartRoute.js';
+import wishListRouter from './routers/wishListRoute.js';
 import dashBoardRouter from './routers/dashboardRoute.js';
 import contactRouter from './routers/contactRoute.js';
 
@@ -50,6 +51,7 @@ app.use('/api/v1/product',productRouter);
 app.use ('/api/v1/banner', bannerRouter);
 app.use('/api/v1/order',orderRouter);
 app.use ('/api/v1/cart',cartRouter);  // http://localhost:5000/api/v1/cart/add
+app.use ('/api/v1/wishlist',wishListRouter)
 
 
  app.use ('/api/v1/payment', moyasarRouter)

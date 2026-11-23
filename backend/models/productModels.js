@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 // Product image schema
@@ -13,7 +12,7 @@ const productImageSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Size and stock schema
@@ -31,7 +30,7 @@ const variantSizeSchema = new mongoose.Schema(
       min: 0,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Color variant schema
@@ -47,26 +46,20 @@ const productVariantSchema = new mongoose.Schema(
         type: String,
         required: true,
         trim: true,
-        match: [
-          /^#[0-9A-Fa-f]{6}$/,
-          "Please provide a valid HEX color",
-        ],
+        match: [/^#[0-9A-Fa-f]{6}$/, "Please provide a valid HEX color"],
       },
     },
 
-  images: {
-  type: [productImageSchema],
-  required: true,
-  validate: [
-    {
-      validator: (images) => 
-        Array.isArray(images)  && 
-        images.length >= 1 && 
-        images.length <= 5,
-        message: "Each color must have between 1 and 5 images",
+    images: {
+      type: [productImageSchema],
+      default: [],
+      validate: [
+        {
+          validator: (images) => Array.isArray(images) && images.length <= 5,
+          message: "Each color can have a maximum of 5 images",
+        },
+      ],
     },
-  ],
-},
 
     sizes: {
       type: [variantSizeSchema],
@@ -77,7 +70,7 @@ const productVariantSchema = new mongoose.Schema(
       },
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const productSchema = new mongoose.Schema(
@@ -214,7 +207,7 @@ const productSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Product = mongoose.model("Product", productSchema);

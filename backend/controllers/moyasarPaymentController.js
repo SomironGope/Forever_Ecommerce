@@ -6,125 +6,7 @@ import { User } from "../models/userModels.js";
 import mongoose from "mongoose";
 import { sendOrderConfirmationEmail } from "../emails/orderConfirmationEmail.js";
 
-// export const createMoyasarPayment = async (req, res) => {
-//   try {
-//     const { orderId } = req.body;
-
-//     const userId = req.user._id;
-
-//     // Check order ID-----
-
-//     if (!orderId) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Order ID is required",
-//       });
-//     }
-
-//     // --------------Find Order------------------
-
-//     const order = await Order.findOne({
-//       _id: orderId,
-//       userId,
-//     });
-
-//     if (!order) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Order not found",
-//       });
-//     }
-
-//     // ----------------Check payment method---------
-
-//     if (order.paymentMethod !== "ONLINE") {
-//       return res.status(400).json({
-//         success: false,
-//         message: "This order is not an online payment order",
-//       });
-//     }
-
-//     // -----------------------Check payment provider--------------
-
-//     if (order.paymentProvider !== "MOYASAR") {
-//       return res.status(400).json({
-//         success: false,
-//         message: "This order is not configured for Moyasar",
-//       });
-//     }
-
-//     // Prevent duplicate payment -----
-
-//     if (order.paymentStatus === "Paid") {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Order is already paid",
-//       });
-//     }
-
-//     // -------------------Create Moyasar Payment--------------------
-
-//     const response = await axios.post(
-//       "https://api.moyasar.com/v1/payments",
-//       {
-//         amount: order.amount * 100,
-//         currency: "SAR",
-//         description: `Forever Ecommerce Order ${order._id}`,
-
-//         callback_url: `${process.env.FRONTEND_URL}/payment/success`,
-
-//         source: {
-//           type: "creditcard",
-
-//           name: "Test User",
-//           number: "4111111111111111",
-//           month: "12",
-//           year: "2027",
-//           cvc: "123",
-//         },
-//       },
-
-//       {
-//         auth: {
-//           username: process.env.MOYASAR_SECRET_KEY,
-//           password: "",
-//         },
-//       },
-//     );
-
-//     // ------------------------------Save Moyasar Payment ID--------------------
-
-//     order.moyasarPaymentId = response.data.id;
-
-//     order.moyasarStatus = response.data.status;
-
-//     await order.save();
-
-//     //----------------------- Response ------------------------------
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Moyasar payment created",
-//       orderId: order._id,
-//       paymentId: response.data.id,
-//       paymentStatus: response.data.status,
-//       transactionUrl: response.data.source?.transaction_url,
-//       amount: order.amount,
-//     });
-//   } catch (error) {
-//     console.error(
-//       "Moyasar Payment Error:",
-//       error.response?.data || error.message,
-//     );
-
-//     return res.status(500).json({
-//       success: false,
-//       message: error.response?.data || error.message,
-//     });
-//   }
-// };
-
-
+// ---------------Create Moyasar Payment---------------------
 
 export const createMoyasarPayment = async (req, res) => {
   try {
@@ -361,8 +243,7 @@ export const createMoyasarPayment = async (req, res) => {
   }
 };
 
-
-
+// ---------------Verify Moyasar Payment---------------------
 
 export const verifyMoyasarPayment = async (req, res) => {
   const session = await mongoose.startSession();
@@ -609,6 +490,7 @@ export const verifyMoyasarPayment = async (req, res) => {
   }
 };
 
+// ---------------Refund Moyasar Payment---------------------
 
 export const refundMoyasarPayment = async (req, res) => {
   try {
