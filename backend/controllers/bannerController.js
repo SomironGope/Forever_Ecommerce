@@ -1,7 +1,7 @@
 import {Banner} from "../models/bannerModels.js";
 import cloudinary from "../utils/cloudinary.js";
 
-
+// ----------------Add Banner-------------------------
 export const addBanner = async (req, res) => {
   try {
     const {
@@ -63,9 +63,7 @@ export const addBanner = async (req, res) => {
     });
   }
 };
-
-
-  // all active banners for customers
+  //----------all active banners for customers-----------------
 
   export const allBanner = async (req, res) => {
     try {
@@ -86,7 +84,7 @@ export const addBanner = async (req, res) => {
     }
   }
 
-  // Admin: List all banners for admin
+  // ----------Admin: List all banners for admin------------
 
   export const listBanner = async (req, res) => {
     try {
@@ -106,9 +104,8 @@ export const addBanner = async (req, res) => {
       });
     }
   }
- 
 
-// Admin: Toggle Banner Status
+// --------------Admin: Toggle Banner Status---------------
 
 export const toggleBannerStatus = async (req, res) => {
   try {
@@ -143,7 +140,7 @@ export const toggleBannerStatus = async (req, res) => {
     })
   }
 }
-  // Delete Banner
+  //---------------Delete Banner-------------------
 
   export const deleteBanner = async (req, res) => {
     try {

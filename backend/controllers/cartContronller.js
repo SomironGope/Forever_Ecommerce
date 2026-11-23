@@ -3,7 +3,7 @@ import {Cart} from '../models/cartModels.js';
 import { Product } from '../models/productModels.js';
 
 
-
+//------------------Add to Cart-------------------
 export const addToCart = async (req, res) => {
   try {
     const { productId, variantId, size, quantity } = req.body;
@@ -149,7 +149,7 @@ if (!cart) {
   }
 };
 
-
+//---------------Get User Cart-------------------
 export const getUserCart = async  (req, res) => {
   try {
 
@@ -169,7 +169,7 @@ export const getUserCart = async  (req, res) => {
     });
   }  
 }
-
+//---------------Remove From Cart----------------
 export const removeFromCart = async (req, res) => {
   try {
     const { productId, variantId, size } = req.body;
@@ -220,6 +220,7 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
+//---------------Update Quantity----------------
 export const updateQuantity = async (req, res) => {
   try {
     const { productId, variantId, size, quantity } = req.body;
@@ -358,7 +359,7 @@ export const clearCart = async (req, res) => {
   }
 }
 
-
+//-----------------Merge Guest Cart----------------
 export const mergeGuestCart = async (req, res) => {
   try {
     const userId = req.user._id;

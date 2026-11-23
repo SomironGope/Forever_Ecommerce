@@ -2,6 +2,7 @@ import { IoMenu } from "react-icons/io5";
 import { assets } from "../assets/products";
 
 import { FaShoppingCart } from "react-icons/fa";
+import { FaRegHeart } from "react-icons/fa6";
 
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { GoChevronRight } from "react-icons/go";
@@ -16,8 +17,7 @@ function Navber() {
   const [visibleMenu, setVisibleMenu] = useState(false);
   const [visibleProfile, setVisibleProfile] = useState(false);
 
-  const { setShowSearch, getCartCount, token, logout, user } =
-    useContext(ShopContext);
+  const { setShowSearch, getCartCount,getWishListCount, token, logout, user } = useContext(ShopContext);
 
   const [loading, setLoading] = useState(false);
 
@@ -170,10 +170,19 @@ function Navber() {
           </p>
         </Link>
 
+        {/* ----------Wishlist------------------- */}
+          <Link to="/wishlist" className=" hidden sm:block relative">
+          <FaRegHeart className="w-6 min-w-6"/>
+          <p className="absolute -right-1.25 -bottom-1.25 w-4 text-center leading-4 bg-red-600 text-white aspect-square rounded-full text-[8px]">
+            {getWishListCount()}
+          </p>
+        </Link>
+
+
         {/* // Menu Icons // */}
         <IoMenu
           onClick={() => setVisibleMenu(true)}
-          className="w-5 h-5 font-bold text-black hover:cursor-pointer sm:hidden"
+          className="w-6 h-6 font-bold text-black hover:cursor-pointer sm:hidden"
         />
       </div>
 
@@ -184,13 +193,13 @@ function Navber() {
         <div className="flex flex-col text-gray-800 m-5">
           <div className="flex items-center justify-between gap-4 p-3">
             <div onClick={() => setVisibleMenu(false)} className="flex ">
-              <GoChevronRight className="h-4 w-4 rotate-180 cursor-pointer" />
+              <GoChevronRight className="h-5 w-5 rotate-180 cursor-pointer" />
               <p className="text-sm mr-1 ">Back</p>
             </div>
 
-            {/* Cart Icons */}
-
-            <Link
+            {/* Cart Icons and Wishlist */}
+           <div className="flex gap-3">
+               <Link
               onClick={() => setVisibleMenu(false)}
               to="/cart"
               className="relative"
@@ -200,6 +209,15 @@ function Navber() {
                 {getCartCount()}
               </p>
             </Link>
+
+            <Link to="/wishlist" className="relative">
+          <FaRegHeart className="w-6 min-w-6"/>
+          <p className="absolute -right-1.25 -bottom-1.25 w-4 text-center leading-4 bg-red-600 text-white aspect-square rounded-full text-[8px]">
+            {getWishListCount()}
+          </p>
+        </Link>
+           </div>
+           
           </div>
           <div className=" small-device-link flex flex-col text-justify">
             <NavLink

@@ -6,13 +6,13 @@ import { Order } from "../models/orderModels.js";
 
 
 
-// =============================Admin Dashboard Statistics=====================
+// =================Admin Dashboard Statistics=================
 
 
 export const getDashboardStats = async (req, res) => {
   try {
     
-    // ============= Basic Statistics=============================
+    // ========= Basic Statistics===========
 
     const totalUser = await User.countDocuments({
       role: "user"
@@ -31,14 +31,8 @@ export const getDashboardStats = async (req, res) => {
     });
 
 
-   //=====================
-   //======================Total Revenue======================
-   //====================== Only count successfully paid orders==================
-
-
-// const allOrders = await Order.find().select("createdAt");
-
-// console.log(allOrders);
+   //==============Total Revenue===========
+   //======== Only count successfully paid orders=========
 
 
    const revenueResult = await Order.aggregate([
@@ -66,8 +60,8 @@ export const getDashboardStats = async (req, res) => {
 
    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
 
-   // ========================Monthy Revenue =================
-   // ========================Last 12 months==================
+   // ==========Monthy Revenue =========
+   // =========Last 12 months===========
 
 
    const monthlyRevenue= await Order.aggregate ([
@@ -106,7 +100,7 @@ export const getDashboardStats = async (req, res) => {
    ]);
 
 
-   // =========================Monthly Orders=====================
+   // =========Monthly Orders==========
    const monthlyOrders = await Order.aggregate ([
 
     {
@@ -136,8 +130,7 @@ export const getDashboardStats = async (req, res) => {
 
    ]);
 
-
-   // Format Monthly Revenue======================
+   // =======Format Monthly Revenue=========
 
    const formattedRevenue = monthlyRevenue.map((item)=> ({
     year: item._id.year,
@@ -146,7 +139,7 @@ export const getDashboardStats = async (req, res) => {
    }));
 
 
-   // Format Monthly Order======================
+   // ======Format Monthly Order=============
 
    const formattedOrder = monthlyOrders.map ((item) => ({
     year: item._id.year,
@@ -155,7 +148,7 @@ export const getDashboardStats = async (req, res) => {
    }));
 
 
-   // ====================Top Selling Products========================
+   // =============Top Selling Products==========
 
     const topSellingProducts = await Order.aggregate( [
 
@@ -209,14 +202,14 @@ export const getDashboardStats = async (req, res) => {
     ]);
 
 
-    // --------------------------Recent Orders--------------------------
+    // ----------Recent Orders----------
 
     const recentOrders = await Order.find().populate("userId", "firstName lastName email").sort ({createdAt: -1})
     .limit(5)
 
 
 
-    // ===================Payment Analytics===================
+    // ===============Payment Analytics==============
 
     const totalOnlinePayments = await Order.countDocuments({
       paymentMethod: "ONLINE"
@@ -248,7 +241,7 @@ export const getDashboardStats = async (req, res) => {
                        ).toFixed(1)
                        : 0;
  
-   // Response================================
+   // =============Response===========
 
    return res.status (200).json({
     success: true,
@@ -292,6 +285,4 @@ export const getDashboardStats = async (req, res) => {
   }
 }
 
-
-// ==========================Get Payment Analytics ===========================
 

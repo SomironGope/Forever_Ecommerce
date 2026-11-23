@@ -2,7 +2,7 @@ import validator from "validator";
 import { Contact } from "../models/contactModel.js";
 import {sendContactEmail} from '../emails/sendContactEmail.js';
 
-
+// -------------------Contact Controller-------------------
 export const contactController = async ( req, res ) => {
 
   try {

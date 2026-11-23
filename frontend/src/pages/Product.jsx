@@ -13,12 +13,16 @@ function Products() {
 }
 
 function ProductDetails({ productId }) {
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, toggleWishList, isInWishList } =
+    useContext(ShopContext);
 
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [image, setImage] = useState(null);
   const [size, setSize] = useState("");
   const [activeTab, setActiveTab] = useState("description");
+
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [cartLoading, setCartLoading] = useState(false);
 
   // -----------Find Product---------------
   const productData = useMemo(
@@ -51,14 +55,38 @@ function ProductDetails({ productId }) {
     setSize("");
   };
 
-  // ------------Add To Cart----------------
-  const handleAddToCart = () => {
-    if (!productData || !selectedVariant || !size) return;
 
-    addToCart(productData._id, selectedVariant._id, size);
+  // ---------------- Wishlist ----------------
+  const handleWishlist = async () => {
+    if (!productData || wishlistLoading) return;
+
+    try {
+      setWishlistLoading(true);
+
+      await toggleWishList(productData._id, selectedVariant?._id);
+    } catch (error) {
+      console.error("Wishlist error:", error);
+    } finally {
+      setWishlistLoading(false);
+    }
   };
 
+  // ---------------- Add To Cart ----------------
+  const handleAddToCart = async () => {
+    if (!productData || !selectedVariant || !size || cartLoading) {
+      return;
+    }
 
+    try {
+      setCartLoading(true);
+
+      await addToCart(productData._id, selectedVariant._id, size);
+    } catch (error) {
+      console.error("Add to cart error:", error);
+    } finally {
+      setCartLoading(false);
+    }
+  };
 
   return productData ? (
     <div>
@@ -83,11 +111,11 @@ function ProductDetails({ productId }) {
             </div>
 
             {/* ------------------Main Image----------------- */}
-            <div className="w-full sm:w-[80%] mb-1">
+            <div className="w-full sm:w-[80%] mb-1 relative">
               {displayImage ? (
                 <img
                   src={displayImage}
-                  className="w-full h-125 sm:h-[98%] object-contain rounded-md"
+                  className="w-full h-auto sm:h-[98%] object-contain rounded-md"
                   alt={productData.name}
                 />
               ) : (
@@ -95,6 +123,32 @@ function ProductDetails({ productId }) {
                   No product image available
                 </div>
               )}
+
+              <button
+                type="button"
+                onClick={handleWishlist}
+                disabled={wishlistLoading}
+                aria-label={
+                  wishlistLoading
+                    ? "Updating wishlist"
+                    : isInWishList(productData._id)
+                      ? "Remove from wishlist"
+                      : "Add to wishlist"
+                }
+                className={`absolute top-2 right-4 text-2xl transition-transform ${
+                  wishlistLoading
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:scale-110"
+                }`}
+              >
+                {wishlistLoading ? (
+                  <span className="block h-6 w-6 rounded-full border-2 border-gray-300 border-t-black animate-spin" />
+                ) : isInWishList(productData._id) ? (
+                  "❤️"
+                ) : (
+                  "🤍"
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -102,9 +156,11 @@ function ProductDetails({ productId }) {
         {/* ===================Right Side: Product Details=================*/}
         <div className="flex-1 mt-5 sm:mt-0">
           {/* ------------------Product Name-------------------- */}
-          <h2 className="text-sm sm:text-base text-gray-700 font-bold">
-            {productData.name}
-          </h2>
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-sm sm:text-base text-gray-700 font-bold">
+              {productData.name}
+            </h2>
+          </div>
 
           {/* ----------------Product Price-------------------- */}
           <div className="mt-2">
@@ -213,17 +269,25 @@ function ProductDetails({ productId }) {
           </div>
 
           {/*--------------Add To Cart-------------------*/}
+
           <button
             type="button"
-            disabled={!selectedVariant || !size}
+            disabled={!selectedVariant || !size || cartLoading}
             onClick={handleAddToCart}
             className={`border rounded-sm py-3 px-8 text-center ml-9 outline-none text-sm font-semibold text-white transition-all duration-300 ${
-              !selectedVariant || !size
+              !selectedVariant || !size || cartLoading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-black hover:bg-pink-700 cursor-pointer"
             }`}
           >
-            Add to Cart
+            {cartLoading ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Adding...
+              </span>
+            ) : (
+              "Add to Cart"
+            )}
           </button>
 
           <hr className="mt-8 sm:w-4/5 text-gray-400" />
@@ -274,14 +338,12 @@ function ProductDetails({ productId }) {
               <div className="flex flex-col sm:flex-row gap-2 ">
                 <div className="flex flex-col items-start justify-start mb-2">
                   {/* ---------------Medium Description------------- */}
-                  <span className="text-lg text-gray-700">
-                    Medium Description
+                  <span className="text-lg font-semibold text-gray-700 mb-3">
+                    About Description
                   </span>
-                  <p>
-                    {productData.mediumDescription}
-                  </p>
-                   
-                   {/* ------------Product Features------------ */}
+                  <p>{productData.mediumDescription}</p>
+
+                  {/* ------------Product Features------------ */}
                   <div>
                     <h3 className="text-lg font-semibold text-gray-700 mt-5">
                       Product Features

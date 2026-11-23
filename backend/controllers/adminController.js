@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import { json } from 'stream/consumers';
 
 
-
+//--------------------Admon Login--------------------------
 export const adminLogin = async (req, res) => {
   try {
      const {email, password} = req.body;
@@ -158,7 +158,7 @@ export const adminLogin = async (req, res) => {
 }
 
 
-
+//--------------------Admon Logged Out-------------------------
 export const adminLoggedOut = async (req, res) => {
   const isProduction = process.env.NODE_ENV === "production";
 
@@ -244,7 +244,7 @@ export const adminLoggedOut = async (req, res) => {
   }
 }
 
-
+//------------------Refresh Admin Access Token------------------
 export const refreshAdminAccessToken = async (req, res) => {
 
   try {
